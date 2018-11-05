@@ -28,8 +28,10 @@
 		"405":"./errors/HTTP405.html"
 	},
 	
-	"ProxyMode":false,
+	"ProxyMode":true,
 	"Proxies": {
+		"localhost":"https://securityme.uk",
+		"127.0.0.1":"https://www.edsn.nl"
 	},
 	
 	"TLS":false,

@@ -13,7 +13,13 @@ func main() {
 	loadConfigFromFile("./config.json", &mCfg)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", handleHTTP)
+
+	// If ProxyMode is enabled, use proxy handler
+	if mCfg.ProxyMode {
+		mux.HandleFunc("/", handleProxy)
+	} else {
+		mux.HandleFunc("/", handleHTTP)
+	}
 
 	logAction(logDEBUG, fmt.Errorf("MicroHTTP is listening on port %s", mCfg.Port))
 	http.ListenAndServe(mCfg.Address+":"+mCfg.Port, mux)
