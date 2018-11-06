@@ -12,7 +12,7 @@ type microConfig struct {
 	ServeIndex string
 	Errors     map[string]string
 	Headers    map[string]string
-	Methods    map[string]bool
+	Methods    map[string]string
 	Proxy      proxy
 	TLS        bool
 	TLSCert    string

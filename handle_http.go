@@ -1,18 +1,30 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 )
+
+const defaultMethods = "GET;"
 
 // Function to handle HTTP requests to MicroHTTP server
 func handleHTTP(w http.ResponseWriter, r *http.Request) {
 
 	path := r.URL.Path
+	logAction(logVERBOSE, fmt.Errorf(path))
+
+	// Determine allowed methods
+	var methods string
+	if val, ok := mCfg.Methods["/"]; ok {
+		methods = val
+	} else {
+		methods = defaultMethods
+	}
 
 	// If the url path is root, serve the ServeIndex file.
 	if path == "/" {
-		if methodAllowed(r.Method, mCfg.Methods) {
+		if methodAllowed(r.Method, methods) {
 			if _, err := os.Stat(mCfg.ServeDir + mCfg.ServeIndex); err == nil {
 				w.Header().Set("Content-Type", "text/html")
 				setHeaders(w, mCfg.Headers)
@@ -24,18 +36,17 @@ func handleHTTP(w http.ResponseWriter, r *http.Request) {
 			throwError(w, r, "405")
 		}
 
-		// Serve path if it matches with the serve directory
+		// If path is not root, serve the file that is requested by path if it esists
+		// in ServeDir. If the requested path doesn't exist, return a 404 error
 	} else if _, err := os.Stat(mCfg.ServeDir + path); err == nil {
 
-		var fCfg = mCfg
-
-		if _, err := os.Stat(mCfg.ServeDir + path + ".json"); err == nil {
-			loadConfigFromFile(mCfg.ServeDir+path+".json", &fCfg)
+		if val, ok := mCfg.Methods[path]; ok {
+			methods = val
 		}
 
-		if methodAllowed(r.Method, fCfg.Methods) {
-			w.Header().Set("Content-Type", "text/html")
-			setHeaders(w, fCfg.Headers)
+		if methodAllowed(r.Method, methods) {
+			//w.Header().Set("Content-Type", "text/html")
+			setHeaders(w, mCfg.Headers)
 			http.ServeFile(w, r, mCfg.ServeDir+path)
 		} else {
 			throwError(w, r, "405")

@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"regexp"
+	"strings"
 )
 
 const htmlStart = `<!doctype html>
@@ -23,9 +25,22 @@ const htmlEnd = `</body>
 `
 
 // Test whether a HTTP method is allowed
-func methodAllowed(m string, a map[string]bool) bool {
-	if val, ok := a[m]; ok {
-		return val
+func methodAllowed(m string, a string) bool {
+	am := make(map[string]int)
+	if match, err := regexp.MatchString(";", a); match && err == nil {
+		sc := strings.Split(a, ";")
+		for _, k := range sc {
+			if k != "" {
+				am[k] = 0
+			}
+		}
+	} else {
+		if a != "" {
+			am[a] = 0
+		}
+	}
+	if _, ok := am[m]; ok {
+		return true
 	}
 	return false
 }
