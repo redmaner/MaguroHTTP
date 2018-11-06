@@ -43,13 +43,21 @@ func loadConfigFromFile(p string, c *microConfig) {
 	// check if config exists
 	if _, err := os.Stat(p); err != nil {
 		logAction(logERROR, err)
+		os.Exit(1)
 	}
 
 	// load config
 	file, err := os.Open(p)
-	logAction(logERROR, err)
+	if err != nil {
+		logAction(logERROR, err)
+		os.Exit(1)
+	}
+	defer file.Close()
 
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(c)
-	logAction(logERROR, err)
+	if err != nil {
+		logAction(logERROR, err)
+		os.Exit(1)
+	}
 }
