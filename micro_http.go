@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+const version = "v0.4"
+
 var mCfg = microConfig{}
 
 func main() {

@@ -27,7 +27,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 		req, err := http.NewRequest(r.Method, val, r.Body)
 		if err != nil {
 			logAction(logERROR, err)
-			throwError(w, r, "502")
+			httpThrowError(w, r, "502")
 			return
 		}
 		req.URL.Path = r.URL.Path
@@ -41,7 +41,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 			resp.Body.Close()
 		} else {
 			logAction(logERROR, err)
-			throwError(w, r, "502")
+			httpThrowError(w, r, "502")
 		}
 	}
 }

@@ -25,7 +25,7 @@ const htmlEnd = `</body>
 `
 
 // Test whether a HTTP method is allowed
-func methodAllowed(m string, a string) bool {
+func httpMethodAllowed(m string, a string) bool {
 	am := make(map[string]int)
 	if match, err := regexp.MatchString(";", a); match && err == nil {
 		sc := strings.Split(a, ";")
@@ -45,8 +45,22 @@ func methodAllowed(m string, a string) bool {
 	return false
 }
 
+// Function to set headers defined in configuration
+func httpSetHeaders(w http.ResponseWriter, h map[string]string) {
+	w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("X-XSS-Protection", "1; mode=block")
+	w.Header().Set("Referrer-Policy", "no-referrer")
+	w.Header().Set("Content-Security-Policy", "default-src 'self'")
+	w.Header().Set("Feature-Policy", "geolocation 'none'; midi 'none'; notifications 'none'; push 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; vibrate 'none'; fullscreen 'none'; payment 'none';")
+	w.Header().Set("Server", "MicroHTTP")
+	for k, v := range h {
+		w.Header().Set(k, v)
+	}
+}
+
 // Function to write error
-func throwError(w http.ResponseWriter, r *http.Request, e string) {
+func httpThrowError(w http.ResponseWriter, r *http.Request, e string) {
 	if val, ok := mCfg.Errors[e]; ok {
 		if _, err := os.Stat(val); err == nil {
 			http.ServeFile(w, r, val)
