@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -44,6 +45,8 @@ func throwError(w http.ResponseWriter, r *http.Request, e string) {
 		io.WriteString(w, "<h3>Error 404 - Page not found</h3>")
 	case "405":
 		io.WriteString(w, "<h3>Error 405 - Method not allowed</h3>")
+	default:
+		io.WriteString(w, fmt.Sprintf("<h3>Error %s</h3>", e))
 	}
 	io.WriteString(w, htmlEnd)
 }

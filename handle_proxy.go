@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+type proxy struct {
+	Enabled bool
+	Rules   map[string]string
+}
+
 func handleProxy(w http.ResponseWriter, r *http.Request) {
 	host := r.Host
 
@@ -16,14 +21,18 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 		host = hs[0]
 	}
 
-	if val, ok := mCfg.Proxies[host]; ok {
+	if val, ok := mCfg.Proxy.Rules[host]; ok {
 		cl := http.DefaultClient
 
 		req, err := http.NewRequest(r.Method, val, r.Body)
 		if err != nil {
 			logAction(logERROR, err)
+			throwError(w, r, "502")
 			return
 		}
+		req.URL.Path = r.URL.Path
+		req.URL.RawPath = r.URL.RawPath
+		req.URL.RawQuery = r.URL.RawQuery
 
 		if resp, err := cl.Do(req); err == nil {
 			w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
@@ -32,6 +41,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 			resp.Body.Close()
 		} else {
 			logAction(logERROR, err)
+			throwError(w, r, "502")
 		}
 	}
 }

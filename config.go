@@ -13,8 +13,7 @@ type microConfig struct {
 	Errors     map[string]string
 	Headers    map[string]string
 	Methods    map[string]bool
-	ProxyMode  bool
-	Proxies    map[string]string
+	Proxy      proxy
 	TLS        bool
 	TLSCert    string
 	TLSKey     string

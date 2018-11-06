@@ -15,7 +15,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	// If ProxyMode is enabled, use proxy handler
-	if mCfg.ProxyMode {
+	if mCfg.Proxy.Enabled {
 		mux.HandleFunc("/", handleProxy)
 	} else {
 		mux.HandleFunc("/", handleHTTP)
