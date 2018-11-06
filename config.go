@@ -18,6 +18,7 @@ type microConfig struct {
 	TLS          bool
 	TLSCert      string
 	TLSKey       string
+	Firewall     firewall
 }
 
 type proxy struct {
@@ -28,6 +29,13 @@ type proxy struct {
 type contentTypes struct {
 	ResponseTypes map[string]string
 	RequestTypes  []string
+}
+
+type firewall struct {
+	Enabled      bool
+	Blacklisting bool
+	ProxyRules   map[string][]string
+	HttpRules    map[string][]string
 }
 
 func loadConfigFromFile(p string, c *microConfig) {

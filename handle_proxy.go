@@ -3,20 +3,20 @@ package main
 import (
 	"io"
 	"net/http"
-	"regexp"
-	"strings"
 )
 
 func handleProxy(w http.ResponseWriter, r *http.Request) {
-	host := r.Host
 
-	// Remove port from host if it is present
-	if match, err := regexp.MatchString(":", host); match && err == nil {
-		hs := strings.Split(host, ":")
-		host = hs[0]
-	}
+	host := httpTrimPort(r.Host)
+	remote := httpTrimPort(r.RemoteAddr)
 
 	if val, ok := mCfg.Proxy.Rules[host]; ok {
+
+		if block := firewallProxy(remote, host); block {
+			httpThrowError(w, r, 403)
+			return
+		}
+
 		cl := http.DefaultClient
 
 		req, err := http.NewRequest(r.Method, val, r.Body)

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 )
@@ -11,6 +10,8 @@ const defaultMethods = "GET;"
 // Function to handle HTTP requests to MicroHTTP server
 func handleHTTP(w http.ResponseWriter, r *http.Request) {
 
+	remote := httpTrimPort(r.RemoteAddr)
+
 	// Validate request content type
 	rct := r.Header.Get("Content-Type")
 	if !httpValidateRequestContentType(rct) {
@@ -19,7 +20,11 @@ func handleHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := r.URL.Path
-	logAction(logVERBOSE, fmt.Errorf(path))
+
+	if block := firewallHttp(remote, path); block {
+		httpThrowError(w, r, 403)
+		return
+	}
 
 	// Determine allowed methods
 	var methods string

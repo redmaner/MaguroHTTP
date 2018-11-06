@@ -143,3 +143,11 @@ func httpValidateRequestContentType(rct string) bool {
 	}
 	return false
 }
+
+func httpTrimPort(s string) string {
+	if match, err := regexp.MatchString(":", s); match && err == nil {
+		hs := strings.Split(s, ":")
+		return hs[0]
+	}
+	return s
+}

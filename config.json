@@ -44,5 +44,24 @@
 
 	"TLS":false,
 	"TLSCert":"/path/to/cert",
-	"TLSKey":"/path/to/key"
+	"TLSKey":"/path/to/key",
+
+	"Firewall": {
+		"Enabled":true,
+		"Blacklisting":false,
+		"ProxyRules":{
+			"127.0.0.1": [
+				"127.0.0.1"
+			]
+		},
+		"HttpRules":{
+			"/": [],
+			"/test/nogeen": [
+				"*"
+			],
+			"/css": [
+				"*"
+			]
+		}
+	}
 }
