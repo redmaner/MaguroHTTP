@@ -25,10 +25,9 @@ func firewallHTTP(h, p string) bool {
 				}
 			}
 		}
+		return !mCfg.Firewall.Blacklisting
 	}
-
-	return !mCfg.Firewall.Blacklisting
-
+	return false
 }
 
 func firewallProxy(h, p string) bool {
