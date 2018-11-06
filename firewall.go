@@ -4,9 +4,9 @@ import (
 	"path"
 )
 
-func firewallHttp(h, p string) bool {
+func firewallHTTP(h, p string) bool {
 
-	rules := mCfg.Firewall.HttpRules
+	rules := mCfg.Firewall.HTTPRules
 
 	if mCfg.Firewall.Enabled {
 		for pt := p; pt != "/"; pt = path.Dir(pt) {

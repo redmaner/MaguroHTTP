@@ -47,21 +47,15 @@
 	"TLSKey":"/path/to/key",
 
 	"Firewall": {
-		"Enabled":true,
+		"Enabled":false,
 		"Blacklisting":false,
 		"ProxyRules":{
 			"127.0.0.1": [
 				"127.0.0.1"
 			]
 		},
-		"HttpRules":{
+		"HTTPRules":{
 			"/": [],
-			"/test/nogeen": [
-				"*"
-			],
-			"/css": [
-				"*"
-			]
 		}
 	}
 }

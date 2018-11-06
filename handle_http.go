@@ -21,7 +21,7 @@ func handleHTTP(w http.ResponseWriter, r *http.Request) {
 
 	path := r.URL.Path
 
-	if block := firewallHttp(remote, path); block {
+	if block := firewallHTTP(remote, path); block {
 		httpThrowError(w, r, 403)
 		return
 	}

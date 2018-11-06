@@ -35,7 +35,7 @@ type firewall struct {
 	Enabled      bool
 	Blacklisting bool
 	ProxyRules   map[string][]string
-	HttpRules    map[string][]string
+	HTTPRules    map[string][]string
 }
 
 func loadConfigFromFile(p string, c *microConfig) {
