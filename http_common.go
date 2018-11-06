@@ -5,10 +5,13 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
+// HTML start constant
 const htmlStart = `<!doctype html>
 <html class="no-js" lang="">
 <head>
@@ -20,6 +23,8 @@ const htmlStart = `<!doctype html>
 </head>
 <body>
 `
+
+// HTML end constant
 const htmlEnd = `</body>
 </html>
 `
@@ -59,23 +64,82 @@ func httpSetHeaders(w http.ResponseWriter, h map[string]string) {
 	}
 }
 
-// Function to write error
-func httpThrowError(w http.ResponseWriter, r *http.Request, e string) {
-	if val, ok := mCfg.Errors[e]; ok {
+// Function to write HTTP error to ResponseWriter
+func httpThrowError(w http.ResponseWriter, r *http.Request, e int) {
+	if val, ok := mCfg.Errors[strconv.Itoa(e)]; ok {
 		if _, err := os.Stat(val); err == nil {
 			http.ServeFile(w, r, val)
 			return
 		}
 	}
+	w.WriteHeader(e)
 	w.Header().Set("Content-Type", "text/html")
 	io.WriteString(w, htmlStart)
 	switch e {
-	case "404":
+	case 404:
 		io.WriteString(w, "<h3>Error 404 - Page not found</h3>")
-	case "405":
+	case 405:
 		io.WriteString(w, "<h3>Error 405 - Method not allowed</h3>")
 	default:
-		io.WriteString(w, fmt.Sprintf("<h3>Error %s</h3>", e))
+		io.WriteString(w, fmt.Sprintf("<h3>Error %d</h3>", e))
 	}
 	io.WriteString(w, htmlEnd)
+}
+
+// Function to set Content-Type depending on the file that is served
+func httpSetContentType(w http.ResponseWriter, p string) {
+	ext := filepath.Ext(p)
+	switch ext {
+	case ".aac":
+		w.Header().Set("Content-Type", "audio/aac")
+	case ".avi":
+		w.Header().Set("Content-Type", "video/x-msvideo")
+	case ".bmp":
+		w.Header().Set("Content-Type", "image/bmp")
+	case ".css":
+		w.Header().Set("Content-Type", "text/css; charset=utf-8")
+	case ".csv":
+		w.Header().Set("Content-Type", "text/csv; charset=utf-8")
+	case ".gif":
+		w.Header().Set("Content-Type", "image/gif")
+	case ".html", ".htm":
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	case ".jpeg", ".jpg":
+		w.Header().Set("Content-Type", "image/jpeg")
+	case ".js":
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+	case ".json":
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	case ".mpeg":
+		w.Header().Set("Content-Type", "video/mpeg")
+	case ".png":
+		w.Header().Set("Content-Type", "image/png")
+	case ".pdf":
+		w.Header().Set("Content-Type", "application/pdf")
+	case ".txt":
+		w.Header().Set("Content-Type", "text/plain")
+	case ".xhtml":
+		w.Header().Set("Content-Type", "application/xhtml-xml")
+	case ".xml":
+		w.Header().Set("Content-Type", "application/xml; charset=utf-8")
+	case ".zip":
+		w.Header().Set("Content-Type", "application/zip")
+	}
+
+	// Load custom content type if it exists
+	if val, ok := mCfg.ContentTypes.ResponseTypes[p]; ok {
+		w.Header().Set("Content-Type", val)
+	}
+
+}
+
+func httpValidateRequestContentType(rct string) bool {
+	if len(mCfg.ContentTypes.RequestTypes) != 0 {
+		for _, v := range mCfg.ContentTypes.RequestTypes {
+			if v == rct {
+				return true
+			}
+		}
+	}
+	return false
 }

@@ -11,6 +11,13 @@ const defaultMethods = "GET;"
 // Function to handle HTTP requests to MicroHTTP server
 func handleHTTP(w http.ResponseWriter, r *http.Request) {
 
+	// Validate request content type
+	rct := r.Header.Get("Content-Type")
+	if !httpValidateRequestContentType(rct) {
+		httpThrowError(w, r, 406)
+		return
+	}
+
 	path := r.URL.Path
 	logAction(logVERBOSE, fmt.Errorf(path))
 
@@ -26,14 +33,16 @@ func handleHTTP(w http.ResponseWriter, r *http.Request) {
 	if path == "/" {
 		if httpMethodAllowed(r.Method, methods) {
 			if _, err := os.Stat(mCfg.ServeDir + mCfg.ServeIndex); err == nil {
-				w.Header().Set("Content-Type", "text/html")
+				httpSetContentType(w, mCfg.ServeIndex)
 				httpSetHeaders(w, mCfg.Headers)
 				http.ServeFile(w, r, mCfg.ServeDir+mCfg.ServeIndex)
 			} else if path != "" {
-				httpThrowError(w, r, "404")
+				httpThrowError(w, r, 404)
+				return
 			}
 		} else {
-			httpThrowError(w, r, "405")
+			httpThrowError(w, r, 405)
+			return
 		}
 
 		// If path is not root, serve the file that is requested by path if it esists
@@ -45,13 +54,15 @@ func handleHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if httpMethodAllowed(r.Method, methods) {
-			//w.Header().Set("Content-Type", "text/html")
+			httpSetContentType(w, path)
 			httpSetHeaders(w, mCfg.Headers)
 			http.ServeFile(w, r, mCfg.ServeDir+path)
 		} else {
-			httpThrowError(w, r, "405")
+			httpThrowError(w, r, 405)
+			return
 		}
 	} else {
-		httpThrowError(w, r, "404")
+		httpThrowError(w, r, 404)
+		return
 	}
 }

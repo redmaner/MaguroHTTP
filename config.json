@@ -16,12 +16,22 @@
 
 	"Methods": {
 		"/":"GET",
-		"/test.html":""
+		"/test.html":"GET"
 	},
 
 	"Errors": {
 		"404":"./errors/HTTP404.html",
 		"405":"./errors/HTTP405.html"
+	},
+
+	"ContentTypes": {
+		"ResponseTypes":{
+			"/test.html":"text/plain"
+		},
+		"RequestTypes": [
+			"",
+			"text/html"
+		]
 	},
 
 	"Proxy": {

@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-const version = "v0.4"
+const version = "v0.5"
 
 var mCfg = microConfig{}
 

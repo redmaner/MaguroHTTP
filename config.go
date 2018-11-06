@@ -6,17 +6,28 @@ import (
 )
 
 type microConfig struct {
-	Address    string
-	Port       string
-	ServeDir   string
-	ServeIndex string
-	Errors     map[string]string
-	Headers    map[string]string
-	Methods    map[string]string
-	Proxy      proxy
-	TLS        bool
-	TLSCert    string
-	TLSKey     string
+	Address      string
+	Port         string
+	ServeDir     string
+	ServeIndex   string
+	Errors       map[string]string
+	Headers      map[string]string
+	Methods      map[string]string
+	ContentTypes contentTypes
+	Proxy        proxy
+	TLS          bool
+	TLSCert      string
+	TLSKey       string
+}
+
+type proxy struct {
+	Enabled bool
+	Rules   map[string]string
+}
+
+type contentTypes struct {
+	ResponseTypes map[string]string
+	RequestTypes  []string
 }
 
 func loadConfigFromFile(p string, c *microConfig) {
