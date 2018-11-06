@@ -59,6 +59,18 @@ func httpSetHeaders(w http.ResponseWriter, h map[string]string) {
 	w.Header().Set("Content-Security-Policy", "default-src 'self'")
 	w.Header().Set("Feature-Policy", "geolocation 'none'; midi 'none'; notifications 'none'; push 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; vibrate 'none'; fullscreen 'none'; payment 'none';")
 	w.Header().Set("Server", "MicroHTTP")
+
+	if mCfg.TLS {
+		hstr := fmt.Sprintf("max-age=%d;", mCfg.HSTS.MaxAge)
+		if mCfg.HSTS.IncludeSubdomains {
+			hstr = hstr + " includeSubdomains;"
+		}
+		if mCfg.HSTS.Preload {
+			hstr = hstr + " preload"
+		}
+		w.Header().Set("Strict-Transport-Security", hstr)
+	}
+
 	for k, v := range h {
 		w.Header().Set(k, v)
 	}

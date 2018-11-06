@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-const version = "v0.5"
+const version = "v0.7"
 
 var mCfg = microConfig{}
 
@@ -40,9 +40,20 @@ func startServer() {
 		mux.HandleFunc("/", handleHTTP)
 	}
 
-	logAction(logDEBUG, fmt.Errorf("MicroHTTP is listening on port %s", mCfg.Port))
-	http.ListenAndServe(mCfg.Address+":"+mCfg.Port, mux)
-
+	if mCfg.TLS && httpCheckTLS() {
+		logAction(logDEBUG, fmt.Errorf("MicroHTTP is listening on port %s with TLS", mCfg.Port))
+		tlsc := httpCreateTLSConfig()
+		ms := http.Server{
+			Addr:      mCfg.Address + ":" + mCfg.Port,
+			Handler:   mux,
+			TLSConfig: tlsc,
+		}
+		err := ms.ListenAndServeTLS(mCfg.TLSCert, mCfg.TLSKey)
+		logAction(logERROR, err)
+	} else {
+		logAction(logDEBUG, fmt.Errorf("MicroHTTP is listening on port %s", mCfg.Port))
+		http.ListenAndServe(mCfg.Address+":"+mCfg.Port, mux)
+	}
 }
 
 // Function to show help

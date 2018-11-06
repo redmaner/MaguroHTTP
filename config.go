@@ -18,6 +18,7 @@ type microConfig struct {
 	TLS          bool
 	TLSCert      string
 	TLSKey       string
+	HSTS         hsts
 	Firewall     firewall
 }
 
@@ -29,6 +30,12 @@ type proxy struct {
 type contentTypes struct {
 	ResponseTypes map[string]string
 	RequestTypes  []string
+}
+
+type hsts struct {
+	MaxAge            int
+	Preload           bool
+	IncludeSubdomains bool
 }
 
 type firewall struct {
