@@ -1,0 +1,21 @@
+{
+	"Proxy": {
+		"Enabled": true,
+		"Rules": {
+			"localhost":"https://securityme.uk"
+		}
+	},
+
+	"Firewall": {
+		"Enabled":false,
+		"Blacklisting":false,
+		"ProxyRules":{
+			"127.0.0.1": [
+				"127.0.0.1"
+			]
+		},
+		"HTTPRules":{
+			"/": []
+		}
+	}
+}

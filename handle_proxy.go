@@ -5,12 +5,12 @@ import (
 	"net/http"
 )
 
-func handleProxy(w http.ResponseWriter, r *http.Request) {
+func handleProxy(w http.ResponseWriter, r *http.Request, cfg *microConfig) {
 
 	host := httpTrimPort(r.Host)
 	remote := httpTrimPort(r.RemoteAddr)
 
-	if val, ok := mCfg.Proxy.Rules[host]; ok {
+	if val, ok := cfg.Proxy.Rules[host]; ok {
 
 		if block := firewallProxy(remote, host); block {
 			httpThrowError(w, r, 403)

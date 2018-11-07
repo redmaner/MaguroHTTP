@@ -13,35 +13,24 @@ func handleHTTP(w http.ResponseWriter, r *http.Request) {
 	host := httpTrimPort(r.Host)
 	remote := httpTrimPort(r.RemoteAddr)
 
-	// Handle virtual Virtual
-	// First use defaults
-	serveDir := mCfg.Serve.ServeDir
-	serveIndex := mCfg.Serve.ServeIndex
-	httpMethods := mCfg.Methods
-	httpHeaders := mCfg.Headers
-	cts := mCfg.ContentTypes
-
-	// Change dir and index depening on virtual host
-	if mCfg.Serve.VirtualHosting {
-		if val, ok := mCfg.Serve.VirtualHosts[host]; ok {
-			if val.ServeDir != "" {
-				serveDir = val.ServeDir
-			}
-			if val.ServeIndex != "" {
-				serveIndex = val.ServeIndex
-			}
-			if len(val.Methods) > 0 {
-				httpMethods = val.Methods
-			}
-			if len(val.ContentTypes.ResponseTypes) > 0 || len(val.ContentTypes.RequestTypes) > 0 {
-				cts = val.ContentTypes
-			}
+	cfg := mCfg
+	if cfg.Serve.VirtualHosting {
+		if val, ok := cfg.Serve.VirtualHosts[host]; ok {
+			var nCfg microConfig
+			loadConfigFromFile(val, &nCfg)
+			cfg = nCfg
 		}
+	}
+
+	// Check for proxy
+	if cfg.Proxy.Enabled {
+		handleProxy(w, r, &cfg)
+		return
 	}
 
 	// Validate request content type
 	rct := r.Header.Get("Content-Type")
-	if !httpValidateRequestContentType(rct, cts) {
+	if !httpValidateRequestContentType(rct, cfg.ContentTypes) {
 		httpThrowError(w, r, 406)
 		return
 	}
@@ -55,7 +44,7 @@ func handleHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Determine allowed methods
 	var methods string
-	if val, ok := httpMethods["/"]; ok {
+	if val, ok := cfg.Methods["/"]; ok {
 		methods = val
 	} else {
 		methods = defaultMethods
@@ -64,10 +53,10 @@ func handleHTTP(w http.ResponseWriter, r *http.Request) {
 	// If the url path is root, serve the ServeIndex file.
 	if path == "/" {
 		if httpMethodAllowed(r.Method, methods) {
-			if _, err := os.Stat(serveDir + serveIndex); err == nil {
-				httpSetContentType(w, serveIndex)
-				httpSetHeaders(w, httpHeaders)
-				http.ServeFile(w, r, serveDir+serveIndex)
+			if _, err := os.Stat(cfg.Serve.ServeDir + cfg.Serve.ServeIndex); err == nil {
+				httpSetContentType(w, cfg.Serve.ServeIndex)
+				httpSetHeaders(w, cfg.Headers)
+				http.ServeFile(w, r, cfg.Serve.ServeDir+cfg.Serve.ServeIndex)
 			} else if path != "" {
 				httpThrowError(w, r, 404)
 				return
@@ -79,16 +68,16 @@ func handleHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// If path is not root, serve the file that is requested by path if it esists
 		// in ServeDir. If the requested path doesn't exist, return a 404 error
-	} else if _, err := os.Stat(serveDir + path); err == nil {
+	} else if _, err := os.Stat(cfg.Serve.ServeDir + path); err == nil {
 
-		if val, ok := httpMethods[path]; ok {
+		if val, ok := cfg.Methods[path]; ok {
 			methods = val
 		}
 
 		if httpMethodAllowed(r.Method, methods) {
 			httpSetContentType(w, path)
-			httpSetHeaders(w, httpHeaders)
-			http.ServeFile(w, r, serveDir+path)
+			httpSetHeaders(w, cfg.Headers)
+			http.ServeFile(w, r, cfg.Serve.ServeDir+path)
 		} else {
 			httpThrowError(w, r, 405)
 			return

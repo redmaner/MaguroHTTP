@@ -27,15 +27,7 @@ type serve struct {
 	ServeDir       string
 	ServeIndex     string
 	VirtualHosting bool
-	VirtualHosts   map[string]vhost
-}
-
-type vhost struct {
-	ServeDir     string
-	ServeIndex   string
-	Headers      map[string]string
-	Methods      map[string]string
-	ContentTypes contentTypes
+	VirtualHosts   map[string]string
 }
 
 // Proxy type, part of MicroHTTP config
@@ -89,21 +81,27 @@ func loadConfigFromFile(p string, c *microConfig) {
 	}
 }
 
-func validateConfig(c *microConfig) (bool, error) {
+func validateConfig(p string, c *microConfig) (bool, error) {
 
 	// Test for empty elements that cannot be empty
 	if c.Address == "" || c.Port == "" || c.Serve.ServeDir == "" || c.Serve.ServeIndex == "" {
-		return false, fmt.Errorf("The server configuration has missing elements: check Address, Port, ServeDir and ServeIndex")
+		return false, fmt.Errorf("%s: The server configuration has missing elements: check Address, Port, ServeDir and ServeIndex", p)
 	}
 
 	// Test virtual hosts
 	if c.Serve.VirtualHosting {
 		if len(c.Serve.VirtualHosts) == 0 {
-			return false, fmt.Errorf("VirtualHosting is enabled but VirtualHosts is empty")
+			return false, fmt.Errorf("%s: VirtualHosting is enabled but VirtualHosts is empty", p)
 		} else {
 			for k, v := range c.Serve.VirtualHosts {
-				if v.ServeDir == "" || v.ServeIndex == "" {
-					return false, fmt.Errorf("Virtual host %s has missing elements: check ServeDir and ServeIndex for %s", k, k)
+				if v == "" {
+					return false, fmt.Errorf("%s: Virtual host configuration not defined. Check reference for %s", p, k)
+				} else {
+					var nCfg microConfig
+					loadConfigFromFile(v, &nCfg)
+					if ok, err := validateConfigVhost(v, &nCfg); !ok || err != nil {
+						return ok, err
+					}
 				}
 			}
 		}
@@ -111,24 +109,50 @@ func validateConfig(c *microConfig) (bool, error) {
 
 	if c.Proxy.Enabled {
 		if len(c.Proxy.Rules) == 0 {
-			return false, fmt.Errorf("Proxy is enabled but no rules are defined")
+			return false, fmt.Errorf("%s: Proxy is enabled but no rules are defined", p)
 		}
 	}
 
 	if c.TLS {
 		if c.TLSCert == "" || c.TLSKey == "" {
-			return false, fmt.Errorf("TLS is enabled but certificates are not defined")
+			return false, fmt.Errorf("%s: TLS is enabled but certificates are not defined", p)
 		}
 	}
 
 	if c.Firewall.Enabled {
 		if c.Proxy.Enabled && len(c.Firewall.ProxyRules) == 0 {
-			return false, fmt.Errorf("Firewall is enabled but rules are not defined")
+			return false, fmt.Errorf("%s: Firewall is enabled but rules are not defined", p)
 		} else if !c.Proxy.Enabled && len(c.Firewall.HTTPRules) == 0 {
-			return false, fmt.Errorf("Firewall is enabled but rules are not defined")
+			return false, fmt.Errorf("%s: Firewall is enabled but rules are not defined", p)
 		}
 	}
 
 	return true, nil
 
+}
+
+func validateConfigVhost(p string, c *microConfig) (bool, error) {
+
+	// Test virtual hosts
+	if c.Serve.VirtualHosting {
+		return false, fmt.Errorf("%s: VirtualHosting cannot be enabled in Vhost configuration", p)
+	}
+
+	if c.Proxy.Enabled {
+		if len(c.Proxy.Rules) == 0 {
+			return false, fmt.Errorf("%s: Proxy is enabled but no rules are defined", p)
+		}
+	} else if c.Serve.ServeDir == "" || c.Serve.ServeIndex == "" {
+		return false, fmt.Errorf("%s: The server configuration has missing elements: check ServeDir and ServeIndex", p)
+	}
+
+	if c.Firewall.Enabled {
+		if c.Proxy.Enabled && len(c.Firewall.ProxyRules) == 0 {
+			return false, fmt.Errorf("%s: Firewall is enabled but rules are not defined", p)
+		} else if !c.Proxy.Enabled && len(c.Firewall.HTTPRules) == 0 {
+			return false, fmt.Errorf("%s: Firewall is enabled but rules are not defined", p)
+		}
+	}
+
+	return true, nil
 }

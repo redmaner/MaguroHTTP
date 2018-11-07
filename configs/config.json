@@ -5,20 +5,10 @@
 	"Serve":{
 		"ServeDir":"./test/",
 		"ServeIndex":"index.html",
-		"VirtualHosting":false,
+		"VirtualHosting":true,
 		"VirtualHosts":{
-			"localhost":{
-				"ServeDir":"./test/",
-				"ServeIndex":"index.html"
-			},
-			"127.0.0.1":{
-				"ServeDir":"./test2/",
-				"ServeIndex":"index.html",
-					"Methods": {
-						"/":"GET",
-						"/test.html":""
-					}
-			}
+			"localhost":"./configs/vhost3.json",
+			"127.0.0.1":"./configs/vhost2.json"
 		}
 	},
 
@@ -52,7 +42,7 @@
 	},
 
 	"Proxy": {
-		"Enabled": false,
+		"Enabled": true,
 		"Rules": {
 			"localhost":"https://securityme.uk",
 			"127.0.0.1":"https://www.edsn.nl"

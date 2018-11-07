@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-const version = "v0.9"
+const version = "v0.10"
 
 var mCfg = microConfig{}
 
@@ -22,7 +22,7 @@ func main() {
 
 	if _, err := os.Stat(args[1]); err == nil {
 		loadConfigFromFile(args[1], &mCfg)
-		if valid, err := validateConfig(&mCfg); valid && err == nil {
+		if valid, err := validateConfig(args[1], &mCfg); valid && err == nil {
 			startServer()
 		} else {
 			logAction(logERROR, err)
@@ -38,13 +38,7 @@ func main() {
 func startServer() {
 
 	mux := http.NewServeMux()
-
-	// If ProxyMode is enabled, use proxy handler
-	if mCfg.Proxy.Enabled {
-		mux.HandleFunc("/", handleProxy)
-	} else {
-		mux.HandleFunc("/", handleHTTP)
-	}
+	mux.HandleFunc("/", handleHTTP)
 
 	if mCfg.TLS && httpCheckTLS() {
 		logAction(logDEBUG, fmt.Errorf("MicroHTTP is listening on port %s with TLS", mCfg.Port))
