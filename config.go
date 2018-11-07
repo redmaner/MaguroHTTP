@@ -109,6 +109,26 @@ func validateConfig(c *microConfig) (bool, error) {
 		}
 	}
 
+	if c.Proxy.Enabled {
+		if len(c.Proxy.Rules) == 0 {
+			return false, fmt.Errorf("Proxy is enabled but no rules are defined")
+		}
+	}
+
+	if c.TLS {
+		if c.TLSCert == "" || c.TLSKey == "" {
+			return false, fmt.Errorf("TLS is enabled but certificates are not defined")
+		}
+	}
+
+	if c.Firewall.Enabled {
+		if c.Proxy.Enabled && len(c.Firewall.ProxyRules) == 0 {
+			return false, fmt.Errorf("Firewall is enabled but rules are not defined")
+		} else if !c.Proxy.Enabled && len(c.Firewall.HTTPRules) == 0 {
+			return false, fmt.Errorf("Firewall is enabled but rules are not defined")
+		}
+	}
+
 	return true, nil
 
 }

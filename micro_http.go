@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-const version = "v0.8"
+const version = "v0.9"
 
 var mCfg = microConfig{}
 
@@ -22,7 +22,13 @@ func main() {
 
 	if _, err := os.Stat(args[1]); err == nil {
 		loadConfigFromFile(args[1], &mCfg)
-		startServer()
+		if valid, err := validateConfig(&mCfg); valid && err == nil {
+			startServer()
+		} else {
+			logAction(logERROR, err)
+			os.Exit(1)
+		}
+
 	} else {
 		showHelp()
 	}
