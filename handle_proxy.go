@@ -28,6 +28,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request, cfg *microConfig) {
 		req.URL.Path = r.URL.Path
 		req.URL.RawPath = r.URL.RawPath
 		req.URL.RawQuery = r.URL.RawQuery
+		req.RemoteAddr = r.RemoteAddr
 
 		for k, v := range r.Header {
 			req.Header[k] = v
