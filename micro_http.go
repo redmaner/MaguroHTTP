@@ -48,8 +48,13 @@ func startServer() {
 			Handler:   mux,
 			TLSConfig: tlsc,
 		}
+
 		err := ms.ListenAndServeTLS(mCfg.TLSCert, mCfg.TLSKey)
-		logAction(logERROR, err)
+		if err != nil {
+			logAction(logERROR, fmt.Errorf("Starting server failed: %s", err))
+			return
+		}
+
 	} else {
 		logAction(logDEBUG, fmt.Errorf("MicroHTTP is listening on port %s", mCfg.Port))
 		http.ListenAndServe(mCfg.Address+":"+mCfg.Port, mux)

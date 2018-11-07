@@ -5,7 +5,7 @@
 	"Serve":{
 		"ServeDir":"./test/",
 		"ServeIndex":"index.html",
-		"VirtualHosting":true,
+		"VirtualHosting":false,
 		"VirtualHosts":{
 			"localhost":{
 				"ServeDir":"./test/",
@@ -13,7 +13,11 @@
 			},
 			"127.0.0.1":{
 				"ServeDir":"./test2/",
-				"ServeIndex":"index.html"
+				"ServeIndex":"index.html",
+					"Methods": {
+						"/":"GET",
+						"/test.html":""
+					}
 			}
 		}
 	},

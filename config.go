@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 )
 
@@ -30,8 +31,11 @@ type serve struct {
 }
 
 type vhost struct {
-	ServeDir   string
-	ServeIndex string
+	ServeDir     string
+	ServeIndex   string
+	Headers      map[string]string
+	Methods      map[string]string
+	ContentTypes contentTypes
 }
 
 // Proxy type, part of MicroHTTP config
@@ -83,4 +87,28 @@ func loadConfigFromFile(p string, c *microConfig) {
 		logAction(logERROR, err)
 		os.Exit(1)
 	}
+}
+
+func validateConfig(c *microConfig) (bool, error) {
+
+	// Test for empty elements that cannot be empty
+	if c.Address == "" || c.Port == "" || c.Serve.ServeDir == "" || c.Serve.ServeIndex == "" {
+		return false, fmt.Errorf("The server configuration has missing elements: check Address, Port, ServeDir and ServeIndex")
+	}
+
+	// Test virtual hosts
+	if c.Serve.VirtualHosting {
+		if len(c.Serve.VirtualHosts) == 0 {
+			return false, fmt.Errorf("VirtualHosting is enabled but VirtualHosts is empty")
+		} else {
+			for k, v := range c.Serve.VirtualHosts {
+				if v.ServeDir == "" || v.ServeIndex == "" {
+					return false, fmt.Errorf("Virtual host %s has missing elements: check ServeDir and ServeIndex for %s", k, k)
+				}
+			}
+		}
+	}
+
+	return true, nil
+
 }

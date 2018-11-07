@@ -145,9 +145,9 @@ func httpSetContentType(w http.ResponseWriter, p string) {
 
 }
 
-func httpValidateRequestContentType(rct string) bool {
-	if len(mCfg.ContentTypes.RequestTypes) != 0 {
-		for _, v := range mCfg.ContentTypes.RequestTypes {
+func httpValidateRequestContentType(rct string, cts contentTypes) bool {
+	if len(cts.RequestTypes) != 0 {
+		for _, v := range cts.RequestTypes {
 			if v == rct {
 				return true
 			}
