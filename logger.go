@@ -6,10 +6,12 @@ import (
 )
 
 const (
-	logERROR   = 0
-	logDEBUG   = 1
-	logTRACE   = 2
-	logVERBOSE = 3
+	logNONE    = 0
+	logNET     = 1
+	logERROR   = 2
+	logDEBUG   = 3
+	logTRACE   = 4
+	logVERBOSE = 5
 )
 
 var debug = logTRACE
@@ -27,6 +29,8 @@ func logAction(l int, err error) {
 	}
 
 	switch {
+	case debug >= logNET && l == logNET:
+		logger.Println("ERROR:", err)
 	case debug >= logERROR && l == logERROR:
 		logger.Println("ERROR:", err)
 	case debug >= logDEBUG && l == logDEBUG:
