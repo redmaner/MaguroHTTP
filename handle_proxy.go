@@ -35,6 +35,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request, cfg *microConfig) {
 		}
 
 		if resp, err := cl.Do(req); err == nil {
+			w.WriteHeader(resp.StatusCode)
 			w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 			w.Header().Set("Content-Length", resp.Header.Get("Content-Length"))
 			io.Copy(w, resp.Body)
