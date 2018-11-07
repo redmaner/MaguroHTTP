@@ -5,6 +5,7 @@ MicroHTTP is a small, fast, stable and secure HTTP server and reverse proxy writ
 MicroHTTP is currently being developed and supports the following features:<br>
 * HTTP server
 * Reverse proxy
+* Support for virtual hosts to host multiple websites on one webserver
 * TLSv1.2 support with automatic strong ciphers
 * Support for RSA and Elliptic Curve certificates
 * Configurable Strict-Transport-Security

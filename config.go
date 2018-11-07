@@ -5,11 +5,11 @@ import (
 	"os"
 )
 
+// MicroHTTP config type
 type microConfig struct {
 	Address      string
 	Port         string
-	ServeDir     string
-	ServeIndex   string
+	Serve        serve
 	Errors       map[string]string
 	Headers      map[string]string
 	Methods      map[string]string
@@ -22,22 +22,38 @@ type microConfig struct {
 	Firewall     firewall
 }
 
+type serve struct {
+	ServeDir       string
+	ServeIndex     string
+	VirtualHosting bool
+	VirtualHosts   map[string]vhost
+}
+
+type vhost struct {
+	ServeDir   string
+	ServeIndex string
+}
+
+// Proxy type, part of MicroHTTP config
 type proxy struct {
 	Enabled bool
 	Rules   map[string]string
 }
 
+// contentTypes type, part of MicroHTTP config
 type contentTypes struct {
 	ResponseTypes map[string]string
 	RequestTypes  []string
 }
 
+// HSTS type, part of MicroHTTP config
 type hsts struct {
 	MaxAge            int
 	Preload           bool
 	IncludeSubdomains bool
 }
 
+// Firewall type, part of MicroHTTP config
 type firewall struct {
 	Enabled      bool
 	Blacklisting bool

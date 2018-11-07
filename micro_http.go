@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-const version = "v0.7"
+const version = "v0.8"
 
 var mCfg = microConfig{}
 

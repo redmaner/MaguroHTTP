@@ -10,6 +10,7 @@ const defaultMethods = "GET;"
 // Function to handle HTTP requests to MicroHTTP server
 func handleHTTP(w http.ResponseWriter, r *http.Request) {
 
+	host := httpTrimPort(r.Host)
 	remote := httpTrimPort(r.RemoteAddr)
 
 	// Validate request content type
@@ -34,13 +35,30 @@ func handleHTTP(w http.ResponseWriter, r *http.Request) {
 		methods = defaultMethods
 	}
 
+	// Handle virtual Virtual
+	// First use defaults
+	serveDir := mCfg.Serve.ServeDir
+	serveIndex := mCfg.Serve.ServeIndex
+
+	// Change dir and index depening on virtual host
+	if mCfg.Serve.VirtualHosting {
+		if val, ok := mCfg.Serve.VirtualHosts[host]; ok {
+			if val.ServeDir != "" {
+				serveDir = val.ServeDir
+			}
+			if val.ServeIndex != "" {
+				serveIndex = val.ServeIndex
+			}
+		}
+	}
+
 	// If the url path is root, serve the ServeIndex file.
 	if path == "/" {
 		if httpMethodAllowed(r.Method, methods) {
-			if _, err := os.Stat(mCfg.ServeDir + mCfg.ServeIndex); err == nil {
-				httpSetContentType(w, mCfg.ServeIndex)
+			if _, err := os.Stat(serveDir + serveIndex); err == nil {
+				httpSetContentType(w, serveIndex)
 				httpSetHeaders(w, mCfg.Headers)
-				http.ServeFile(w, r, mCfg.ServeDir+mCfg.ServeIndex)
+				http.ServeFile(w, r, serveDir+serveIndex)
 			} else if path != "" {
 				httpThrowError(w, r, 404)
 				return
@@ -52,7 +70,7 @@ func handleHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// If path is not root, serve the file that is requested by path if it esists
 		// in ServeDir. If the requested path doesn't exist, return a 404 error
-	} else if _, err := os.Stat(mCfg.ServeDir + path); err == nil {
+	} else if _, err := os.Stat(serveDir + path); err == nil {
 
 		if val, ok := mCfg.Methods[path]; ok {
 			methods = val
@@ -61,7 +79,7 @@ func handleHTTP(w http.ResponseWriter, r *http.Request) {
 		if httpMethodAllowed(r.Method, methods) {
 			httpSetContentType(w, path)
 			httpSetHeaders(w, mCfg.Headers)
-			http.ServeFile(w, r, mCfg.ServeDir+path)
+			http.ServeFile(w, r, serveDir+path)
 		} else {
 			httpThrowError(w, r, 405)
 			return

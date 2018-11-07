@@ -2,8 +2,21 @@
 	"Address":"0.0.0.0",
 	"Port":"7443",
 
-	"ServeDir":"./test/",
-	"ServeIndex":"index.html",
+	"Serve":{
+		"ServeDir":"./test/",
+		"ServeIndex":"index.html",
+		"VirtualHosting":true,
+		"VirtualHosts":{
+			"localhost":{
+				"ServeDir":"./test/",
+				"ServeIndex":"index.html"
+			},
+			"127.0.0.1":{
+				"ServeDir":"./test2/",
+				"ServeIndex":"index.html"
+			}
+		}
+	},
 
 	"Headers": {
 		"Content-Security-Policy":"default-src 'self'",
