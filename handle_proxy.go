@@ -29,6 +29,10 @@ func handleProxy(w http.ResponseWriter, r *http.Request, cfg *microConfig) {
 		req.URL.RawPath = r.URL.RawPath
 		req.URL.RawQuery = r.URL.RawQuery
 
+		for k, v := range r.Header {
+			req.Header[k] = v
+		}
+
 		if resp, err := cl.Do(req); err == nil {
 			w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 			w.Header().Set("Content-Length", resp.Header.Get("Content-Length"))
