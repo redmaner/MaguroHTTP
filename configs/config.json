@@ -7,7 +7,7 @@
 		"ServeIndex":"index.html",
 		"VirtualHosting":true,
 		"VirtualHosts":{
-			"localhost":"./configs/vhost3.json",
+			"localhost":"./configs/vhost1.json",
 			"127.0.0.1":"./configs/vhost2.json"
 		}
 	},
@@ -62,13 +62,10 @@
 	"Firewall": {
 		"Enabled":false,
 		"Blacklisting":false,
-		"ProxyRules":{
+		"Rules":{
 			"127.0.0.1": [
 				"127.0.0.1"
 			]
-		},
-		"HTTPRules":{
-			"/": []
 		}
 	}
 }

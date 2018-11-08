@@ -58,8 +58,7 @@ type hsts struct {
 type firewall struct {
 	Enabled      bool
 	Blacklisting bool
-	ProxyRules   map[string][]string
-	HTTPRules    map[string][]string
+	Rules        map[string][]string
 }
 
 func loadConfigFromFile(p string, c *microConfig) {
@@ -119,9 +118,7 @@ func validateConfig(p string, c *microConfig) (bool, error) {
 	}
 
 	if c.Firewall.Enabled {
-		if c.Proxy.Enabled && len(c.Firewall.ProxyRules) == 0 {
-			return false, fmt.Errorf("%s: Firewall is enabled but rules are not defined", p)
-		} else if !c.Proxy.Enabled && len(c.Firewall.HTTPRules) == 0 {
+		if len(c.Firewall.Rules) == 0 {
 			return false, fmt.Errorf("%s: Firewall is enabled but rules are not defined", p)
 		}
 	}
@@ -146,9 +143,7 @@ func validateConfigVhost(p string, c *microConfig) (bool, error) {
 	}
 
 	if c.Firewall.Enabled {
-		if c.Proxy.Enabled && len(c.Firewall.ProxyRules) == 0 {
-			return false, fmt.Errorf("%s: Firewall is enabled but rules are not defined", p)
-		} else if !c.Proxy.Enabled && len(c.Firewall.HTTPRules) == 0 {
+		if len(c.Firewall.Rules) == 0 {
 			return false, fmt.Errorf("%s: Firewall is enabled but rules are not defined", p)
 		}
 	}

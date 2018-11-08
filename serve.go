@@ -34,6 +34,10 @@ func (m *micro) httpServe(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := r.URL.Path
+	if block := m.firewallHTTP(remote, path); block {
+		m.httpThrowError(w, r, 403)
+		return
+	}
 
 	// Determine allowed methods
 	var methods string
@@ -49,11 +53,6 @@ func (m *micro) httpServe(w http.ResponseWriter, r *http.Request) {
 		if val, ok := cfg.Methods["/"]; ok {
 			methods = val
 		}
-	}
-
-	if block := m.firewallHTTP(remote, path); block {
-		m.httpThrowError(w, r, 403)
-		return
 	}
 
 	// Serve the file that is requested by path if it esists in ServeDir.

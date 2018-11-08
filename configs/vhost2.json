@@ -36,13 +36,10 @@
 	"Firewall": {
 		"Enabled":false,
 		"Blacklisting":false,
-		"ProxyRules":{
+		"Rules":{
 			"127.0.0.1": [
 				"127.0.0.1"
 			]
-		},
-		"HTTPRules":{
-			"/": []
 		}
 	}
 }

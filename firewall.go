@@ -6,7 +6,7 @@ import (
 
 func (m *micro) firewallHTTP(h, p string) bool {
 
-	rules := m.config.Firewall.HTTPRules
+	rules := m.config.Firewall.Rules
 
 	if m.config.Firewall.Enabled {
 		for pt := p; pt != "/"; pt = path.Dir(pt) {
@@ -32,7 +32,7 @@ func (m *micro) firewallHTTP(h, p string) bool {
 
 func (m *micro) firewallProxy(h, p string) bool {
 
-	rules := m.config.Firewall.ProxyRules
+	rules := m.config.Firewall.Rules
 
 	if m.config.Firewall.Enabled {
 		if val, ok := rules[p]; ok {
