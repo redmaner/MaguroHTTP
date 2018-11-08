@@ -58,6 +58,7 @@ type hsts struct {
 type firewall struct {
 	Enabled      bool
 	Blacklisting bool
+	Subpath      bool
 	Rules        map[string][]string
 }
 

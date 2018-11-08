@@ -18,7 +18,7 @@ func firewallHTTP(cfg *microConfig, h, p string) bool {
 				}
 			}
 		}
-		if val, ok := rules["/"]; ok && p == "/" {
+		if val, ok := rules["/"]; ok && p == "/" && cfg.Firewall.Subpath {
 			for _, v := range val {
 				if v == h || v == "*" {
 					return cfg.Firewall.Blacklisting
