@@ -6,6 +6,11 @@ import (
 	"os"
 )
 
+type micro struct {
+	config microConfig
+	vhosts map[string]microConfig
+}
+
 // MicroHTTP config type
 type microConfig struct {
 	Address      string
@@ -96,12 +101,6 @@ func validateConfig(p string, c *microConfig) (bool, error) {
 			for k, v := range c.Serve.VirtualHosts {
 				if v == "" {
 					return false, fmt.Errorf("%s: Virtual host configuration not defined. Check reference for %s", p, k)
-				} else {
-					var nCfg microConfig
-					loadConfigFromFile(v, &nCfg)
-					if ok, err := validateConfigVhost(v, &nCfg); !ok || err != nil {
-						return ok, err
-					}
 				}
 			}
 		}

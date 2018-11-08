@@ -6,13 +6,13 @@ import (
 )
 
 // Functio to check if defined TLS certificates exist
-func httpCheckTLS() bool {
-	if mCfg.TLSCert != "" && mCfg.TLSKey != "" {
-		if _, err := os.Stat(mCfg.TLSCert); err != nil {
+func httpCheckTLS(c *microConfig) bool {
+	if c.TLSCert != "" && c.TLSKey != "" {
+		if _, err := os.Stat(c.TLSCert); err != nil {
 			logAction(logERROR, err)
 			return false
 		}
-		if _, err := os.Stat(mCfg.TLSKey); err != nil {
+		if _, err := os.Stat(c.TLSKey); err != nil {
 			logAction(logERROR, err)
 			return false
 		}

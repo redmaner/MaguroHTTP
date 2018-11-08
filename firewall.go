@@ -4,16 +4,16 @@ import (
 	"path"
 )
 
-func firewallHTTP(h, p string) bool {
+func (m *micro) firewallHTTP(h, p string) bool {
 
-	rules := mCfg.Firewall.HTTPRules
+	rules := m.config.Firewall.HTTPRules
 
-	if mCfg.Firewall.Enabled {
+	if m.config.Firewall.Enabled {
 		for pt := p; pt != "/"; pt = path.Dir(pt) {
 			if val, ok := rules[pt]; ok {
 				for _, v := range val {
 					if v == h || v == "*" {
-						return mCfg.Firewall.Blacklisting
+						return m.config.Firewall.Blacklisting
 					}
 				}
 			}
@@ -21,24 +21,24 @@ func firewallHTTP(h, p string) bool {
 		if val, ok := rules["/"]; ok {
 			for _, v := range val {
 				if v == h || v == "*" {
-					return mCfg.Firewall.Blacklisting
+					return m.config.Firewall.Blacklisting
 				}
 			}
 		}
-		return !mCfg.Firewall.Blacklisting
+		return !m.config.Firewall.Blacklisting
 	}
 	return false
 }
 
-func firewallProxy(h, p string) bool {
+func (m *micro) firewallProxy(h, p string) bool {
 
-	rules := mCfg.Firewall.ProxyRules
+	rules := m.config.Firewall.ProxyRules
 
-	if mCfg.Firewall.Enabled {
+	if m.config.Firewall.Enabled {
 		if val, ok := rules[p]; ok {
 			for _, v := range val {
 				if v == h || v == "*" {
-					return mCfg.Firewall.Blacklisting
+					return m.config.Firewall.Blacklisting
 				}
 			}
 		}

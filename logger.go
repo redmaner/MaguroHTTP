@@ -31,6 +31,8 @@ func logAction(l int, err error) {
 	}
 
 	switch {
+	case debug >= logNONE && l == logNONE:
+		logger.Println(err)
 	case debug >= logNET && l == logNET:
 		logger.Println("NET:", err)
 	case debug >= logERROR && l == logERROR:

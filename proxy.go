@@ -5,15 +5,15 @@ import (
 	"net/http"
 )
 
-func httpProxy(w http.ResponseWriter, r *http.Request, cfg *microConfig) {
+func (m *micro) httpProxy(w http.ResponseWriter, r *http.Request, cfg *microConfig) {
 
 	host := httpTrimPort(r.Host)
 	remote := httpTrimPort(r.RemoteAddr)
 
 	if val, ok := cfg.Proxy.Rules[host]; ok {
 
-		if block := firewallProxy(remote, host); block {
-			httpThrowError(w, r, 403)
+		if block := m.firewallProxy(remote, host); block {
+			m.httpThrowError(w, r, 403)
 			return
 		}
 
@@ -22,7 +22,7 @@ func httpProxy(w http.ResponseWriter, r *http.Request, cfg *microConfig) {
 		req, err := http.NewRequest(r.Method, val, r.Body)
 		if err != nil {
 			logAction(logERROR, err)
-			httpThrowError(w, r, 502)
+			m.httpThrowError(w, r, 502)
 			return
 		}
 		req.URL.Path = r.URL.Path
@@ -43,7 +43,7 @@ func httpProxy(w http.ResponseWriter, r *http.Request, cfg *microConfig) {
 			logNetwork(resp.StatusCode, r)
 		} else {
 			logAction(logERROR, err)
-			httpThrowError(w, r, 502)
+			m.httpThrowError(w, r, 502)
 		}
 	}
 }

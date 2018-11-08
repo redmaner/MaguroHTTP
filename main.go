@@ -1,16 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
-	"syscall"
+	"time"
 )
 
 const version = "v0.12"
-
-var mCfg = microConfig{}
 
 // Main function
 func main() {
@@ -23,18 +22,10 @@ func main() {
 	}
 
 	if _, err := os.Stat(args[1]); err == nil {
+		var mCfg microConfig
 		loadConfigFromFile(args[1], &mCfg)
 		if valid, err := validateConfig(args[1], &mCfg); valid && err == nil {
-			go startServer()
-			sig := make(chan os.Signal)
-			signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-			for {
-				select {
-				case s := <-sig:
-					logAction(logDEBUG, fmt.Errorf("Signal (%d) received, stopping\n", s))
-					os.Exit(1)
-				}
-			}
+			startServer(&mCfg)
 		} else {
 			logAction(logERROR, err)
 			os.Exit(1)
@@ -46,13 +37,30 @@ func main() {
 }
 
 // Function to start Server
-func startServer() {
+func startServer(mCfg *microConfig) {
+
+	m := micro{
+		config: *mCfg,
+		vhosts: make(map[string]microConfig),
+	}
+
+	if m.config.Serve.VirtualHosting {
+		for k, v := range m.config.Serve.VirtualHosts {
+			var cfg microConfig
+			loadConfigFromFile(v, &cfg)
+			if valid, err := validateConfigVhost(v, &cfg); !valid || err != nil {
+				logAction(logERROR, err)
+				os.Exit(1)
+			}
+			m.vhosts[k] = cfg
+		}
+	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", httpServe)
+	mux.HandleFunc("/", m.httpServe)
 
-	if mCfg.TLS && httpCheckTLS() {
-		logAction(logDEBUG, fmt.Errorf("MicroHTTP is listening on port %s with TLS", mCfg.Port))
+	if m.config.TLS && httpCheckTLS(&m.config) {
+		logAction(logNONE, fmt.Errorf("MicroHTTP is listening on port %s with TLS", mCfg.Port))
 		tlsc := httpCreateTLSConfig()
 		ms := http.Server{
 			Addr:      mCfg.Address + ":" + mCfg.Port,
@@ -60,11 +68,32 @@ func startServer() {
 			TLSConfig: tlsc,
 		}
 
+		done := make(chan bool)
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, os.Interrupt)
+
+		go func() {
+			<-quit
+			logAction(logNONE, fmt.Errorf("Server is shutting down..."))
+
+			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancel()
+
+			ms.SetKeepAlivesEnabled(false)
+			if err := ms.Shutdown(ctx); err != nil {
+				logAction(logNONE, fmt.Errorf("Could not gracefully shutdown the server: %v\n", err))
+			}
+			close(done)
+		}()
+
 		err := ms.ListenAndServeTLS(mCfg.TLSCert, mCfg.TLSKey)
-		if err != nil {
+		if err != nil && err != http.ErrServerClosed {
 			logAction(logERROR, fmt.Errorf("Starting server failed: %s", err))
 			return
 		}
+
+		<-done
+		logAction(logNONE, fmt.Errorf("MicroHTTP stopped"))
 
 	} else {
 		logAction(logDEBUG, fmt.Errorf("MicroHTTP is listening on port %s", mCfg.Port))
