@@ -64,10 +64,16 @@ func (m *micro) httpThrowError(w http.ResponseWriter, r *http.Request, e int) {
 	w.Header().Set("Content-Type", "text/html")
 	io.WriteString(w, htmlStart)
 	switch e {
+	case 403:
+		io.WriteString(w, "<h3>Error 403 - Forbidden</h3>")
 	case 404:
 		io.WriteString(w, "<h3>Error 404 - Page not found</h3>")
 	case 405:
 		io.WriteString(w, "<h3>Error 405 - Method not allowed</h3>")
+	case 406:
+		io.WriteString(w, "<h3>Error 406 - Unacceptable</h3>")
+	case 502:
+		io.WriteString(w, "<h3>Error 502 - Bad gateway</h3>")
 	default:
 		io.WriteString(w, fmt.Sprintf("<h3>Error %d</h3>", e))
 	}
