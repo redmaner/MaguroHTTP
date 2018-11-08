@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 const version = "v0.11"
@@ -23,7 +25,15 @@ func main() {
 	if _, err := os.Stat(args[1]); err == nil {
 		loadConfigFromFile(args[1], &mCfg)
 		if valid, err := validateConfig(args[1], &mCfg); valid && err == nil {
-			startServer()
+			go startServer()
+			sig := make(chan os.Signal)
+			signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+			for {
+				select {
+				case s := <-sig:
+					logAction(logDEBUG, fmt.Errorf("Signal (%d) received, stopping\n", s))
+				}
+			}
 		} else {
 			logAction(logERROR, err)
 			os.Exit(1)
