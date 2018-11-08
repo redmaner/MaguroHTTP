@@ -1,19 +1,21 @@
 package main
 
 import (
+	"fmt"
 	"path"
 )
 
-func (m *micro) firewallHTTP(h, p string) bool {
+func firewallHTTP(cfg *microConfig, h, p string) bool {
 
-	rules := m.config.Firewall.Rules
+	rules := cfg.Firewall.Rules
 
-	if m.config.Firewall.Enabled {
+	if cfg.Firewall.Enabled {
 		for pt := p; pt != "/"; pt = path.Dir(pt) {
+			fmt.Println(pt)
 			if val, ok := rules[pt]; ok {
 				for _, v := range val {
 					if v == h || v == "*" {
-						return m.config.Firewall.Blacklisting
+						return cfg.Firewall.Blacklisting
 					}
 				}
 			}
@@ -21,24 +23,24 @@ func (m *micro) firewallHTTP(h, p string) bool {
 		if val, ok := rules["/"]; ok {
 			for _, v := range val {
 				if v == h || v == "*" {
-					return m.config.Firewall.Blacklisting
+					return cfg.Firewall.Blacklisting
 				}
 			}
 		}
-		return !m.config.Firewall.Blacklisting
+		return !cfg.Firewall.Blacklisting
 	}
 	return false
 }
 
-func (m *micro) firewallProxy(h, p string) bool {
+func firewallProxy(cfg *microConfig, h, p string) bool {
 
-	rules := m.config.Firewall.Rules
+	rules := cfg.Firewall.Rules
 
-	if m.config.Firewall.Enabled {
+	if cfg.Firewall.Enabled {
 		if val, ok := rules[p]; ok {
 			for _, v := range val {
 				if v == h || v == "*" {
-					return m.config.Firewall.Blacklisting
+					return cfg.Firewall.Blacklisting
 				}
 			}
 		}

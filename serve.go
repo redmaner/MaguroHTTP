@@ -34,7 +34,7 @@ func (m *micro) httpServe(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := r.URL.Path
-	if block := m.firewallHTTP(remote, path); block {
+	if block := firewallHTTP(&cfg, remote, path); block {
 		m.httpThrowError(w, r, 403)
 		return
 	}

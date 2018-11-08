@@ -12,7 +12,7 @@ func (m *micro) httpProxy(w http.ResponseWriter, r *http.Request, cfg *microConf
 
 	if val, ok := cfg.Proxy.Rules[host]; ok {
 
-		if block := m.firewallProxy(remote, host); block {
+		if block := firewallProxy(cfg, remote, host); block {
 			m.httpThrowError(w, r, 403)
 			return
 		}
