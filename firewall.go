@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"path"
 )
 
@@ -11,7 +10,6 @@ func firewallHTTP(cfg *microConfig, h, p string) bool {
 
 	if cfg.Firewall.Enabled {
 		for pt := p; pt != "/"; pt = path.Dir(pt) {
-			fmt.Println(pt)
 			if val, ok := rules[pt]; ok {
 				for _, v := range val {
 					if v == h || v == "*" {
@@ -20,7 +18,7 @@ func firewallHTTP(cfg *microConfig, h, p string) bool {
 				}
 			}
 		}
-		if val, ok := rules["/"]; ok {
+		if val, ok := rules["/"]; ok && p == "/" {
 			for _, v := range val {
 				if v == h || v == "*" {
 					return cfg.Firewall.Blacklisting
