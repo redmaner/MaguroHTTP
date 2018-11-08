@@ -57,6 +57,7 @@ func httpServe(w http.ResponseWriter, r *http.Request) {
 				httpSetContentType(w, cfg.Serve.ServeIndex)
 				httpSetHeaders(w, cfg.Headers)
 				http.ServeFile(w, r, cfg.Serve.ServeDir+cfg.Serve.ServeIndex)
+				logNetwork(200, r)
 			} else if path != "" {
 				httpThrowError(w, r, 404)
 				return
@@ -78,6 +79,7 @@ func httpServe(w http.ResponseWriter, r *http.Request) {
 			httpSetContentType(w, path)
 			httpSetHeaders(w, cfg.Headers)
 			http.ServeFile(w, r, cfg.Serve.ServeDir+path)
+			logNetwork(200, r)
 		} else {
 			httpThrowError(w, r, 405)
 			return

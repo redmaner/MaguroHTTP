@@ -40,6 +40,7 @@ func httpProxy(w http.ResponseWriter, r *http.Request, cfg *microConfig) {
 			w.Header().Set("Content-Length", resp.Header.Get("Content-Length"))
 			io.Copy(w, resp.Body)
 			resp.Body.Close()
+			logNetwork(resp.StatusCode, r)
 		} else {
 			logAction(logERROR, err)
 			httpThrowError(w, r, 502)

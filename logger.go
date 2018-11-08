@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 )
 
@@ -30,7 +32,7 @@ func logAction(l int, err error) {
 
 	switch {
 	case debug >= logNET && l == logNET:
-		logger.Println("ERROR:", err)
+		logger.Println("NET:", err)
 	case debug >= logERROR && l == logERROR:
 		logger.Println("ERROR:", err)
 	case debug >= logDEBUG && l == logDEBUG:
@@ -40,4 +42,8 @@ func logAction(l int, err error) {
 	case debug >= logVERBOSE && l == logVERBOSE:
 		logger.Println("VERBOSE:", err)
 	}
+}
+
+func logNetwork(sc int, r *http.Request) {
+	logAction(logNET, fmt.Errorf("%d request=%s %s%s%s IP=%s User-Agent=%s", sc, r.Method, r.Host, r.URL.Path, r.URL.RawQuery, r.RemoteAddr, r.Header.Get("User-Agent")))
 }

@@ -96,6 +96,7 @@ func httpThrowError(w http.ResponseWriter, r *http.Request, e int) {
 		io.WriteString(w, fmt.Sprintf("<h3>Error %d</h3>", e))
 	}
 	io.WriteString(w, htmlEnd)
+	logNetwork(e, r)
 }
 
 // Function to set Content-Type depending on the file that is served
@@ -145,6 +146,7 @@ func httpSetContentType(w http.ResponseWriter, p string) {
 
 }
 
+// Function to validate a request Content-Type
 func httpValidateRequestContentType(rct string, cts contentTypes) bool {
 	if len(cts.RequestTypes) != 0 {
 		for _, v := range cts.RequestTypes {
@@ -156,6 +158,7 @@ func httpValidateRequestContentType(rct string, cts contentTypes) bool {
 	return false
 }
 
+// Function to trim port of an address
 func httpTrimPort(s string) string {
 	if match, err := regexp.MatchString(":", s); match && err == nil {
 		hs := strings.Split(s, ":")

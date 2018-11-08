@@ -8,7 +8,7 @@ import (
 	"syscall"
 )
 
-const version = "v0.11"
+const version = "v0.12"
 
 var mCfg = microConfig{}
 
@@ -32,6 +32,7 @@ func main() {
 				select {
 				case s := <-sig:
 					logAction(logDEBUG, fmt.Errorf("Signal (%d) received, stopping\n", s))
+					os.Exit(1)
 				}
 			}
 		} else {
