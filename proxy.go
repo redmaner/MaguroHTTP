@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func handleProxy(w http.ResponseWriter, r *http.Request, cfg *microConfig) {
+func httpProxy(w http.ResponseWriter, r *http.Request, cfg *microConfig) {
 
 	host := httpTrimPort(r.Host)
 	remote := httpTrimPort(r.RemoteAddr)

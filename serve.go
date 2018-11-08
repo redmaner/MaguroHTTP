@@ -8,7 +8,7 @@ import (
 const defaultMethods = "GET;"
 
 // Function to handle HTTP requests to MicroHTTP server
-func handleHTTP(w http.ResponseWriter, r *http.Request) {
+func httpServe(w http.ResponseWriter, r *http.Request) {
 
 	host := httpTrimPort(r.Host)
 	remote := httpTrimPort(r.RemoteAddr)
@@ -24,7 +24,7 @@ func handleHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Check for proxy
 	if cfg.Proxy.Enabled {
-		handleProxy(w, r, &cfg)
+		httpProxy(w, r, &cfg)
 		return
 	}
 
