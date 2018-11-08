@@ -17,6 +17,13 @@ func firewallHTTP(cfg *microConfig, h, p string) bool {
 					}
 				}
 			}
+			if val, ok := rules["/"]; ok {
+				for _, v := range val {
+					if v == h || v == "*" {
+						return cfg.Firewall.Blacklisting
+					}
+				}
+			}
 		}
 		if val, ok := rules["/"]; ok && p == "/" {
 			for _, v := range val {
