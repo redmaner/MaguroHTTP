@@ -6,12 +6,15 @@ import (
 	"os"
 )
 
+// Micro struct which holds all the information of the server
+// The micro struct has it's own functions that have access to this data
 type micro struct {
 	config microConfig
 	vhosts map[string]microConfig
 }
 
 // MicroHTTP config type
+// The main configuration and the configuration of vhosts use this type
 type microConfig struct {
 	Address      string
 	Port         string
@@ -28,6 +31,7 @@ type microConfig struct {
 	Firewall     firewall
 }
 
+// Serve type, part of the MicroHTTP config
 type serve struct {
 	ServeDir       string
 	ServeIndex     string
@@ -62,6 +66,8 @@ type firewall struct {
 	Rules        map[string][]string
 }
 
+// This loads a configuration with type microConfig from a file
+// The expected input is a json file with elements that match the microConfig spec
 func loadConfigFromFile(p string, c *microConfig) {
 
 	// check if config exists
@@ -86,6 +92,9 @@ func loadConfigFromFile(p string, c *microConfig) {
 	}
 }
 
+// Function to validate the main config loaded with loadConfigFromFile(p, c)
+// This function validates for the exsistence of several elements that are necessary
+// to start the server
 func validateConfig(p string, c *microConfig) (bool, error) {
 
 	// Test for empty elements that cannot be empty
@@ -128,6 +137,9 @@ func validateConfig(p string, c *microConfig) (bool, error) {
 
 }
 
+// Function to validate a vhost config loaded with loadConfigFromFile(p, c)
+// This function validates for the exsistence of several elements that are necessary
+// to use a defined vhost
 func validateConfigVhost(p string, c *microConfig) (bool, error) {
 
 	// Test virtual hosts

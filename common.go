@@ -28,6 +28,10 @@ const htmlEnd = `</body>
 
 // Function to set headers defined in configuration
 func (m *micro) httpSetHeaders(w http.ResponseWriter, h map[string]string) {
+
+	// MicroHTTP sets security headers at the most strict configuration
+	// These headers can be overwritten with the headers element in the configratution file
+	// Overwriting is possible in both the main configuration and the vhost configuration
 	w.Header().Set("X-Frame-Options", "SAMEORIGIN")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("X-XSS-Protection", "1; mode=block")
@@ -36,6 +40,8 @@ func (m *micro) httpSetHeaders(w http.ResponseWriter, h map[string]string) {
 	w.Header().Set("Feature-Policy", "geolocation 'none'; midi 'none'; notifications 'none'; push 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; vibrate 'none'; fullscreen 'none'; payment 'none';")
 	w.Header().Set("Server", "MicroHTTP")
 
+	// If TLS is enabled, the Strict-Transport-Security header is set
+	// These settings can be set in the configuration
 	if m.config.TLS {
 		hstr := fmt.Sprintf("max-age=%d;", m.config.HSTS.MaxAge)
 		if m.config.HSTS.IncludeSubdomains {
@@ -47,6 +53,7 @@ func (m *micro) httpSetHeaders(w http.ResponseWriter, h map[string]string) {
 		w.Header().Set("Strict-Transport-Security", hstr)
 	}
 
+	// All headers set in the configuration are set
 	for k, v := range h {
 		w.Header().Set(k, v)
 	}
@@ -54,12 +61,17 @@ func (m *micro) httpSetHeaders(w http.ResponseWriter, h map[string]string) {
 
 // Function to write HTTP error to ResponseWriter
 func (m *micro) httpThrowError(w http.ResponseWriter, r *http.Request, e int) {
+
+	// Custom error pages can be set in the configuration.
 	if val, ok := m.config.Errors[strconv.Itoa(e)]; ok {
 		if _, err := os.Stat(val); err == nil {
 			http.ServeFile(w, r, val)
 			return
 		}
 	}
+
+	// If custom error pages aren't set the default error message is shown.
+	// This is a very basic HTTP error code page without any technical information.
 	w.WriteHeader(e)
 	w.Header().Set("Content-Type", "text/html")
 	io.WriteString(w, htmlStart)

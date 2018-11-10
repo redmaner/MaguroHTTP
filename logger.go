@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// Constants for logging levels
 const (
 	logNONE    = 0
 	logNET     = 1

@@ -51,6 +51,7 @@ func httpGetContentType(p *string, cts *contentTypes) string {
 		return val
 	}
 
+	// Default Content-Type is text/html
 	return "text/html"
 
 }

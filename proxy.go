@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+// Function to proxy. The proxy can be configurated in configuration
+// MicroHTTP is capable to serve HTTP and to proxy along side each other using virtual hosts
 func (m *micro) httpProxy(w http.ResponseWriter, r *http.Request, cfg *microConfig) {
 
 	host := httpTrimPort(r.Host)

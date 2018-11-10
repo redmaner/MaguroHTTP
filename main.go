@@ -21,6 +21,8 @@ func main() {
 		showHelp()
 	}
 
+	// Handle arguments
+	// To start MicroHTTP you need to define the path to the main configuration file
 	if _, err := os.Stat(args[1]); err == nil {
 		var mCfg microConfig
 		loadConfigFromFile(args[1], &mCfg)
@@ -39,11 +41,13 @@ func main() {
 // Function to start Server
 func startServer(mCfg *microConfig) {
 
+	// Set micro struct
 	m := micro{
 		config: *mCfg,
 		vhosts: make(map[string]microConfig),
 	}
 
+	// If virtual hosting is enabled, all the configurations of the vhosts are loaded
 	if m.config.Serve.VirtualHosting {
 		for k, v := range m.config.Serve.VirtualHosts {
 			var cfg microConfig
@@ -56,9 +60,12 @@ func startServer(mCfg *microConfig) {
 		}
 	}
 
+	// Determine the router of MicroHTTP
+	// The router is the default multiplexer of the net/http package
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", m.httpServe)
 
+	// If TLS is enabled the server will start in TLS
 	if m.config.TLS && httpCheckTLS(&m.config) {
 		logAction(logNONE, fmt.Errorf("MicroHTTP is listening on port %s with TLS", mCfg.Port))
 		tlsc := httpCreateTLSConfig()
@@ -68,6 +75,7 @@ func startServer(mCfg *microConfig) {
 			TLSConfig: tlsc,
 		}
 
+		// This is meant to listen for signals. A signal will stop MicroHTTP
 		done := make(chan bool)
 		quit := make(chan os.Signal, 1)
 		signal.Notify(quit, os.Interrupt)
@@ -86,6 +94,7 @@ func startServer(mCfg *microConfig) {
 			close(done)
 		}()
 
+		// Start the server
 		err := ms.ListenAndServeTLS(mCfg.TLSCert, mCfg.TLSKey)
 		if err != nil && err != http.ErrServerClosed {
 			logAction(logERROR, fmt.Errorf("Starting server failed: %s", err))
@@ -95,6 +104,8 @@ func startServer(mCfg *microConfig) {
 		<-done
 		logAction(logNONE, fmt.Errorf("MicroHTTP stopped"))
 
+		// IF TLS is disabled the server is started without TLS
+		// Never run non TLS servers in production!
 	} else {
 		logAction(logDEBUG, fmt.Errorf("MicroHTTP is listening on port %s", mCfg.Port))
 		http.ListenAndServe(mCfg.Address+":"+mCfg.Port, mux)
