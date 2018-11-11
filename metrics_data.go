@@ -6,6 +6,8 @@ import (
 	"sync"
 )
 
+// Type for metrics data
+// Metrics data can be accessed concurrently
 type metricsData struct {
 	sync.Mutex
 	enabled       bool
@@ -13,6 +15,11 @@ type metricsData struct {
 	paths         map[int]map[string]int
 }
 
+// Concat function to increase metrics
+// MicroHTTP only logs aggregated metrics, without storing any sensitive information
+// MicroHTTP Metrics stores:
+// * The total amount of requests
+// * The responses for requests based on HTTP status codes
 func (md *metricsData) concat(e int, p string) {
 	if md.enabled {
 		md.Lock()
@@ -32,6 +39,7 @@ func (md *metricsData) concat(e int, p string) {
 	}
 }
 
+// Function to display metrics data
 func (md *metricsData) display(o io.Writer) {
 	md.Lock()
 	io.WriteString(o, fmt.Sprintf("<h1>MicroHTTP metrics</h1><br><b>Total requests:</b> %d<br>", md.totalRequests))

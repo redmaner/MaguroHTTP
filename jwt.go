@@ -7,6 +7,10 @@ import (
 	"github.com/gbrlsnchs/jwt"
 )
 
+// Function to sign a JWT token
+// INPUT: secret, user, audience as string
+// INPUT: the validation time of the token in time.Duration
+// OUTPUT: token in slice of bytes if succesful and an error if applicable
 func jwtSignToken(s, u, a string, v time.Duration) ([]byte, error) {
 	// Timestamp the beginning.
 	now := time.Now()
@@ -32,6 +36,9 @@ func jwtSignToken(s, u, a string, v time.Duration) ([]byte, error) {
 	return token, nil
 }
 
+// Function to validate a JWT token
+// INPUT: token, secret, user, audience as string
+// OUTPUT: whether the token is valid or not as a bool and an error if applicable
 func jwtValidateToken(t, s, u, a string) (bool, error) {
 	// Timestamp the beginning.
 	now := time.Now()
