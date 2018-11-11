@@ -140,6 +140,9 @@ func validateConfig(p string, c *microConfig) (bool, error) {
 		if c.Metrics.Path == "" || c.Metrics.Path == "/" {
 			return false, fmt.Errorf("%s: Metrics path cannot be empty or /", p)
 		}
+		if c.Metrics.User == "" || c.Metrics.Password == "" || c.Metrics.Address == "" {
+			return false, fmt.Errorf("%s: Metrics user, password and address cannot be empty", p)
+		}
 	}
 
 	return true, nil
