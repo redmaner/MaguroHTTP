@@ -10,6 +10,7 @@ RUN go get -v  github.com/gbrlsnchs/jwt \
 	&& go build -o microhttp *.go
 
 FROM alpine:latest
+RUN apk add --no-cache ca-certificates
 COPY --from=builder /gobuild/microhttp /usr/local/bin
 COPY ./config.json /usr/local/bin/microhttp.json
 CMD ["/usr/local/bin/microhttp", "/usr/local/bin/microhttp.json"]
