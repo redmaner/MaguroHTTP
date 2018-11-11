@@ -1,6 +1,6 @@
 FROM golang:alpine AS builder
 
-RUN mkdir /gobuild
+RUN mkdir /gobuild && apk add git
 
 COPY ./*.go /gobuild/
 
