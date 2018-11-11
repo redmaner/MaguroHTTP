@@ -6,7 +6,8 @@ COPY ./*.go /gobuild/
 
 WORKDIR /gobuild
 
-RUN go build -o microhttp *.go
+RUN go get -v  github.com/gbrlsnchs/jwt \
+	&& go build -o microhttp *.go
 
 FROM alpine:latest
 COPY --from=builder /gobuild/microhttp /usr/local/bin
