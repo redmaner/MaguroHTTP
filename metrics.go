@@ -115,7 +115,7 @@ func metricsHtmlLogin(p string) string {
 	return fmt.Sprintf(`<h1>MicroHTTP Metrics login</h1>
 	<p><form action="%s" method="POST" accept-charset="UTF-8">
 		<input type="text" name="user" placeholder="Username" autofocus autocomplete="off"><br><br>
-		<input type="text" name="password" placeholder="Password" autofocus autocomplete="off"><br>
+		<input type="password" name="password" placeholder="Password" autofocus autocomplete="off"><br>
 		<input type="submit" name="action" value="Login"><br>
 	</form><br><br></p>
 	`, p)
