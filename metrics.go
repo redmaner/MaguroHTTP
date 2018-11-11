@@ -37,17 +37,21 @@ func (m *micro) httpMetrics(w http.ResponseWriter, r *http.Request) {
 		case m.config.Metrics.Path + "/":
 			w.Header().Set("Content-Type", "text/html")
 			m.httpSetHeaders(w, m.config.Headers)
+			w.Header().Set("Content-Security-Policy", "")
 			io.WriteString(w, htmlStart)
-			io.WriteString(w, metricsHtmlLogin(m.config.Metrics.Path+"/login"))
+			io.WriteString(w, metricsHtmlLogin(m.config.Metrics.Path+"/retrieve"))
 			io.WriteString(w, htmlEnd)
 		case m.config.Metrics.Path + "/admin":
 
 			// Convert request body to string
 			if bb, err := ioutil.ReadAll(r.Body); err == nil {
-				if ok, err := jwtValidateToken(string(bb), m.config.Metrics.Password, "MicroMetrics"); ok && err == nil {
+				if ok, err := jwtValidateToken(string(bb), m.config.Metrics.Password, m.config.Metrics.User, "MicroMetrics"); ok && err == nil {
 					w.Header().Set("Content-Type", "text/html")
 					m.httpSetHeaders(w, m.config.Headers)
+					w.Header().Set("Content-Security-Policy", "")
+					io.WriteString(w, htmlStart)
 					m.md.display(w)
+					io.WriteString(w, htmlEnd)
 					logNetwork(200, r)
 				} else {
 					logAction(logERROR, err)
@@ -63,7 +67,7 @@ func (m *micro) httpMetrics(w http.ResponseWriter, r *http.Request) {
 		}
 	case "POST":
 		switch path {
-		case m.config.Metrics.Path + "/login":
+		case m.config.Metrics.Path + "/retrieve":
 			user := r.FormValue("user")
 			password := r.FormValue("password")
 
@@ -81,6 +85,7 @@ func (m *micro) httpMetrics(w http.ResponseWriter, r *http.Request) {
 						w.WriteHeader(resp.StatusCode)
 						w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 						w.Header().Set("Content-Length", resp.Header.Get("Content-Length"))
+						w.Header().Set("Content-Security-Policy", "")
 						io.Copy(w, resp.Body)
 						resp.Body.Close()
 						logNetwork(resp.StatusCode, r)
@@ -107,9 +112,10 @@ func (m *micro) httpMetrics(w http.ResponseWriter, r *http.Request) {
 }
 
 func metricsHtmlLogin(p string) string {
-	return fmt.Sprintf(`<p><form action="%s" method="POST" accept-charset="UTF-8">
+	return fmt.Sprintf(`<h1>MicroHTTP Metrics login</h1>
+	<p><form action="%s" method="POST" accept-charset="UTF-8">
 		<input type="text" name="user" placeholder="Username" autofocus autocomplete="off"><br><br>
-		<input type="text" name="password" placeholder="Password" autofocus autocomplete="off">
+		<input type="text" name="password" placeholder="Password" autofocus autocomplete="off"><br>
 		<input type="submit" name="action" value="Login"><br>
 	</form><br><br></p>
 	`, p)

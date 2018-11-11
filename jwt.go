@@ -32,7 +32,7 @@ func jwtSignToken(s, u, a string, v time.Duration) ([]byte, error) {
 	return token, nil
 }
 
-func jwtValidateToken(t, s, a string) (bool, error) {
+func jwtValidateToken(t, s, u, a string) (bool, error) {
 	// Timestamp the beginning.
 	now := time.Now()
 	// Define a signer.
@@ -57,7 +57,8 @@ func jwtValidateToken(t, s, a string) (bool, error) {
 	iatValidator := jwt.IssuedAtValidator(now)
 	expValidator := jwt.ExpirationTimeValidator(now)
 	audValidator := jwt.AudienceValidator(a)
-	if err = jot.Validate(iatValidator, expValidator, audValidator); err != nil {
+	subValidator := jwt.SubjectValidator(u)
+	if err = jot.Validate(iatValidator, expValidator, audValidator, subValidator); err != nil {
 		switch err {
 		case jwt.ErrIatValidation:
 			// handle "iat" validation error
@@ -67,6 +68,9 @@ func jwtValidateToken(t, s, a string) (bool, error) {
 			return false, fmt.Errorf("jwt: validation error: %s", err)
 		case jwt.ErrAudValidation:
 			// handle "aud" validation error
+			return false, fmt.Errorf("jwt: validation error: %s", err)
+		case jwt.ErrSubValidation:
+			// handle "sub" validation error
 			return false, fmt.Errorf("jwt: validation error: %s", err)
 		}
 	}

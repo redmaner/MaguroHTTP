@@ -34,12 +34,13 @@ func (md *metricsData) concat(e int, p string) {
 
 func (md *metricsData) display(o io.Writer) {
 	md.Lock()
-	io.WriteString(o, fmt.Sprintf("<br><br><b>Total requests:</b> %d", md.totalRequests))
+	io.WriteString(o, fmt.Sprintf("<h1>MicroHTTP metrics</h1><br><b>Total requests:</b> %d<br>", md.totalRequests))
 	for k, v := range md.paths {
-		io.WriteString(o, fmt.Sprintf("<br><br><b>%d</b>", k))
+		io.WriteString(o, fmt.Sprintf("<br><b>%d</b><ul>", k))
 		for p, a := range v {
 			io.WriteString(o, fmt.Sprintf("<li>Amount: %d - Path: %s</li>", a, p))
 		}
+		io.WriteString(o, fmt.Sprintf("</ul>"))
 	}
 	md.Unlock()
 }
