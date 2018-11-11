@@ -6,13 +6,6 @@ import (
 	"os"
 )
 
-// Micro struct which holds all the information of the server
-// The micro struct has it's own functions that have access to this data
-type micro struct {
-	config microConfig
-	vhosts map[string]microConfig
-}
-
 // MicroHTTP config type
 // The main configuration and the configuration of vhosts use this type
 type microConfig struct {
@@ -29,6 +22,7 @@ type microConfig struct {
 	TLSKey       string
 	HSTS         hsts
 	Firewall     firewall
+	Metrics      metrics
 }
 
 // Serve type, part of the MicroHTTP config
@@ -64,6 +58,15 @@ type firewall struct {
 	Blacklisting bool
 	Subpath      bool
 	Rules        map[string][]string
+}
+
+// Metrics type, part of MicroHTTP config
+type metrics struct {
+	Enabled  bool
+	Address  string
+	Path     string
+	User     string
+	Password string
 }
 
 // This loads a configuration with type microConfig from a file
@@ -130,6 +133,12 @@ func validateConfig(p string, c *microConfig) (bool, error) {
 	if c.Firewall.Enabled {
 		if len(c.Firewall.Rules) == 0 {
 			return false, fmt.Errorf("%s: Firewall is enabled but rules are not defined", p)
+		}
+	}
+
+	if c.Metrics.Enabled {
+		if c.Metrics.Path == "" || c.Metrics.Path == "/" {
+			return false, fmt.Errorf("%s: Metrics path cannot be empty or /", p)
 		}
 	}
 

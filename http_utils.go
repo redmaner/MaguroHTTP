@@ -1,10 +1,45 @@
 package main
 
 import (
+	"fmt"
+	"net/http"
 	"path/filepath"
 	"regexp"
 	"strings"
 )
+
+// Function to set headers defined in configuration
+func (m *micro) httpSetHeaders(w http.ResponseWriter, h map[string]string) {
+
+	// MicroHTTP sets security headers at the most strict configuration
+	// These headers can be overwritten with the headers element in the configratution file
+	// Overwriting is possible in both the main configuration and the vhost configuration
+	w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("X-XSS-Protection", "1; mode=block")
+	w.Header().Set("Referrer-Policy", "no-referrer")
+	w.Header().Set("Content-Security-Policy", "default-src 'self'")
+	w.Header().Set("Feature-Policy", "geolocation 'none'; midi 'none'; notifications 'none'; push 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; vibrate 'none'; fullscreen 'none'; payment 'none';")
+	w.Header().Set("Server", "MicroHTTP")
+
+	// If TLS is enabled, the Strict-Transport-Security header is set
+	// These settings can be set in the configuration
+	if m.config.TLS {
+		hstr := fmt.Sprintf("max-age=%d;", m.config.HSTS.MaxAge)
+		if m.config.HSTS.IncludeSubdomains {
+			hstr = hstr + " includeSubdomains;"
+		}
+		if m.config.HSTS.Preload {
+			hstr = hstr + " preload"
+		}
+		w.Header().Set("Strict-Transport-Security", hstr)
+	}
+
+	// All headers set in the configuration are set
+	for k, v := range h {
+		w.Header().Set(k, v)
+	}
+}
 
 // Function to set Content-Type depending on the file that is served
 func httpGetContentType(p *string, cts *contentTypes) string {

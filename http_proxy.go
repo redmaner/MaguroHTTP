@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 )
@@ -15,7 +16,7 @@ func (m *micro) httpProxy(w http.ResponseWriter, r *http.Request, cfg *microConf
 	if val, ok := cfg.Proxy.Rules[host]; ok {
 
 		if block := firewallProxy(cfg, remote, host); block {
-			m.httpThrowError(w, r, 403)
+			m.httpError(w, r, 403)
 			return
 		}
 
@@ -24,7 +25,7 @@ func (m *micro) httpProxy(w http.ResponseWriter, r *http.Request, cfg *microConf
 		req, err := http.NewRequest(r.Method, val, r.Body)
 		if err != nil {
 			logAction(logERROR, err)
-			m.httpThrowError(w, r, 502)
+			m.httpError(w, r, 502)
 			return
 		}
 		req.URL.Path = r.URL.Path
@@ -43,9 +44,10 @@ func (m *micro) httpProxy(w http.ResponseWriter, r *http.Request, cfg *microConf
 			io.Copy(w, resp.Body)
 			resp.Body.Close()
 			logNetwork(resp.StatusCode, r)
+			m.md.concat(resp.StatusCode, fmt.Sprintf("%s%s", r.Host, r.URL.Path))
 		} else {
 			logAction(logERROR, err)
-			m.httpThrowError(w, r, 502)
+			m.httpError(w, r, 502)
 		}
 	}
 }

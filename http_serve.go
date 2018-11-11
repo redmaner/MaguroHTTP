@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 )
@@ -36,7 +37,7 @@ func (m *micro) httpServe(w http.ResponseWriter, r *http.Request) {
 	// be configurated in the configuration
 	rct := r.Header.Get("Content-Type")
 	if !httpValidateRequestContentType(&rct, &cfg.ContentTypes) {
-		m.httpThrowError(w, r, 406)
+		m.httpError(w, r, 406)
 		return
 	}
 
@@ -44,7 +45,7 @@ func (m *micro) httpServe(w http.ResponseWriter, r *http.Request) {
 
 	// Check firewall for path
 	if block := firewallHTTP(&cfg, remote, path); block {
-		m.httpThrowError(w, r, 403)
+		m.httpError(w, r, 403)
 		return
 	}
 
@@ -75,12 +76,13 @@ func (m *micro) httpServe(w http.ResponseWriter, r *http.Request) {
 			m.httpSetHeaders(w, cfg.Headers)
 			http.ServeFile(w, r, cfg.Serve.ServeDir+path)
 			logNetwork(200, r)
+			m.md.concat(200, fmt.Sprintf("%s%s", r.Host, r.URL.Path))
 		} else {
-			m.httpThrowError(w, r, 405)
+			m.httpError(w, r, 405)
 			return
 		}
 	} else {
-		m.httpThrowError(w, r, 404)
+		m.httpError(w, r, 404)
 		return
 	}
 }

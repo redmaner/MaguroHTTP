@@ -45,6 +45,10 @@ func startServer(mCfg *microConfig) {
 	m := micro{
 		config: *mCfg,
 		vhosts: make(map[string]microConfig),
+		md: metricsData{
+			enabled: mCfg.Metrics.Enabled,
+			paths:   make(map[int]map[string]int),
+		},
 	}
 
 	// If virtual hosting is enabled, all the configurations of the vhosts are loaded
@@ -64,6 +68,9 @@ func startServer(mCfg *microConfig) {
 	// The router is the default multiplexer of the net/http package
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", m.httpServe)
+	if m.config.Metrics.Enabled {
+		mux.HandleFunc(m.config.Metrics.Path+"/", m.httpMetrics)
+	}
 
 	// If TLS is enabled the server will start in TLS
 	if m.config.TLS && httpCheckTLS(&m.config) {
