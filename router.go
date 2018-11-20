@@ -18,14 +18,16 @@ func (m *micro) configureRouter() {
 
 			// Start with proxy
 			if m.vhosts[k].Proxy.Enabled {
-				m.router.AddRoute(k, "/", true, "GET", "*", m.httpProxy())
-				m.router.AddRoute(k, "/", true, "PUT", "*", m.httpProxy())
-				m.router.AddRoute(k, "/", true, "POST", "*", m.httpProxy())
-				m.router.AddRoute(k, "/", true, "DELETE", "*", m.httpProxy())
-				m.router.AddRoute(k, "/", true, "HEAD", "*", m.httpProxy())
-				m.router.AddRoute(k, "/", true, "CONNECT", "*", m.httpProxy())
-				m.router.AddRoute(k, "/", true, "PATCH", "*", m.httpProxy())
-				m.router.AddRoute(k, "/", true, "OPTIONS", "*", m.httpProxy())
+				for host, _ := range m.vhosts[k].Proxy.Rules {
+					m.router.AddRoute(host, "/", true, "GET", "*", m.httpProxy())
+					m.router.AddRoute(host, "/", true, "PUT", "*", m.httpProxy())
+					m.router.AddRoute(host, "/", true, "POST", "*", m.httpProxy())
+					m.router.AddRoute(host, "/", true, "DELETE", "*", m.httpProxy())
+					m.router.AddRoute(host, "/", true, "HEAD", "*", m.httpProxy())
+					m.router.AddRoute(host, "/", true, "CONNECT", "*", m.httpProxy())
+					m.router.AddRoute(host, "/", true, "PATCH", "*", m.httpProxy())
+					m.router.AddRoute(host, "/", true, "OPTIONS", "*", m.httpProxy())
+				}
 
 				// Default is serve
 			} else {
@@ -54,14 +56,16 @@ func (m *micro) configureRouter() {
 
 	// Start with proxy
 	if m.config.Proxy.Enabled {
-		m.router.AddRoute(smux.DefaultHost, "/", true, "GET", "*", m.httpProxy())
-		m.router.AddRoute(smux.DefaultHost, "/", true, "PUT", "*", m.httpProxy())
-		m.router.AddRoute(smux.DefaultHost, "/", true, "POST", "*", m.httpProxy())
-		m.router.AddRoute(smux.DefaultHost, "/", true, "DELETE", "*", m.httpProxy())
-		m.router.AddRoute(smux.DefaultHost, "/", true, "HEAD", "*", m.httpProxy())
-		m.router.AddRoute(smux.DefaultHost, "/", true, "CONNECT", "*", m.httpProxy())
-		m.router.AddRoute(smux.DefaultHost, "/", true, "PATCH", "*", m.httpProxy())
-		m.router.AddRoute(smux.DefaultHost, "/", true, "OPTIONS", "*", m.httpProxy())
+		for host, _ := range m.config.Proxy.Rules {
+			m.router.AddRoute(host, "/", true, "GET", "*", m.httpProxy())
+			m.router.AddRoute(host, "/", true, "PUT", "*", m.httpProxy())
+			m.router.AddRoute(host, "/", true, "POST", "*", m.httpProxy())
+			m.router.AddRoute(host, "/", true, "DELETE", "*", m.httpProxy())
+			m.router.AddRoute(host, "/", true, "HEAD", "*", m.httpProxy())
+			m.router.AddRoute(host, "/", true, "CONNECT", "*", m.httpProxy())
+			m.router.AddRoute(host, "/", true, "PATCH", "*", m.httpProxy())
+			m.router.AddRoute(host, "/", true, "OPTIONS", "*", m.httpProxy())
+		}
 
 		// Default is serve
 
