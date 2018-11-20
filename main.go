@@ -64,13 +64,8 @@ func startServer(mCfg *microConfig) {
 		}
 	}
 
-	// Determine the router of MicroHTTP
-	// The router is the default multiplexer of the net/http package
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", m.httpServe)
-	if m.config.Metrics.Enabled {
-		mux.HandleFunc(m.config.Metrics.Path+"/", m.httpMetrics)
-	}
+	// Configure router
+	m.configureRouter()
 
 	// If TLS is enabled the server will start in TLS
 	if m.config.TLS && httpCheckTLS(&m.config) {
@@ -78,7 +73,7 @@ func startServer(mCfg *microConfig) {
 		tlsc := httpCreateTLSConfig()
 		ms := http.Server{
 			Addr:      mCfg.Address + ":" + mCfg.Port,
-			Handler:   mux,
+			Handler:   m.router,
 			TLSConfig: tlsc,
 		}
 
@@ -115,7 +110,7 @@ func startServer(mCfg *microConfig) {
 		// Never run non TLS servers in production!
 	} else {
 		logAction(logDEBUG, fmt.Errorf("MicroHTTP is listening on port %s", mCfg.Port))
-		http.ListenAndServe(mCfg.Address+":"+mCfg.Port, mux)
+		http.ListenAndServe(mCfg.Address+":"+mCfg.Port, m.router)
 	}
 }
 

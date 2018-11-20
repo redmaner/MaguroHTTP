@@ -42,7 +42,7 @@ type proxy struct {
 // contentTypes type, part of MicroHTTP config
 type contentTypes struct {
 	ResponseTypes map[string]string
-	RequestTypes  []string
+	RequestTypes  map[string]string
 }
 
 // HSTS type, part of MicroHTTP config

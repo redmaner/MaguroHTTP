@@ -14,16 +14,6 @@ func (m *micro) httpMetrics(w http.ResponseWriter, r *http.Request) {
 
 	remote := httpTrimPort(r.RemoteAddr)
 
-	// Validate request Content-Type
-	rct := r.Header.Get("Content-Type")
-	act := contentTypes{
-		RequestTypes: []string{"", "text/html", "application/x-www-form-urlencoded", "application/json"},
-	}
-	if !httpValidateRequestContentType(&rct, &act) {
-		m.httpError(w, r, 406)
-		return
-	}
-
 	path := r.URL.Path
 
 	// Check firewall for path
