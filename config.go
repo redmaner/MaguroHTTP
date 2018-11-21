@@ -109,11 +109,10 @@ func validateConfig(p string, c *microConfig) (bool, error) {
 	if c.Serve.VirtualHosting {
 		if len(c.Serve.VirtualHosts) == 0 {
 			return false, fmt.Errorf("%s: VirtualHosting is enabled but VirtualHosts is empty", p)
-		} else {
-			for k, v := range c.Serve.VirtualHosts {
-				if v == "" {
-					return false, fmt.Errorf("%s: Virtual host configuration not defined. Check reference for %s", p, k)
-				}
+		}
+		for k, v := range c.Serve.VirtualHosts {
+			if v == "" {
+				return false, fmt.Errorf("%s: Virtual host configuration not defined. Check reference for %s", p, k)
 			}
 		}
 	}

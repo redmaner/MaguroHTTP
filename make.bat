@@ -1,9 +1,16 @@
 go build -o microhttp.exe^
-          common.go^
-          config.go^
-          firewall.go^
-          logger.go^
-          main.go^
-          proxy.go^
-          serve.go^
-          tls.go^
+    config.go^
+    http_common.go^
+    http_error.go^
+    http_firewall.go^
+    http_proxy.go^
+    http_serve.go^
+    http_utils.go^
+    jwt.go^
+    logger.go^
+    main.go^
+    metrics.go^
+    metrics_data.go^
+    micro.go^
+    router.go^
+    tls.go^

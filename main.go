@@ -84,14 +84,14 @@ func startServer(mCfg *microConfig) {
 
 		go func() {
 			<-quit
-			logAction(logNONE, fmt.Errorf("Server is shutting down..."))
+			logAction(logNONE, fmt.Errorf("server is shutting down"))
 
 			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 			defer cancel()
 
 			ms.SetKeepAlivesEnabled(false)
 			if err := ms.Shutdown(ctx); err != nil {
-				logAction(logNONE, fmt.Errorf("Could not gracefully shutdown the server: %v\n", err))
+				logAction(logNONE, fmt.Errorf("could not gracefully shutdown the server: %v", err))
 			}
 			close(done)
 		}()

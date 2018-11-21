@@ -14,11 +14,11 @@ func (m *micro) configureRouter() {
 	if m.config.Serve.VirtualHosting {
 
 		// Loop over each Vhost
-		for k, _ := range m.config.Serve.VirtualHosts {
+		for vhost := range m.config.Serve.VirtualHosts {
 
 			// Start with proxy
-			if m.vhosts[k].Proxy.Enabled {
-				for host, _ := range m.vhosts[k].Proxy.Rules {
+			if m.vhosts[vhost].Proxy.Enabled {
+				for host := range m.vhosts[vhost].Proxy.Rules {
 					m.router.AddRoute(host, "/", true, "GET", "*", m.httpProxy())
 					m.router.AddRoute(host, "/", true, "PUT", "*", m.httpProxy())
 					m.router.AddRoute(host, "/", true, "POST", "*", m.httpProxy())
@@ -33,61 +33,70 @@ func (m *micro) configureRouter() {
 			} else {
 
 				// Loop over each supported method
-				for path, method := range m.vhosts[k].Methods {
+				for path, method := range m.vhosts[vhost].Methods {
 
-					contentType := ""
+					contentType := ";"
 
 					// Loop over each Content-Type for given path
-					if content, ok := m.vhosts[k].ContentTypes.RequestTypes[path]; ok {
+					if content, ok := m.vhosts[vhost].ContentTypes.RequestTypes[path]; ok {
 						contentType = content
 					}
 
 					if strings.IndexByte(method, ';') > -1 {
 						for _, mtd := range strings.Split(method, ";") {
-							m.router.AddRoute(k, path, true, mtd, contentType, m.httpServe())
+							m.router.AddRoute(vhost, path, true, mtd, contentType, m.httpServe())
 						}
 					} else {
-						m.router.AddRoute(k, path, true, method, contentType, m.httpServe())
+						m.router.AddRoute(vhost, path, true, method, contentType, m.httpServe())
 					}
 				}
 			}
 		}
-	}
-
-	// Start with proxy
-	if m.config.Proxy.Enabled {
-		for host, _ := range m.config.Proxy.Rules {
-			m.router.AddRoute(host, "/", true, "GET", "*", m.httpProxy())
-			m.router.AddRoute(host, "/", true, "PUT", "*", m.httpProxy())
-			m.router.AddRoute(host, "/", true, "POST", "*", m.httpProxy())
-			m.router.AddRoute(host, "/", true, "DELETE", "*", m.httpProxy())
-			m.router.AddRoute(host, "/", true, "HEAD", "*", m.httpProxy())
-			m.router.AddRoute(host, "/", true, "CONNECT", "*", m.httpProxy())
-			m.router.AddRoute(host, "/", true, "PATCH", "*", m.httpProxy())
-			m.router.AddRoute(host, "/", true, "OPTIONS", "*", m.httpProxy())
-		}
-
-		// Default is serve
-
 	} else {
-		// Normal serve is enabled
-		// Loop over each supported method
-		for path, method := range m.config.Methods {
 
-			contentType := ";"
-
-			// Loop over each Content-Type for given path
-			if content, ok := m.config.ContentTypes.RequestTypes[path]; ok {
-				contentType = content
+		// Start with proxy
+		if m.config.Proxy.Enabled {
+			for host := range m.config.Proxy.Rules {
+				m.router.AddRoute(host, "/", true, "GET", "*", m.httpProxy())
+				m.router.AddRoute(host, "/", true, "PUT", "*", m.httpProxy())
+				m.router.AddRoute(host, "/", true, "POST", "*", m.httpProxy())
+				m.router.AddRoute(host, "/", true, "DELETE", "*", m.httpProxy())
+				m.router.AddRoute(host, "/", true, "HEAD", "*", m.httpProxy())
+				m.router.AddRoute(host, "/", true, "CONNECT", "*", m.httpProxy())
+				m.router.AddRoute(host, "/", true, "PATCH", "*", m.httpProxy())
+				m.router.AddRoute(host, "/", true, "OPTIONS", "*", m.httpProxy())
 			}
 
-			if strings.IndexByte(method, ';') > -1 {
-				for _, mtd := range strings.Split(method, ";") {
-					m.router.AddRoute(smux.DefaultHost, path, true, mtd, contentType, m.httpServe())
+			// Default is serve
+
+		} else {
+			// Normal serve is enabled
+			// Loop over each supported method
+			for path, method := range m.config.Methods {
+
+				contentType := ";"
+
+				// Loop over each Content-Type for given path
+				if content, ok := m.config.ContentTypes.RequestTypes[path]; ok {
+					contentType = content
 				}
-			} else {
-				m.router.AddRoute(smux.DefaultHost, path, true, method, contentType, m.httpServe())
+
+				if strings.IndexByte(method, ';') > -1 {
+					for _, mtd := range strings.Split(method, ";") {
+						m.router.AddRoute(smux.DefaultHost, path, true, mtd, contentType, m.httpServe())
+					}
+				} else {
+					m.router.AddRoute(smux.DefaultHost, path, true, method, contentType, m.httpServe())
+				}
 			}
 		}
+
+		// MicroMetrics stuff
+		if m.config.Metrics.Enabled {
+			m.router.AddRoute(smux.DefaultHost, m.config.Metrics.Path, true, "GET", "", m.httpMetricsRoot())
+			m.router.AddRoute(smux.DefaultHost, m.config.Metrics.Path+"/admin", false, "GET", "application/json", m.httpMetricsAdmin())
+			m.router.AddRoute(smux.DefaultHost, m.config.Metrics.Path+"/retrieve", false, "POST", ";application/x-www-form-urlencoded", m.httpMetricsRetrieve())
+		}
 	}
+
 }

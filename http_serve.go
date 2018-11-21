@@ -6,8 +6,6 @@ import (
 	"os"
 )
 
-const defaultMethods = "GET;"
-
 // Function to handle HTTP requests to MicroHTTP server
 // This can be further configurated in the configuration file
 // MicroHTTP is capable to host multiple websites on one server using virtual hosts
