@@ -12,6 +12,7 @@ type microConfig struct {
 	Address      string
 	Port         string
 	Serve        serve
+	Download     download
 	Errors       map[string]string
 	Headers      map[string]string
 	Methods      map[string]string
@@ -31,6 +32,12 @@ type serve struct {
 	ServeIndex     string
 	VirtualHosting bool
 	VirtualHosts   map[string]string
+}
+
+// Download type, part of the MicroHTTP config
+type download struct {
+	Enabled bool
+	Exts    []string
 }
 
 // Proxy type, part of MicroHTTP config

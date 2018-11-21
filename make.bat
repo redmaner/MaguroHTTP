@@ -1,6 +1,7 @@
 go build -o microhttp.exe^
     config.go^
     http_common.go^
+    http_download.go^
     http_error.go^
     http_firewall.go^
     http_proxy.go^

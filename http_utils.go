@@ -87,41 +87,7 @@ func httpGetContentType(p *string, cts *contentTypes) string {
 	}
 
 	// Default Content-Type is text/html
-	return "text/html"
-
-}
-
-// Function to validate a request Content-Type
-func httpValidateRequestContentType(rct *string, cts *contentTypes) bool {
-	if len(cts.RequestTypes) != 0 {
-		for _, v := range cts.RequestTypes {
-			if v == *rct {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-// Test whether a HTTP method is allowed
-func httpMethodAllowed(m *string, a *string) bool {
-	am := make(map[string]int)
-	if match, err := regexp.MatchString(";", *a); match && err == nil {
-		sc := strings.Split(*a, ";")
-		for _, k := range sc {
-			if k != "" {
-				am[k] = 0
-			}
-		}
-	} else {
-		if *a != "" {
-			am[*a] = 0
-		}
-	}
-	if _, ok := am[*m]; ok {
-		return true
-	}
-	return false
+	return "application/x-unknown"
 }
 
 // Function to trim port of an address

@@ -29,6 +29,9 @@ func (m *micro) configureRouter() {
 					m.router.AddRoute(host, "/", true, "OPTIONS", "*", m.httpProxy())
 				}
 
+			} else if m.vhosts[vhost].Download.Enabled {
+				m.router.AddRoute(vhost, "/", true, "GET", "", m.httpServeDownload())
+
 				// Default is serve
 			} else {
 
@@ -67,8 +70,10 @@ func (m *micro) configureRouter() {
 				m.router.AddRoute(host, "/", true, "OPTIONS", "*", m.httpProxy())
 			}
 
-			// Default is serve
+		} else if m.config.Download.Enabled {
+			m.router.AddRoute(smux.DefaultHost, "/", true, "GET", "", m.httpServeDownload())
 
+			// Default is serve
 		} else {
 			// Normal serve is enabled
 			// Loop over each supported method
@@ -90,13 +95,12 @@ func (m *micro) configureRouter() {
 				}
 			}
 		}
-
-		// MicroMetrics stuff
-		if m.config.Metrics.Enabled {
-			m.router.AddRoute(smux.DefaultHost, m.config.Metrics.Path, true, "GET", "", m.httpMetricsRoot())
-			m.router.AddRoute(smux.DefaultHost, m.config.Metrics.Path+"/admin", false, "GET", "application/json", m.httpMetricsAdmin())
-			m.router.AddRoute(smux.DefaultHost, m.config.Metrics.Path+"/retrieve", false, "POST", ";application/x-www-form-urlencoded", m.httpMetricsRetrieve())
-		}
 	}
 
+	// MicroMetrics
+	if m.config.Metrics.Enabled {
+		m.router.AddRoute(smux.DefaultHost, m.config.Metrics.Path, true, "GET", "", m.httpMetricsRoot())
+		m.router.AddRoute(smux.DefaultHost, m.config.Metrics.Path+"/admin", false, "GET", "application/json", m.httpMetricsAdmin())
+		m.router.AddRoute(smux.DefaultHost, m.config.Metrics.Path+"/retrieve", false, "POST", ";application/x-www-form-urlencoded", m.httpMetricsRetrieve())
+	}
 }

@@ -45,6 +45,15 @@ body {
 .clearfix {
     *zoom: 1;
 }
+table {
+    background-color: #ffffff;
+    border-collapse: collapse;
+    border-top: 0px solid #ffffff;
+    border-bottom: 0px solid #ffffff;
+    border-left: 0px solid #ffffff;
+    border-right: 0px solid #ffffff;
+    text-align: left;
+}
 </style>
 
 </head>
