@@ -8,7 +8,9 @@ import (
 
 func (m *micro) configureRouter() {
 
-	m.router = smux.NewRouter()
+	m.router = &smux.SRouter{
+		ErrorHandler: m.httpError,
+	}
 
 	// Make routes for each vhost, if vhosts are enabled
 	if m.config.Serve.VirtualHosting {
