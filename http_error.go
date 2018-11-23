@@ -11,6 +11,9 @@ import (
 // Function to write HTTP error to ResponseWriter
 func (m *micro) httpError(w http.ResponseWriter, r *http.Request, e int) {
 
+	// Metrics
+	m.md.concat(e, fmt.Sprintf("%s%s", r.Host, r.URL.Path))
+
 	// Custom error pages can be set in the configuration.
 	if val, ok := m.config.Errors[strconv.Itoa(e)]; ok {
 		if _, err := os.Stat(val); err == nil {
@@ -40,5 +43,4 @@ func (m *micro) httpError(w http.ResponseWriter, r *http.Request, e int) {
 	}
 	io.WriteString(w, htmlEnd)
 	logNetwork(e, r)
-	m.md.concat(e, fmt.Sprintf("%s%s", r.Host, r.URL.Path))
 }
