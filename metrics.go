@@ -9,6 +9,15 @@ import (
 	"time"
 )
 
+// Metrics type, part of MicroHTTP config
+type metrics struct {
+	Enabled  bool
+	Address  string
+	Path     string
+	User     string
+	Password string
+}
+
 // Metrics handler for root "/", takes a GET request only
 // Metrics will show the login page to access the metrics. Login is a username password configuration
 // that can be set in the configuration. Password and username is authenticated / validated using JWT token

@@ -4,6 +4,14 @@ import (
 	"path"
 )
 
+// Firewall type, part of MicroHTTP config
+type firewall struct {
+	Enabled      bool
+	Blacklisting bool
+	Subpath      bool
+	Rules        map[string][]string
+}
+
 // Function to determine whether to block a host when serving HTTP
 // The firewall can be set in the configuration and is disabled by default.
 // By default the firewall is a whitelist firewall, which only allows hosts

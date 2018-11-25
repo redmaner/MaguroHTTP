@@ -9,6 +9,13 @@ import (
 	"time"
 )
 
+// Download type, part of the MicroHTTP config
+type download struct {
+	Enabled bool
+	Exts    []string
+}
+
+// Type fileinfo to gather information about files
 type fileInfo struct {
 	name    string
 	size    int64

@@ -26,20 +26,6 @@ type microConfig struct {
 	Metrics      metrics
 }
 
-// Serve type, part of the MicroHTTP config
-type serve struct {
-	ServeDir       string
-	ServeIndex     string
-	VirtualHosting bool
-	VirtualHosts   map[string]string
-}
-
-// Download type, part of the MicroHTTP config
-type download struct {
-	Enabled bool
-	Exts    []string
-}
-
 // Proxy type, part of MicroHTTP config
 type proxy struct {
 	Enabled bool
@@ -57,23 +43,6 @@ type hsts struct {
 	MaxAge            int
 	Preload           bool
 	IncludeSubdomains bool
-}
-
-// Firewall type, part of MicroHTTP config
-type firewall struct {
-	Enabled      bool
-	Blacklisting bool
-	Subpath      bool
-	Rules        map[string][]string
-}
-
-// Metrics type, part of MicroHTTP config
-type metrics struct {
-	Enabled  bool
-	Address  string
-	Path     string
-	User     string
-	Password string
 }
 
 // This loads a configuration with type microConfig from a file

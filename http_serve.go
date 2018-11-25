@@ -6,6 +6,14 @@ import (
 	"os"
 )
 
+// Serve type, part of the MicroHTTP config
+type serve struct {
+	ServeDir       string
+	ServeIndex     string
+	VirtualHosting bool
+	VirtualHosts   map[string]string
+}
+
 // Function to handle HTTP requests to MicroHTTP server
 // This can be further configurated in the configuration file
 // MicroHTTP is capable to host multiple websites on one server using virtual hosts
