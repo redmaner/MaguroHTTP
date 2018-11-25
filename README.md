@@ -1,4 +1,4 @@
-# MicroHTTP v0.11
+# MicroHTTP v0.17
 MicroHTTP is a small, fast, stable and secure HTTP server and reverse proxy writtin in Go.
 
 ## Features
@@ -11,19 +11,21 @@ MicroHTTP is currently being developed and supports the following features:<br>
 * Configurable Strict-Transport-Security
 * Security headers are set by default
 * HTTP Headers are easily configurable
-* HTTP Methods can be easily enabled and disabled. This applies to the whole website, and can even be configured for indivual pages if so desired
+* HTTP Methods can be easily enabled and disabled. This applies to the whole website, and can even be configured for individual pages if so desired
 * Automatic response Content-Type
 * Configurable request Content-Type
 * Firewall support for server and proxy
-* Flexible configuration with json<br>
+* Flexible configuration with json
+* Network and application logging is available
+* Has built in anonymous metrics to gather visitor data of your website / proxy<br>
 
 ## Backlog
 The following features will be added shortly:<br>
 * Automatic TLS certifcates with LetsEncrypt
-* Caching support for both HTTP server and reverse proxy
 
 ## Not supported
 The following features are not supported for now or ever:<br>
+* Caching support for both HTTP server and reverse proxy
 * TLSv1.3 (will be added in the future)
 * Diffe-Hellman exchange (DHE) cipher suites
 * FastCGI

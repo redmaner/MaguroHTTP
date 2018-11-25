@@ -16,6 +16,7 @@ type metrics struct {
 	Path     string
 	User     string
 	Password string
+	Out      string
 }
 
 // Metrics handler for root "/", takes a GET request only

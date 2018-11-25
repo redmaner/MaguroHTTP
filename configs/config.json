@@ -72,6 +72,7 @@
 		"Address":"localhost",
 		"Path":"/metricsTest",
 		"User":"Admin",
-		"Password":"Password"
+		"Password":"Password",
+		"Out":"./metrics.json"
 	}
 }

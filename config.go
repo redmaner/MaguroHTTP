@@ -83,7 +83,7 @@ func validateConfig(p string, c *microConfig) (bool, error) {
 		return false, fmt.Errorf("%s: The server configuration has missing elements: check Address, Port, ServeDir and ServeIndex", p)
 	}
 
-	if c.LogOut =="" {
+	if c.LogOut == "" {
 		return false, fmt.Errorf("%s: LogOut is undefined", p)
 	}
 
@@ -127,6 +127,9 @@ func validateConfig(p string, c *microConfig) (bool, error) {
 		}
 		if c.Metrics.User == "" || c.Metrics.Password == "" || c.Metrics.Address == "" {
 			return false, fmt.Errorf("%s: Metrics user, password and address cannot be empty", p)
+		}
+		if c.Metrics.Out == "" {
+			return false, fmt.Errorf("%s: Metrics out cannot be empty", p)
 		}
 	}
 

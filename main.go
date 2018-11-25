@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const version = "v0.12"
+const version = "v0.17"
 
 // Main function
 func main() {
@@ -45,11 +45,10 @@ func startServer(mCfg *microConfig) {
 	m := micro{
 		config: *mCfg,
 		vhosts: make(map[string]microConfig),
-		md: metricsData{
-			enabled: mCfg.Metrics.Enabled,
-			paths:   make(map[int]map[string]int),
-		},
 	}
+
+	// Setup metrics
+	m.loadMetrics()
 
 	// If virtual hosting is enabled, all the configurations of the vhosts are loaded
 	if m.config.Serve.VirtualHosting {
@@ -89,6 +88,7 @@ func startServer(mCfg *microConfig) {
 		go func() {
 			<-quit
 			logAction(logNONE, fmt.Errorf("server is shutting down"))
+			m.flushMDToFile(m.config.Metrics.Out)
 
 			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 			defer cancel()

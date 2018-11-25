@@ -9,10 +9,10 @@ import (
 
 // Constants for logging levels
 const (
-	logNONE    = 0
-	logNET     = 1
-	logERROR   = 2
-	logDEBUG   = 3
+	logNONE  = 0
+	logNET   = 1
+	logERROR = 2
+	logDEBUG = 3
 )
 
 var debug = logERROR
@@ -29,15 +29,21 @@ func initLogger(s, o string) {
 		var logFile *os.File
 		var err error
 
-		if _, err = os.Stat(o); err != nil {
-			logFile, err = os.Create(o)
+		if _, err = os.Stat(o); err == nil {
+			err = os.Remove(o)
 			if err != nil {
-				fmt.Printf("An error occured creating %s\n", o)
+				fmt.Printf("An error occured removing %s\n", o)
 				os.Exit(1)
 			}
 		}
 
-		logFile, err = os.OpenFile(o, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+		logFile, err = os.Create(o)
+		if err != nil {
+			fmt.Printf("An error occured creating %s\n", o)
+			os.Exit(1)
+		}
+
+		logFile, err = os.OpenFile(o, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			fmt.Printf("An error occured opening %s\n", o)
 			os.Exit(1)
