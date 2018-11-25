@@ -14,7 +14,7 @@ const version = "v0.12"
 // Main function
 func main() {
 
-	initLogger("MicroHTTP-")
+	initLogger("MicroHTTP-", "stderr")
 
 	args := os.Args
 	if len(args) == 1 {
@@ -64,6 +64,10 @@ func startServer(mCfg *microConfig) {
 		}
 	}
 
+	// Configure logging
+	debug = m.config.LogLevel
+	initLogger("MicroHTTP-", m.config.LogOut)
+
 	// Configure router
 	m.configureRouter()
 
@@ -109,7 +113,7 @@ func startServer(mCfg *microConfig) {
 		// IF TLS is disabled the server is started without TLS
 		// Never run non TLS servers in production!
 	} else {
-		logAction(logDEBUG, fmt.Errorf("MicroHTTP is listening on port %s", mCfg.Port))
+		logAction(logNONE, fmt.Errorf("MicroHTTP is listening on port %s", mCfg.Port))
 		http.ListenAndServe(mCfg.Address+":"+mCfg.Port, m.router)
 	}
 }

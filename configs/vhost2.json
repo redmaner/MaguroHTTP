@@ -26,11 +26,7 @@
 	"ContentTypes": {
 		"ResponseTypes":{
 			"/test.html":"text/plain"
-		},
-		"RequestTypes": [
-			"",
-			"text/html"
-		]
+		}
 	},
 
 	"Firewall": {

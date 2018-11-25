@@ -1,6 +1,8 @@
 {
 	"Address":"0.0.0.0",
 	"Port":"7443",
+	"LogLevel":3,
+	"LogOut":"./test.log",
 
 	"Serve":{
 		"ServeDir":"./test/",
@@ -34,11 +36,7 @@
 	"ContentTypes": {
 		"ResponseTypes":{
 			"/test.html":"text/plain"
-		},
-		"RequestTypes": [
-			"",
-			"text/html"
-		]
+		}
 	},
 
 	"Proxy": {

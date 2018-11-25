@@ -11,6 +11,8 @@ import (
 type microConfig struct {
 	Address      string
 	Port         string
+	LogLevel     int
+	LogOut       string
 	Serve        serve
 	Download     download
 	Errors       map[string]string
@@ -79,6 +81,14 @@ func validateConfig(p string, c *microConfig) (bool, error) {
 	// Test for empty elements that cannot be empty
 	if c.Address == "" || c.Port == "" || c.Serve.ServeDir == "" || c.Serve.ServeIndex == "" {
 		return false, fmt.Errorf("%s: The server configuration has missing elements: check Address, Port, ServeDir and ServeIndex", p)
+	}
+
+	if c.LogOut =="" {
+		return false, fmt.Errorf("%s: LogOut is undefined", p)
+	}
+
+	if c.LogLevel < 0 {
+		return false, fmt.Errorf("%s: LogLevel must be higher than 0", p)
 	}
 
 	// Test virtual hosts

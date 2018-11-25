@@ -13,16 +13,38 @@ const (
 	logNET     = 1
 	logERROR   = 2
 	logDEBUG   = 3
-	logTRACE   = 4
-	logVERBOSE = 5
 )
 
-var debug = logTRACE
+var debug = logERROR
 var logger *log.Logger
 
 // Function to initialize logger
-func initLogger(s string) {
-	logger = log.New(os.Stdout, s, log.Ldate|log.Ltime)
+func initLogger(s, o string) {
+	switch o {
+	case "stdout":
+		logger = log.New(os.Stdout, s, log.Ldate|log.Ltime)
+	case "stderr":
+		logger = log.New(os.Stderr, s, log.Ldate|log.Ltime)
+	default:
+		var logFile *os.File
+		var err error
+
+		if _, err = os.Stat(o); err != nil {
+			logFile, err = os.Create(o)
+			if err != nil {
+				fmt.Printf("An error occured creating %s\n", o)
+				os.Exit(1)
+			}
+		}
+
+		logFile, err = os.OpenFile(o, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+		if err != nil {
+			fmt.Printf("An error occured opening %s\n", o)
+			os.Exit(1)
+		}
+
+		logger = log.New(logFile, s, log.Ldate|log.Ltime)
+	}
 }
 
 // General function to write errors and messages to log
@@ -40,10 +62,6 @@ func logAction(l int, err error) {
 		logger.Println("ERROR:", err)
 	case debug >= logDEBUG && l == logDEBUG:
 		logger.Println("DEBUG:", err)
-	case debug >= logTRACE && l == logTRACE:
-		logger.Println("TRACE:", err)
-	case debug >= logVERBOSE && l == logVERBOSE:
-		logger.Println("VERBOSE:", err)
 	}
 }
 
