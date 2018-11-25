@@ -1,0 +1,14 @@
+[Unit]
+Description=MicroHTTP
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Restart=always
+RestartSec=5s
+ExecStart=/etc/MicroHTTP/microhttp /etc/MicroHTTP/configs/config.json
+
+# Other Restart options: or always, on-abort, etc
+[Install]
+WantedBy=multi-user.target
