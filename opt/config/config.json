@@ -9,8 +9,8 @@
 		"ServeIndex":"index.html",
 		"VirtualHosting":true,
 		"VirtualHosts":{
-			"localhost":"./configs/vhost1.json",
-			"127.0.0.1":"./configs/vhost2.json"
+			"localhost":"./opt/config/vhost1.json",
+			"127.0.0.1":"./opt/config/vhost2.json"
 		}
 	},
 
@@ -47,32 +47,9 @@
 		}
 	},
 
-	"TLS":false,
-	"TLSCert":"./certs/test/localhost.cert",
-	"TLSKey":"./certs/test/localhost.key",
-
-	"HSTS": {
-		"MaxAge":63072000,
-		"Preload":true,
-		"IncludeSubdomains":true
-	},
-
-	"Firewall": {
-		"Enabled":false,
-		"Blacklisting":false,
-		"Rules":{
-			"127.0.0.1": [
-				"127.0.0.1"
-			]
-		}
-	},
-
-	"Metrics": {
+	"TLS": {
 		"Enabled":true,
-		"Address":"localhost",
-		"Path":"/metricsTest",
-		"User":"Admin",
-		"Password":"Password",
-		"Out":"./metrics.json"
+		"TLSCert":"./certs/test/localhost.cert",
+		"TLSKey":"./certs/test/localhost.key"
 	}
 }

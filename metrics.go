@@ -68,14 +68,14 @@ func (m *micro) httpMetricsRetrieve() http.HandlerFunc {
 		if token, err := jwtSignToken(password, user, "MicroMetrics", 30*time.Second); err == nil {
 
 			var addr string
-			if m.config.TLS {
+			if m.config.TLS.Enabled {
 				addr = "https://" + m.config.Metrics.Address + ":" + m.config.Port + m.config.Metrics.Path + "/admin"
 			} else {
 				addr = "http://" + m.config.Metrics.Address + ":" + m.config.Port + m.config.Metrics.Path + "/admin"
 			}
 			if req, err2 := http.NewRequest("GET", addr, bytes.NewReader(token)); err2 == nil {
 				req.Header.Set("Content-Type", "application/json")
-				if resp, err3 := http.DefaultClient.Do(req); err3 == nil {
+				if resp, err3 := m.client.Do(req); err3 == nil {
 					w.WriteHeader(resp.StatusCode)
 					w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 					w.Header().Set("Content-Length", resp.Header.Get("Content-Length"))

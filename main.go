@@ -70,10 +70,13 @@ func startServer(mCfg *microConfig) {
 	// Configure router
 	m.configureRouter()
 
+	// Get client
+	m.client = serverClient(m.config.TLS)
+
 	// If TLS is enabled the server will start in TLS
-	if m.config.TLS && httpCheckTLS(&m.config) {
+	if m.config.TLS.Enabled && httpCheckTLS(m.config.TLS) {
 		logAction(logNONE, fmt.Errorf("MicroHTTP is listening on port %s with TLS", mCfg.Port))
-		tlsc := httpCreateTLSConfig()
+		tlsc := httpCreateTLSConfig(m.config.TLS)
 		ms := http.Server{
 			Addr:      mCfg.Address + ":" + mCfg.Port,
 			Handler:   m.router,
@@ -101,7 +104,7 @@ func startServer(mCfg *microConfig) {
 		}()
 
 		// Start the server
-		err := ms.ListenAndServeTLS(mCfg.TLSCert, mCfg.TLSKey)
+		err := ms.ListenAndServeTLS(mCfg.TLS.TLSCert, mCfg.TLS.TLSKey)
 		if err != nil && err != http.ErrServerClosed {
 			logAction(logERROR, fmt.Errorf("Starting server failed: %s", err))
 			return

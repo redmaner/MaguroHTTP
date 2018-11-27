@@ -31,8 +31,6 @@ func (m *micro) httpProxy() http.HandlerFunc {
 				return
 			}
 
-			cl := http.DefaultClient
-
 			req, err := http.NewRequest(r.Method, val, r.Body)
 			if err != nil {
 				logAction(logERROR, err)
@@ -48,7 +46,7 @@ func (m *micro) httpProxy() http.HandlerFunc {
 				req.Header[k] = v
 			}
 
-			if resp, err := cl.Do(req); err == nil {
+			if resp, err := m.client.Do(req); err == nil {
 				w.WriteHeader(resp.StatusCode)
 				w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 				w.Header().Set("Content-Length", resp.Header.Get("Content-Length"))

@@ -20,9 +20,7 @@ type microConfig struct {
 	Methods      map[string]string
 	ContentTypes contentTypes
 	Proxy        proxy
-	TLS          bool
-	TLSCert      string
-	TLSKey       string
+	TLS          tlsconfig
 	HSTS         hsts
 	Firewall     firewall
 	Metrics      metrics
@@ -109,8 +107,8 @@ func validateConfig(p string, c *microConfig) (bool, error) {
 		}
 	}
 
-	if c.TLS {
-		if c.TLSCert == "" || c.TLSKey == "" {
+	if c.TLS.Enabled {
+		if c.TLS.TLSCert == "" || c.TLS.TLSKey == "" {
 			return false, fmt.Errorf("%s: TLS is enabled but certificates are not defined", p)
 		}
 	}
