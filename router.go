@@ -40,7 +40,12 @@ func (m *micro) configureRouter() {
 				// Loop over each supported method
 				for path, method := range m.vhosts[vhost].Methods {
 
+					var fallback bool
 					contentType := ";"
+
+					if path[len(path)-1] == '/' {
+						fallback = true
+					}
 
 					// Loop over each Content-Type for given path
 					if content, ok := m.vhosts[vhost].ContentTypes.RequestTypes[path]; ok {
@@ -49,10 +54,10 @@ func (m *micro) configureRouter() {
 
 					if strings.IndexByte(method, ';') > -1 {
 						for _, mtd := range strings.Split(method, ";") {
-							m.router.AddRoute(vhost, path, true, mtd, contentType, m.httpServe())
+							m.router.AddRoute(vhost, path, fallback, mtd, contentType, m.httpServe())
 						}
 					} else {
-						m.router.AddRoute(vhost, path, true, method, contentType, m.httpServe())
+						m.router.AddRoute(vhost, path, fallback, method, contentType, m.httpServe())
 					}
 				}
 			}
@@ -81,7 +86,12 @@ func (m *micro) configureRouter() {
 			// Loop over each supported method
 			for path, method := range m.config.Methods {
 
+				var fallback bool
 				contentType := ";"
+
+				if path[len(path)-1] == '/' {
+					fallback = true
+				}
 
 				// Loop over each Content-Type for given path
 				if content, ok := m.config.ContentTypes.RequestTypes[path]; ok {
@@ -90,10 +100,10 @@ func (m *micro) configureRouter() {
 
 				if strings.IndexByte(method, ';') > -1 {
 					for _, mtd := range strings.Split(method, ";") {
-						m.router.AddRoute(smux.DefaultHost, path, true, mtd, contentType, m.httpServe())
+						m.router.AddRoute(smux.DefaultHost, path, fallback, mtd, contentType, m.httpServe())
 					}
 				} else {
-					m.router.AddRoute(smux.DefaultHost, path, true, method, contentType, m.httpServe())
+					m.router.AddRoute(smux.DefaultHost, path, fallback, method, contentType, m.httpServe())
 				}
 			}
 		}
