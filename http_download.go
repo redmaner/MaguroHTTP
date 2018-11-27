@@ -79,7 +79,7 @@ func (m *micro) httpServeDownload() http.HandlerFunc {
 			io.WriteString(w, fmt.Sprintln(`<table border="0" cellpadding="0" cellspacing="0">`))
 			io.WriteString(w, fmt.Sprintln(`<tr><td height="auto" width="200px"><span><b>Name</b></span><td height="auto" width="120px"><span><b>Size</b></span></td><td height="auto" width="auto"><span><b>Modification date</b></span></td></tr>`))
 			for _, v := range dlurls {
-				io.WriteString(w, fmt.Sprintln(`<tr><td height="auto" width="200px"><span><a href="/`, v.name, `">`, v.name, `</a><br></span><td height="auto" width="120px"><span >`, v.size, `</b></span></td><td height="auto" width="auto"><span>`, v.modTime, `</b></span></td></tr>`))
+				io.WriteString(w, fmt.Sprint(`<tr><td height="auto" width="200px"><span><a href="/`, v.name, `">`, v.name, `</a><br></span><td height="auto" width="120px"><span >`, v.size, `</b></span></td><td height="auto" width="auto"><span>`, v.modTime, `</b></span></td></tr>`))
 			}
 			io.WriteString(w, fmt.Sprintln("</table><br>"))
 			io.WriteString(w, htmlEnd)

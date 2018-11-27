@@ -4,10 +4,10 @@ After=network.target
 
 [Service]
 Type=simple
-User=root
+User=micro-www
 Restart=always
 RestartSec=5s
-ExecStart=/etc/MicroHTTP/microhttp /etc/MicroHTTP/configs/config.json
+ExecStart=/usr/bin/microhttp /usr/lib/microhttp/main.json
 
 # Other Restart options: or always, on-abort, etc
 [Install]

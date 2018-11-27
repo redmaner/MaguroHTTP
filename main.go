@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const version = "v0.17"
+const version = "v1.0 beta1"
 
 // Main function
 func main() {
