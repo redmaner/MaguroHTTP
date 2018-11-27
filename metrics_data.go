@@ -9,7 +9,7 @@ import (
 // Type for metrics data
 // Metrics data can be accessed concurrently
 type metricsData struct {
-	sync.Mutex
+	mu            sync.Mutex
 	enabled       bool
 	TotalRequests int
 	Paths         map[int]map[string]int
@@ -22,7 +22,7 @@ type metricsData struct {
 // * The responses for requests based on HTTP status codes
 func (md *metricsData) concat(e int, p string) {
 	if md.enabled {
-		md.Lock()
+		md.mu.Lock()
 		if _, ok := md.Paths[e]; ok {
 			if _, ok := md.Paths[e][p]; ok {
 				md.Paths[e][p]++
@@ -35,13 +35,13 @@ func (md *metricsData) concat(e int, p string) {
 			md.Paths[e][p] = 1
 		}
 		md.TotalRequests++
-		md.Unlock()
+		md.mu.Unlock()
 	}
 }
 
 // Function to display metrics data
 func (md *metricsData) display(o io.Writer) {
-	md.Lock()
+	md.mu.Lock()
 	io.WriteString(o, fmt.Sprintf("<h1>MicroHTTP metrics</h1><br><b>Total requests:</b> %d<br>", md.TotalRequests))
 	for k, v := range md.Paths {
 		io.WriteString(o, fmt.Sprintf("<br><b>%d</b><ul>", k))
@@ -50,5 +50,5 @@ func (md *metricsData) display(o io.Writer) {
 		}
 		io.WriteString(o, fmt.Sprintf("</ul>"))
 	}
-	md.Unlock()
+	md.mu.Unlock()
 }

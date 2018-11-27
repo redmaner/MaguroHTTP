@@ -1,10 +1,10 @@
 package main
 
 import (
-  "encoding/json"
-  "io"
-  "os"
-  "time"
+	"encoding/json"
+	"io"
+	"os"
+	"time"
 )
 
 // This function loads saved metrics from a file
@@ -43,7 +43,8 @@ func (m *micro) loadMetrics() {
 		os.Exit(1)
 	}
 
-	m.md = md
+	m.md.TotalRequests = md.TotalRequests
+	m.md.Paths = md.Paths
 	m.md.enabled = m.config.Metrics.Enabled
 
 	// Every 20 minutes we flush metrics to disk
@@ -69,10 +70,10 @@ func (m *micro) flushMDToFile(p string) {
 	mdout, err = os.OpenFile(p, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	logAction(logERROR, err)
 
-	m.md.Lock()
+	m.md.mu.Lock()
 	bs, err := json.MarshalIndent(m.md, "", "  ")
 	logAction(logERROR, err)
-	m.md.Unlock()
+	m.md.mu.Unlock()
 
 	io.WriteString(mdout, string(bs))
 	mdout.Close()
