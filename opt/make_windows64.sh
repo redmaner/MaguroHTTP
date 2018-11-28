@@ -2,26 +2,24 @@
 
 source ./opt/build.cfg
 
-rm -f ./opt/microhttp_linux64
-rm -f ./microhttp_linux64.tar.gz
+rm -f ./opt/microhttp_windows64.exe
 rm -rf ./.temp
 
-export GOOS="linux"
+export GOOS="windows"
 export GOHOSTARCH="amd64"
 
 go get -v -u github.com/gbrlsnchs/jwt
 go get -v -u github.com/redmaner/smux
 
-go build -o ./opt/microhttp_linux64 *.go
+go build -o ./opt/microhttp_windows64.exe *.go
 
 mkdir -p ./.temp
 mkdir -p ./out
-cp ./opt/microhttp_linux64 ./.temp/microhttp
-cp ./opt/systemd/microhttp.service ./.temp/microhttp.service
+cp ./opt/microhttp_windows64.exe ./.temp/microhttp.exe
 cp ./opt/config/example.json ./.temp/main.json
 
 cd ./.temp
-zip ../out/microhttp_"$VERSION"_linux64.zip *
+zip ../out/microhttp_"$VERSION"_windows64.zip *
 cd ..
 
 rm -rf ./.temp
