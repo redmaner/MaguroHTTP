@@ -46,20 +46,20 @@ func initLogger(s, o string) {
 		if _, err = os.Stat(o); err == nil {
 			err = os.Remove(o)
 			if err != nil {
-				fmt.Printf("An error occured removing %s\n", o)
+				fmt.Printf("An error occurred removing %s\n", o)
 				os.Exit(1)
 			}
 		}
 
-		logFile, err = os.Create(o)
+		_, err = os.Create(o)
 		if err != nil {
-			fmt.Printf("An error occured creating %s\n", o)
+			fmt.Printf("An error occurred creating %s\n", o)
 			os.Exit(1)
 		}
 
 		logFile, err = os.OpenFile(o, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
-			fmt.Printf("An error occured opening %s\n", o)
+			fmt.Printf("An error occurred opening %s\n", o)
 			os.Exit(1)
 		}
 
