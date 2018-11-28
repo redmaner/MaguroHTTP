@@ -95,6 +95,11 @@ func validateConfig(p string, c *microConfig) (bool, error) {
 		return false, fmt.Errorf("%s: The server configuration has missing elements: check Address, Port, ServeDir and ServeIndex", p)
 	}
 
+	// We automatically fix a serveDir that doesn't end with a slash
+	if c.Serve.ServeDir[len(c.Serve.ServeDir) - 1] != '/' {
+		c.Serve.ServeDir = c.Serve.ServeDir + "/"
+	}
+
 	if c.LogOut == "" {
 		return false, fmt.Errorf("%s: LogOut is undefined", p)
 	}
@@ -163,8 +168,15 @@ func validateConfigVhost(p string, c *microConfig) (bool, error) {
 		if len(c.Proxy.Rules) == 0 {
 			return false, fmt.Errorf("%s: Proxy is enabled but no rules are defined", p)
 		}
-	} else if c.Serve.ServeDir == "" || c.Serve.ServeIndex == "" {
-		return false, fmt.Errorf("%s: The server configuration has missing elements: check ServeDir and ServeIndex", p)
+	} else {
+		if c.Serve.ServeDir == "" || c.Serve.ServeIndex == "" {
+			return false, fmt.Errorf("%s: The server configuration has missing elements: check ServeDir and ServeIndex", p)
+		}
+
+		// We automatically fix ServeDir that doesn't end with a slash
+		if c.Serve.ServeDir[len(c.Serve.ServeDir) - 1] != '/' {
+			c.Serve.ServeDir = c.Serve.ServeDir + "/"
+		}
 	}
 
 	if c.Firewall.Enabled {
