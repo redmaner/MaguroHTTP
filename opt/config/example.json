@@ -47,6 +47,12 @@
 		"TLSKey":"./certs/test/localhost.key"
 	},
 
+	"HSTS": {
+		"MaxAge":63072000,
+		"Preload":true,
+		"IncludeSubdomains":true
+	},
+
 	"Metrics": {
 		"Enabled":false,
 		"Address":"localhost",
