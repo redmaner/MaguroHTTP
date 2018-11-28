@@ -96,7 +96,7 @@ func validateConfig(p string, c *microConfig) (bool, error) {
 	}
 
 	// We automatically fix a serveDir that doesn't end with a slash
-	if c.Serve.ServeDir[len(c.Serve.ServeDir) - 1] != '/' {
+	if c.Serve.ServeDir[len(c.Serve.ServeDir)-1] != '/' {
 		c.Serve.ServeDir = c.Serve.ServeDir + "/"
 	}
 
@@ -174,7 +174,7 @@ func validateConfigVhost(p string, c *microConfig) (bool, error) {
 		}
 
 		// We automatically fix ServeDir that doesn't end with a slash
-		if c.Serve.ServeDir[len(c.Serve.ServeDir) - 1] != '/' {
+		if c.Serve.ServeDir[len(c.Serve.ServeDir)-1] != '/' {
 			c.Serve.ServeDir = c.Serve.ServeDir + "/"
 		}
 	}

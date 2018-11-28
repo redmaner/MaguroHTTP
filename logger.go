@@ -40,10 +40,7 @@ func initLogger(s, o string) {
 	case "stderr":
 		logger = log.New(os.Stderr, s, log.Ldate|log.Ltime)
 	default:
-		var logFile *os.File
-		var err error
-
-		if _, err = os.Stat(o); err == nil {
+		if _, err := os.Stat(o); err == nil {
 			err = os.Remove(o)
 			if err != nil {
 				fmt.Printf("An error occurred removing %s\n", o)
@@ -51,13 +48,13 @@ func initLogger(s, o string) {
 			}
 		}
 
-		_, err = os.Create(o)
+		_, err := os.Create(o)
 		if err != nil {
 			fmt.Printf("An error occurred creating %s\n", o)
 			os.Exit(1)
 		}
 
-		logFile, err = os.OpenFile(o, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		logFile, err := os.OpenFile(o, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			fmt.Printf("An error occurred opening %s\n", o)
 			os.Exit(1)

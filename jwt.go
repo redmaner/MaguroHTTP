@@ -24,7 +24,7 @@ import (
 // Function to sign a JWT token
 // INPUT: secret, user, audience as string
 // INPUT: the validation time of the token in time.Duration
-// OUTPUT: token in slice of bytes if succesful and an error if applicable
+// OUTPUT: token in slice of bytes if successful and an error if applicable
 func jwtSignToken(s, u, a string, v time.Duration) ([]byte, error) {
 	// Timestamp the beginning.
 	now := time.Now()
