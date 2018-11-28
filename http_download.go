@@ -88,6 +88,7 @@ func (m *micro) httpServeDownload() http.HandlerFunc {
 		// If the requested path doesn't exist, return a 404 error
 		if path == cfg.Serve.ServeIndex {
 			w.Header().Set("Content-Type", "text/html")
+			m.httpSetHeaders(w, cfg.Headers)
 			io.WriteString(w, htmlStart)
 			io.WriteString(w, "<h1>Downloads</h1>")
 			io.WriteString(w, fmt.Sprintln(`<table border="0" cellpadding="0" cellspacing="0">`))
