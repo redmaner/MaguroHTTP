@@ -90,19 +90,19 @@ func (m *micro) httpMetricsRetrieve() http.HandlerFunc {
 			if req, err2 := http.NewRequest("GET", addr, bytes.NewReader(token)); err2 == nil {
 				req.Header.Set("Content-Type", "application/json")
 				if resp, err3 := m.client.Do(req); err3 == nil {
-					w.WriteHeader(resp.StatusCode)
 					w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 					w.Header().Set("Content-Length", resp.Header.Get("Content-Length"))
 					w.Header().Set("Content-Security-Policy", "")
+					w.WriteHeader(resp.StatusCode)
 					io.Copy(w, resp.Body)
 					resp.Body.Close()
 					logNetwork(resp.StatusCode, r)
 				} else {
-					logAction(logERROR, err)
+					logAction(logERROR, err3)
 					m.httpError(w, r, 404)
 				}
 			} else {
-				logAction(logERROR, err)
+				logAction(logERROR, err2)
 				m.httpError(w, r, 404)
 			}
 		} else {
