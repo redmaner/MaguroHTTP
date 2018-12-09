@@ -67,9 +67,18 @@ func (m *micro) httpProxy() http.HandlerFunc {
 			}
 
 			if resp, err := m.client.Do(req); err == nil {
-				w.WriteHeader(resp.StatusCode)
+
 				w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 				w.Header().Set("Content-Length", resp.Header.Get("Content-Length"))
+
+				// Proxy back all response headers
+				for k, v := range resp.Header {
+					w.Header().Set(k, v[0])
+				}
+
+				// Write header last. If header is written, headers can no longer be set
+				w.WriteHeader(resp.StatusCode)
+
 				io.Copy(w, resp.Body)
 				resp.Body.Close()
 				logNetwork(resp.StatusCode, r)
