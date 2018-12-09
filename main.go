@@ -99,13 +99,15 @@ func startServer(mCfg *microConfig) {
 
 		// This is meant to listen for signals. A signal will stop MicroHTTP
 		done := make(chan bool)
-		quit := make(chan os.Signal, 1)
+		quit := make(chan os.Signal)
 		signal.Notify(quit, os.Interrupt)
 
 		go func() {
 			<-quit
 			logAction(logNONE, fmt.Errorf("server is shutting down"))
-			m.flushMDToFile(m.config.Metrics.Out)
+			if m.config.Metrics.Enabled {
+				m.flushMDToFile(m.config.Metrics.Out)
+			}
 
 			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 			defer cancel()
