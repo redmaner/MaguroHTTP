@@ -85,6 +85,8 @@ func httpGetContentType(p *string, cts *contentTypes) string {
 		return "image/png"
 	case ".pdf":
 		return "application/pdf"
+	case ".svg":
+		return "image/svg+xml"
 	case ".txt":
 		return "text/plain"
 	case ".xhtml":
