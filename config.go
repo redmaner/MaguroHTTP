@@ -102,7 +102,7 @@ func validateConfig(p string, c *microConfig) (bool, error) {
 			}
 
 			// Autocert only works in combination with https port (443)
-			if c.Core.Address != "443" {
+			if c.Core.Port != "443" {
 				return false, fmt.Errorf("%s: TLS autocert is enabled and cannot be used with a port different than 443 (HTTPS)", p)
 			}
 
