@@ -36,9 +36,9 @@ type fileInfo struct {
 	modTime time.Time
 }
 
-// Function to handle HTTP requests to MicroHTTP server
+// Function to handle HTTP requests to MicroHTTP download server
 // This can be further configurated in the configuration file
-// MicroHTTP is capable to host multiple websites on one server using virtual hosts
+// MicroHTTP download server generates a table of downloadable files based on extensions
 func (m *micro) httpServeDownload() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -84,8 +84,7 @@ func (m *micro) httpServeDownload() http.HandlerFunc {
 			path = cfg.Serve.ServeIndex
 		}
 
-		// Serve the file that is requested by path if it esists in ServeDir.
-		// If the requested path doesn't exist, return a 404 error
+		// If the request path is ServeIndex, generate the index page with downloadable files
 		if path == cfg.Serve.ServeIndex {
 			w.Header().Set("Content-Type", "text/html")
 			m.httpSetHeaders(w, cfg.Serve.Headers)
@@ -100,6 +99,10 @@ func (m *micro) httpServeDownload() http.HandlerFunc {
 			io.WriteString(w, htmlEnd)
 			logNetwork(200, r)
 			m.md.concat(200, fmt.Sprintf("%s%s", r.Host, r.URL.Path))
+
+			// If the request path is not the index, and the file does exist in ServeDir
+			// the file is served and forced to be downloaded by the recipient.
+			// If the file doesn't exist, a 404 error is returned.
 		} else if _, err := os.Stat(cfg.Serve.ServeDir + path); err == nil {
 			w.Header().Set("Content-Type", httpGetContentType(&path, &cfg.Serve.ContentTypes))
 			if cfg.Serve.Download.Enabled {
@@ -110,6 +113,8 @@ func (m *micro) httpServeDownload() http.HandlerFunc {
 			logNetwork(200, r)
 			m.md.concat(200, fmt.Sprintf("%s%s", r.Host, r.URL.Path))
 		} else {
+
+			// Path wasn't found, so we return a 404 not found error.
 			m.httpError(w, r, 404)
 			return
 		}

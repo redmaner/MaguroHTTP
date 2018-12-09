@@ -30,7 +30,7 @@ type serveConfig struct {
 	Download     download
 }
 
-// contentTypes type, part of MicroHTTP config
+// contentTypes type, part of MicroHTTP serveConfig
 type contentTypes struct {
 	ResponseTypes map[string]string
 	RequestTypes  map[string]string
@@ -77,6 +77,8 @@ func (m *micro) httpServe() http.HandlerFunc {
 			logNetwork(200, r)
 			m.md.concat(200, fmt.Sprintf("%s%s", r.Host, r.URL.Path))
 		} else {
+
+			// Path wasn't found, so we return a 404 not found error
 			m.httpError(w, r, 404)
 			return
 		}

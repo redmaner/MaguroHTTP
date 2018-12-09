@@ -31,6 +31,8 @@ type microConfig struct {
 	Metrics  metrics
 }
 
+// coreConfig is part of the main configuration.
+// coreConfig is not used by vhosts
 type coreConfig struct {
 	Address        string
 	Port           string

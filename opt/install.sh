@@ -35,7 +35,7 @@ fi
 
 echo "Downloading stuff"
 mkdir -p ./.micro_temp
-wget -O ./.micro_temp/microhttp.zip https://download.microhttp.eu/microhttp_1.0_beta2_linux64.zip
+wget -O ./.micro_temp/microhttp.zip https://download.microhttp.eu/microhttp_r2_linux64.zip
 
 echo "Installing"
 unzip -o ./.micro_temp/microhttp.zip -d ./.micro_temp
@@ -46,6 +46,8 @@ mkdir -p /usr/lib/microhttp/www
 
 if [ ! -e /usr/lib/microhttp/main.json ]; then
   cp ./.micro_temp/main.json /usr/lib/microhttp/main.json
+else
+  cp -f ./.micro_temp/main.json /usr/lib/microhttp/main.json.new
 fi
 
 if [ ! -e /usr/lib/microhttp/www/index.html ]; then
