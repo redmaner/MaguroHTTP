@@ -20,6 +20,12 @@ import (
 	"net/http"
 )
 
+// Proxy type, part of MicroHTTP config
+type proxy struct {
+	Enabled bool
+	Rules   map[string]string
+}
+
 // Function to proxy. The proxy can be configurated in configuration
 // MicroHTTP is capable to serve HTTP and to proxy along side each other using virtual hosts
 func (m *micro) httpProxy() http.HandlerFunc {
@@ -32,8 +38,8 @@ func (m *micro) httpProxy() http.HandlerFunc {
 
 		// If virtual hosting is enabled, the configuration is switched to the
 		// configuration of the vhost
-		if cfg.Serve.VirtualHosting {
-			if _, ok := cfg.Serve.VirtualHosts[host]; ok {
+		if cfg.Core.VirtualHosting {
+			if _, ok := cfg.Core.VirtualHosts[host]; ok {
 				cfg = m.vhosts[host]
 			}
 		}

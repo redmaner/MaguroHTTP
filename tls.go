@@ -24,15 +24,24 @@ import (
 	"time"
 )
 
-type tlsconfig struct {
+// TLSConfig, part of MicroHTTP core config
+type tlsConfig struct {
 	Enabled   bool
 	TLSCert   string
 	TLSKey    string
 	PrivateCA []string
+	HSTS      hstsConfig
+}
+
+// HSTS type, part of MicroHTTP core/tls config
+type hstsConfig struct {
+	MaxAge            int
+	Preload           bool
+	IncludeSubdomains bool
 }
 
 // Functio to check if defined TLS certificates exist
-func httpCheckTLS(c tlsconfig) bool {
+func httpCheckTLS(c tlsConfig) bool {
 	if c.TLSCert != "" && c.TLSKey != "" {
 		if _, err := os.Stat(c.TLSCert); err != nil {
 			logAction(logERROR, err)
@@ -48,7 +57,7 @@ func httpCheckTLS(c tlsconfig) bool {
 }
 
 // Function to create a TLS configuration based on server configuration
-func httpCreateTLSConfig(c tlsconfig) *tls.Config {
+func httpCreateTLSConfig(c tlsConfig) *tls.Config {
 	tlsc := tls.Config{
 		MinVersion:               tls.VersionTLS12,
 		CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
@@ -87,7 +96,7 @@ func httpCreateTLSConfig(c tlsconfig) *tls.Config {
 
 // Function that returns an http client. If TLS is enabled on the server, a
 // TLS client is returned
-func serverClient(c tlsconfig) *http.Client {
+func serverClient(c tlsConfig) *http.Client {
 	if c.Enabled {
 
 		tlsc := httpCreateTLSConfig(c)

@@ -23,40 +23,22 @@ import (
 // MicroHTTP config type
 // The main configuration and the configuration of vhosts use this type
 type microConfig struct {
-	Address      string
-	Port         string
-	LogLevel     int
-	LogOut       string
-	Serve        serve
-	Download     download
-	Errors       map[string]string
-	Headers      map[string]string
-	Methods      map[string]string
-	ContentTypes contentTypes
-	Proxy        proxy
-	TLS          tlsconfig
-	HSTS         hsts
-	Firewall     firewall
-	Metrics      metrics
+	Core     coreConfig
+	Serve    serveConfig
+	Errors   map[string]string
+	Proxy    proxy
+	Firewall firewall
+	Metrics  metrics
 }
 
-// Proxy type, part of MicroHTTP config
-type proxy struct {
-	Enabled bool
-	Rules   map[string]string
-}
-
-// contentTypes type, part of MicroHTTP config
-type contentTypes struct {
-	ResponseTypes map[string]string
-	RequestTypes  map[string]string
-}
-
-// HSTS type, part of MicroHTTP config
-type hsts struct {
-	MaxAge            int
-	Preload           bool
-	IncludeSubdomains bool
+type coreConfig struct {
+	Address        string
+	Port           string
+	LogLevel       int
+	LogOut         string
+	VirtualHosting bool
+	VirtualHosts   map[string]string
+	TLS            tlsConfig
 }
 
 // This loads a configuration with type microConfig from a file
@@ -90,49 +72,59 @@ func loadConfigFromFile(p string, c *microConfig) {
 // to start the server
 func validateConfig(p string, c *microConfig) (bool, error) {
 
-	// Test for empty elements that cannot be empty
-	if c.Address == "" || c.Port == "" || c.Serve.ServeDir == "" || c.Serve.ServeIndex == "" {
-		return false, fmt.Errorf("%s: The server configuration has missing elements: check Address, Port, ServeDir and ServeIndex", p)
+	// First validate the coreConfig
+	if c.Core.Address == "" || c.Core.Port == "" {
+		return false, fmt.Errorf("%s: The server configuration has missing elements: check Address and Port", p)
 	}
 
-	// We automatically fix a serveDir that doesn't end with a slash
-	if c.Serve.ServeDir[len(c.Serve.ServeDir)-1] != '/' {
-		c.Serve.ServeDir = c.Serve.ServeDir + "/"
-	}
-
-	if c.LogOut == "" {
+	if c.Core.LogOut == "" {
 		return false, fmt.Errorf("%s: LogOut is undefined", p)
 	}
 
-	if c.LogLevel < 0 {
+	if c.Core.LogLevel < 0 {
 		return false, fmt.Errorf("%s: LogLevel must be higher than 0", p)
 	}
 
+	// Test TLS
+	if c.Core.TLS.Enabled {
+		if c.Core.TLS.TLSCert == "" || c.Core.TLS.TLSKey == "" {
+			return false, fmt.Errorf("%s: TLS is enabled but certificates are not defined", p)
+		}
+	}
+
 	// Test virtual hosts
-	if c.Serve.VirtualHosting {
-		if len(c.Serve.VirtualHosts) == 0 {
+	if c.Core.VirtualHosting {
+		if len(c.Core.VirtualHosts) == 0 {
 			return false, fmt.Errorf("%s: VirtualHosting is enabled but VirtualHosts is empty", p)
 		}
-		for k, v := range c.Serve.VirtualHosts {
+		for k, v := range c.Core.VirtualHosts {
 			if v == "" {
 				return false, fmt.Errorf("%s: Virtual host configuration not defined. Check reference for %s", p, k)
 			}
 		}
 	}
 
-	if c.Proxy.Enabled {
+	// Test serve
+	if !c.Core.VirtualHosting && !c.Proxy.Enabled && c.Serve.Download.Enabled {
+		if c.Serve.ServeDir == "" || c.Serve.ServeIndex == "" {
+			return false, fmt.Errorf("%s: The server configuration has missing elements: check ServeDir and ServeIndex", p)
+		}
+
+		// We automatically fix ServeDir that doesn't end with a slash
+		if c.Serve.ServeDir[len(c.Serve.ServeDir)-1] != '/' {
+			c.Serve.ServeDir = c.Serve.ServeDir + "/"
+		}
+	}
+
+	// Test proxy
+	if !c.Core.VirtualHosting && c.Proxy.Enabled {
 		if len(c.Proxy.Rules) == 0 {
 			return false, fmt.Errorf("%s: Proxy is enabled but no rules are defined", p)
 		}
 	}
 
-	if c.TLS.Enabled {
-		if c.TLS.TLSCert == "" || c.TLS.TLSKey == "" {
-			return false, fmt.Errorf("%s: TLS is enabled but certificates are not defined", p)
-		}
-	}
-
-	if c.Firewall.Enabled {
+	// Test firewall
+	if !c.Core.VirtualHosting && c.Firewall.Enabled {
 		if len(c.Firewall.Rules) == 0 {
 			return false, fmt.Errorf("%s: Firewall is enabled but rules are not defined", p)
 		}
@@ -160,7 +152,7 @@ func validateConfig(p string, c *microConfig) (bool, error) {
 func validateConfigVhost(p string, c *microConfig) (bool, error) {
 
 	// Test virtual hosts
-	if c.Serve.VirtualHosting {
+	if c.Core.VirtualHosting {
 		return false, fmt.Errorf("%s: VirtualHosting cannot be enabled in Vhost configuration", p)
 	}
 
@@ -168,7 +160,7 @@ func validateConfigVhost(p string, c *microConfig) (bool, error) {
 		if len(c.Proxy.Rules) == 0 {
 			return false, fmt.Errorf("%s: Proxy is enabled but no rules are defined", p)
 		}
-	} else {
+	} else if !c.Serve.Download.Enabled && !c.Proxy.Enabled {
 		if c.Serve.ServeDir == "" || c.Serve.ServeIndex == "" {
 			return false, fmt.Errorf("%s: The server configuration has missing elements: check ServeDir and ServeIndex", p)
 		}

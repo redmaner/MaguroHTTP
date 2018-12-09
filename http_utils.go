@@ -38,12 +38,12 @@ func (m *micro) httpSetHeaders(w http.ResponseWriter, h map[string]string) {
 
 	// If TLS is enabled, the Strict-Transport-Security header is set
 	// These settings can be set in the configuration
-	if m.config.TLS.Enabled {
-		hstr := fmt.Sprintf("max-age=%d;", m.config.HSTS.MaxAge)
-		if m.config.HSTS.IncludeSubdomains {
+	if m.config.Core.TLS.Enabled {
+		hstr := fmt.Sprintf("max-age=%d;", m.config.Core.TLS.HSTS.MaxAge)
+		if m.config.Core.TLS.HSTS.IncludeSubdomains {
 			hstr = hstr + " includeSubdomains;"
 		}
-		if m.config.HSTS.Preload {
+		if m.config.Core.TLS.HSTS.Preload {
 			hstr = hstr + " preload"
 		}
 		w.Header().Set("Strict-Transport-Security", hstr)

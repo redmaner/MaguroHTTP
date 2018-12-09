@@ -27,10 +27,10 @@ func (m *micro) configureRouter() {
 	}
 
 	// Make routes for each vhost, if vhosts are enabled
-	if m.config.Serve.VirtualHosting {
+	if m.config.Core.VirtualHosting {
 
 		// Loop over each Vhost
-		for vhost := range m.config.Serve.VirtualHosts {
+		for vhost := range m.config.Core.VirtualHosts {
 
 			// Start with proxy
 			if m.vhosts[vhost].Proxy.Enabled {
@@ -45,14 +45,14 @@ func (m *micro) configureRouter() {
 					m.router.AddRoute(host, "/", true, "OPTIONS", "*", m.httpProxy())
 				}
 
-			} else if m.vhosts[vhost].Download.Enabled {
+			} else if m.vhosts[vhost].Serve.Download.Enabled {
 				m.router.AddRoute(vhost, "/", true, "GET", "", m.httpServeDownload())
 
 				// Default is serve
 			} else {
 
 				// Loop over each supported method
-				for path, method := range m.vhosts[vhost].Methods {
+				for path, method := range m.vhosts[vhost].Serve.Methods {
 
 					var fallback bool
 					contentType := ";"
@@ -62,7 +62,7 @@ func (m *micro) configureRouter() {
 					}
 
 					// Loop over each Content-Type for given path
-					if content, ok := m.vhosts[vhost].ContentTypes.RequestTypes[path]; ok {
+					if content, ok := m.vhosts[vhost].Serve.ContentTypes.RequestTypes[path]; ok {
 						contentType = content
 					}
 
@@ -91,14 +91,14 @@ func (m *micro) configureRouter() {
 				m.router.AddRoute(host, "/", true, "OPTIONS", "*", m.httpProxy())
 			}
 
-		} else if m.config.Download.Enabled {
+		} else if m.config.Serve.Download.Enabled {
 			m.router.AddRoute(smux.DefaultHost, "/", true, "GET", "", m.httpServeDownload())
 
 			// Default is serve
 		} else {
 			// Normal serve is enabled
 			// Loop over each supported method
-			for path, method := range m.config.Methods {
+			for path, method := range m.config.Serve.Methods {
 
 				var fallback bool
 				contentType := ";"
@@ -108,7 +108,7 @@ func (m *micro) configureRouter() {
 				}
 
 				// Loop over each Content-Type for given path
-				if content, ok := m.config.ContentTypes.RequestTypes[path]; ok {
+				if content, ok := m.config.Serve.ContentTypes.RequestTypes[path]; ok {
 					contentType = content
 				}
 

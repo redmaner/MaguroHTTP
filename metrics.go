@@ -39,7 +39,7 @@ type metrics struct {
 func (m *micro) httpMetricsRoot() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
-		m.httpSetHeaders(w, m.config.Headers)
+		m.httpSetHeaders(w, m.config.Serve.Headers)
 		w.Header().Set("Content-Security-Policy", "")
 		io.WriteString(w, htmlStart)
 		io.WriteString(w, metricsHTMLLogin(m.config.Metrics.Path+"/retrieve"))
@@ -55,7 +55,7 @@ func (m *micro) httpMetricsAdmin() http.HandlerFunc {
 		if bb, err := ioutil.ReadAll(r.Body); err == nil {
 			if ok, err := jwtValidateToken(string(bb), m.config.Metrics.Password, m.config.Metrics.User, "MicroMetrics"); ok && err == nil {
 				w.Header().Set("Content-Type", "text/html")
-				m.httpSetHeaders(w, m.config.Headers)
+				m.httpSetHeaders(w, m.config.Serve.Headers)
 				w.Header().Set("Content-Security-Policy", "")
 				io.WriteString(w, htmlStart)
 				m.md.display(w)
@@ -82,10 +82,10 @@ func (m *micro) httpMetricsRetrieve() http.HandlerFunc {
 		if token, err := jwtSignToken(password, user, "MicroMetrics", 30*time.Second); err == nil {
 
 			var addr string
-			if m.config.TLS.Enabled {
-				addr = "https://" + m.config.Metrics.Address + ":" + m.config.Port + m.config.Metrics.Path + "/admin"
+			if m.config.Core.TLS.Enabled {
+				addr = "https://" + m.config.Metrics.Address + ":" + m.config.Core.Port + m.config.Metrics.Path + "/admin"
 			} else {
-				addr = "http://" + m.config.Metrics.Address + ":" + m.config.Port + m.config.Metrics.Path + "/admin"
+				addr = "http://" + m.config.Metrics.Address + ":" + m.config.Core.Port + m.config.Metrics.Path + "/admin"
 			}
 			if req, err2 := http.NewRequest("GET", addr, bytes.NewReader(token)); err2 == nil {
 				req.Header.Set("Content-Type", "application/json")

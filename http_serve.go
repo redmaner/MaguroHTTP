@@ -21,11 +21,19 @@ import (
 )
 
 // Serve type, part of the MicroHTTP config
-type serve struct {
-	ServeDir       string
-	ServeIndex     string
-	VirtualHosting bool
-	VirtualHosts   map[string]string
+type serveConfig struct {
+	ServeDir     string
+	ServeIndex   string
+	Headers      map[string]string
+	Methods      map[string]string
+	ContentTypes contentTypes
+	Download     download
+}
+
+// contentTypes type, part of MicroHTTP config
+type contentTypes struct {
+	ResponseTypes map[string]string
+	RequestTypes  map[string]string
 }
 
 // Function to handle HTTP requests to MicroHTTP server
@@ -41,8 +49,8 @@ func (m *micro) httpServe() http.HandlerFunc {
 
 		// If virtual hosting is enabled, the configuration is switched to the
 		// configuration of the vhost
-		if cfg.Serve.VirtualHosting {
-			if _, ok := cfg.Serve.VirtualHosts[host]; ok {
+		if cfg.Core.VirtualHosting {
+			if _, ok := cfg.Core.VirtualHosts[host]; ok {
 				cfg = m.vhosts[host]
 			}
 		}
@@ -63,8 +71,8 @@ func (m *micro) httpServe() http.HandlerFunc {
 		// Serve the file that is requested by path if it esists in ServeDir.
 		// If the requested path doesn't exist, return a 404 error
 		if _, err := os.Stat(cfg.Serve.ServeDir + path); err == nil {
-			w.Header().Set("Content-Type", httpGetContentType(&path, &cfg.ContentTypes))
-			m.httpSetHeaders(w, cfg.Headers)
+			w.Header().Set("Content-Type", httpGetContentType(&path, &cfg.Serve.ContentTypes))
+			m.httpSetHeaders(w, cfg.Serve.Headers)
 			http.ServeFile(w, r, cfg.Serve.ServeDir+path)
 			logNetwork(200, r)
 			m.md.concat(200, fmt.Sprintf("%s%s", r.Host, r.URL.Path))

@@ -1,42 +1,53 @@
 {
-	"Address":"0.0.0.0",
-	"Port":"7443",
-	"LogLevel":3,
-	"LogOut":"./test.log",
 
-	"Serve":{
-		"ServeDir":"./test/",
-		"ServeIndex":"index.html",
+	"Core":{
+		"Address":"0.0.0.0",
+		"Port":"7443",
+
+		"LogLevel":3,
+		"LogOut":"stdout",
+
 		"VirtualHosting":true,
 		"VirtualHosts":{
 			"localhost":"./opt/config/vhost1.json",
 			"127.0.0.1":"./opt/config/vhost2.json"
+		},
+
+		"TLS": {
+			"Enabled":true,
+			"TLSCert":"./cert/test/localhost.cert",
+			"TLSKey":"./cert/test/localhost.key"
 		}
 	},
 
-	"Headers": {
-		"Content-Security-Policy":"default-src 'self'",
-		"Feature-Policy":"geolocation 'none'; midi 'none'; notifications 'none'; push 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; vibrate 'none'; fullscreen 'none'; payment 'none';",
-		"Referrer-Policy":"no-referrer",
-		"X-Content-Type-Options":"nosniff",
-		"X-Frame-Options":"SAMEORIGIN",
-		"X-Xss-Protection":"1; mode=block"
-	},
+	"Serve":{
+		"ServeDir":"./test/",
+		"ServeIndex":"index.html",
 
-	"Methods": {
-		"/":"GET",
-		"/test.html":"GET"
+		"Headers": {
+			"Content-Security-Policy":"default-src 'self'",
+			"Feature-Policy":"geolocation 'none'; midi 'none'; notifications 'none'; push 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; vibrate 'none'; fullscreen 'none'; payment 'none';",
+			"Referrer-Policy":"no-referrer",
+			"X-Content-Type-Options":"nosniff",
+			"X-Frame-Options":"SAMEORIGIN",
+			"X-Xss-Protection":"1; mode=block"
+		},
+
+		"Methods": {
+			"/":"GET",
+			"/test.html":"GET"
+		},
+
+		"ContentTypes": {
+			"ResponseTypes":{
+				"/test.html":"text/plain"
+			}
+		}
 	},
 
 	"Errors": {
 		"404":"./errors/HTTP404.html",
 		"405":"./errors/HTTP405.html"
-	},
-
-	"ContentTypes": {
-		"ResponseTypes":{
-			"/test.html":"text/plain"
-		}
 	},
 
 	"Proxy": {
@@ -45,11 +56,5 @@
 			"localhost":"https://securityme.uk",
 			"127.0.0.1":"https://www.edsn.nl"
 		}
-	},
-
-	"TLS": {
-		"Enabled":true,
-		"TLSCert":"./certs/test/localhost.cert",
-		"TLSKey":"./certs/test/localhost.key"
 	}
 }

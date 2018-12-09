@@ -23,7 +23,7 @@ import (
 	"time"
 )
 
-const version = "1.0 beta2"
+const version = "r2-test1"
 
 // Main function
 func main() {
@@ -65,8 +65,8 @@ func startServer(mCfg *microConfig) {
 	m.loadMetrics()
 
 	// If virtual hosting is enabled, all the configurations of the vhosts are loaded
-	if m.config.Serve.VirtualHosting {
-		for k, v := range m.config.Serve.VirtualHosts {
+	if m.config.Core.VirtualHosting {
+		for k, v := range m.config.Core.VirtualHosts {
 			var cfg microConfig
 			loadConfigFromFile(v, &cfg)
 			if valid, err := validateConfigVhost(v, &cfg); !valid || err != nil {
@@ -78,21 +78,21 @@ func startServer(mCfg *microConfig) {
 	}
 
 	// Configure logging
-	debug = m.config.LogLevel
-	initLogger("MicroHTTP-", m.config.LogOut)
+	debug = m.config.Core.LogLevel
+	initLogger("MicroHTTP-", m.config.Core.LogOut)
 
 	// Configure router
 	m.configureRouter()
 
 	// Get client
-	m.client = serverClient(m.config.TLS)
+	m.client = serverClient(m.config.Core.TLS)
 
 	// If TLS is enabled the server will start in TLS
-	if m.config.TLS.Enabled && httpCheckTLS(m.config.TLS) {
-		logAction(logNONE, fmt.Errorf("MicroHTTP %s is listening on port %s with TLS", version, mCfg.Port))
-		tlsc := httpCreateTLSConfig(m.config.TLS)
+	if m.config.Core.TLS.Enabled && httpCheckTLS(m.config.Core.TLS) {
+		logAction(logNONE, fmt.Errorf("MicroHTTP %s is listening on port %s with TLS", version, mCfg.Core.Port))
+		tlsc := httpCreateTLSConfig(m.config.Core.TLS)
 		ms := http.Server{
-			Addr:      mCfg.Address + ":" + mCfg.Port,
+			Addr:      mCfg.Core.Address + ":" + mCfg.Core.Port,
 			Handler:   m.router,
 			TLSConfig: tlsc,
 		}
@@ -118,7 +118,7 @@ func startServer(mCfg *microConfig) {
 		}()
 
 		// Start the server
-		err := ms.ListenAndServeTLS(mCfg.TLS.TLSCert, mCfg.TLS.TLSKey)
+		err := ms.ListenAndServeTLS(mCfg.Core.TLS.TLSCert, mCfg.Core.TLS.TLSKey)
 		if err != nil && err != http.ErrServerClosed {
 			logAction(logERROR, fmt.Errorf("Starting server failed: %s", err))
 			return
@@ -130,8 +130,8 @@ func startServer(mCfg *microConfig) {
 		// IF TLS is disabled the server is started without TLS
 		// Never run non TLS servers in production!
 	} else {
-		logAction(logNONE, fmt.Errorf("MicroHTTP %s is listening on port %s", version, mCfg.Port))
-		http.ListenAndServe(mCfg.Address+":"+mCfg.Port, m.router)
+		logAction(logNONE, fmt.Errorf("MicroHTTP %s is listening on port %s", version, mCfg.Core.Port))
+		http.ListenAndServe(mCfg.Core.Address+":"+mCfg.Core.Port, m.router)
 	}
 }
 

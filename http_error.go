@@ -31,7 +31,7 @@ func (m *micro) httpError(w http.ResponseWriter, r *http.Request, e int) {
 	// Custom error pages can be set in the configuration.
 	if val, ok := m.config.Errors[strconv.Itoa(e)]; ok {
 		if _, err := os.Stat(val); err == nil {
-			m.httpSetHeaders(w, m.config.Headers)
+			m.httpSetHeaders(w, m.config.Serve.Headers)
 			http.ServeFile(w, r, val)
 			return
 		}
@@ -41,7 +41,7 @@ func (m *micro) httpError(w http.ResponseWriter, r *http.Request, e int) {
 	// This is a very basic HTTP error code page without any technical information.
 	w.WriteHeader(e)
 	w.Header().Set("Content-Type", "text/html")
-	m.httpSetHeaders(w, m.config.Headers)
+	m.httpSetHeaders(w, m.config.Serve.Headers)
 	io.WriteString(w, htmlStart)
 	switch e {
 	case 403:

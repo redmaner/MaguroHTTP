@@ -51,15 +51,15 @@ func (m *micro) httpServeDownload() http.HandlerFunc {
 
 		// If virtual hosting is enabled, the configuration is switched to the
 		// configuration of the vhost
-		if cfg.Serve.VirtualHosting {
-			if _, ok := cfg.Serve.VirtualHosts[host]; ok {
+		if cfg.Core.VirtualHosting {
+			if _, ok := cfg.Core.VirtualHosts[host]; ok {
 				cfg = m.vhosts[host]
 			}
 		}
 
 		// Collect downloadable files
-		if cfg.Download.Enabled {
-			for _, v := range cfg.Download.Exts {
+		if cfg.Serve.Download.Enabled {
+			for _, v := range cfg.Serve.Download.Exts {
 				filepath.Walk(cfg.Serve.ServeDir, func(path string, f os.FileInfo, _ error) error {
 					if !f.IsDir() {
 						if filepath.Ext(f.Name()) == v {
@@ -88,7 +88,7 @@ func (m *micro) httpServeDownload() http.HandlerFunc {
 		// If the requested path doesn't exist, return a 404 error
 		if path == cfg.Serve.ServeIndex {
 			w.Header().Set("Content-Type", "text/html")
-			m.httpSetHeaders(w, cfg.Headers)
+			m.httpSetHeaders(w, cfg.Serve.Headers)
 			io.WriteString(w, htmlStart)
 			io.WriteString(w, "<h1>Downloads</h1>")
 			io.WriteString(w, fmt.Sprintln(`<table border="0" cellpadding="0" cellspacing="0">`))
@@ -101,11 +101,11 @@ func (m *micro) httpServeDownload() http.HandlerFunc {
 			logNetwork(200, r)
 			m.md.concat(200, fmt.Sprintf("%s%s", r.Host, r.URL.Path))
 		} else if _, err := os.Stat(cfg.Serve.ServeDir + path); err == nil {
-			w.Header().Set("Content-Type", httpGetContentType(&path, &cfg.ContentTypes))
-			if cfg.Download.Enabled {
+			w.Header().Set("Content-Type", httpGetContentType(&path, &cfg.Serve.ContentTypes))
+			if cfg.Serve.Download.Enabled {
 				w.Header().Set("Content-Disposition", "attachement")
 			}
-			m.httpSetHeaders(w, cfg.Headers)
+			m.httpSetHeaders(w, cfg.Serve.Headers)
 			http.ServeFile(w, r, cfg.Serve.ServeDir+path)
 			logNetwork(200, r)
 			m.md.concat(200, fmt.Sprintf("%s%s", r.Host, r.URL.Path))
