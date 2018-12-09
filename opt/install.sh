@@ -35,7 +35,7 @@ fi
 
 echo "Downloading stuff"
 mkdir -p ./.micro_temp
-wget -O ./.micro_temp/microhttp.zip https://download.microhttp.eu/microhttp_v1.0_beta1_linux64.zip
+wget -O ./.micro_temp/microhttp.zip https://download.microhttp.eu/microhttp_1.0_beta2_linux64.zip
 
 echo "Installing"
 unzip -o ./.micro_temp/microhttp.zip -d ./.micro_temp

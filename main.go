@@ -23,7 +23,7 @@ import (
 	"time"
 )
 
-const version = "v1.0 beta1"
+const version = "1.0 beta2"
 
 // Main function
 func main() {
@@ -89,7 +89,7 @@ func startServer(mCfg *microConfig) {
 
 	// If TLS is enabled the server will start in TLS
 	if m.config.TLS.Enabled && httpCheckTLS(m.config.TLS) {
-		logAction(logNONE, fmt.Errorf("MicroHTTP is listening on port %s with TLS", mCfg.Port))
+		logAction(logNONE, fmt.Errorf("MicroHTTP %s is listening on port %s with TLS", version, mCfg.Port))
 		tlsc := httpCreateTLSConfig(m.config.TLS)
 		ms := http.Server{
 			Addr:      mCfg.Address + ":" + mCfg.Port,
@@ -130,7 +130,7 @@ func startServer(mCfg *microConfig) {
 		// IF TLS is disabled the server is started without TLS
 		// Never run non TLS servers in production!
 	} else {
-		logAction(logNONE, fmt.Errorf("MicroHTTP is listening on port %s", mCfg.Port))
+		logAction(logNONE, fmt.Errorf("MicroHTTP %s is listening on port %s", version, mCfg.Port))
 		http.ListenAndServe(mCfg.Address+":"+mCfg.Port, m.router)
 	}
 }
