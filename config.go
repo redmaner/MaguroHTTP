@@ -73,22 +73,47 @@ func loadConfigFromFile(p string, c *microConfig) {
 func validateConfig(p string, c *microConfig) (bool, error) {
 
 	// First validate the coreConfig
+	// Address and port need to be defined
 	if c.Core.Address == "" || c.Core.Port == "" {
 		return false, fmt.Errorf("%s: The server configuration has missing elements: check Address and Port", p)
 	}
 
+	// LogOut needs to be defined
 	if c.Core.LogOut == "" {
 		return false, fmt.Errorf("%s: LogOut is undefined", p)
 	}
 
+	// LogLevel cannot be lower than zero
 	if c.Core.LogLevel < 0 {
 		return false, fmt.Errorf("%s: LogLevel must be higher than 0", p)
 	}
 
 	// Test TLS
 	if c.Core.TLS.Enabled {
-		if c.Core.TLS.TLSCert == "" || c.Core.TLS.TLSKey == "" {
-			return false, fmt.Errorf("%s: TLS is enabled but certificates are not defined", p)
+
+		// Test autocert
+		if c.Core.TLS.AutoCert.Enabled {
+
+			// Certificates need to be defined
+			if len(c.Core.TLS.AutoCert.Certificates) == 0 {
+				return false, fmt.Errorf("%s: TLS autocert is enabled but certificates are not defined", p)
+			}
+
+			// Autocert only works in combination with https port (443)
+			if c.Core.Address != "443" {
+				return false, fmt.Errorf("%s: TLS autocert is enabled and cannot be used with a port different than 443 (HTTPS)", p)
+			}
+
+			// Certificates will be saved locally, so it requires an explicit directory
+			if c.Core.TLS.AutoCert.CertDir == "" {
+				return false, fmt.Errorf("%s: TLS autocert is enabled but CertDir is empty or not defined", p)
+			}
+		} else {
+
+			// Autocert is disabled, so make sure custom certificate / key combination is defined
+			if c.Core.TLS.TLSCert == "" || c.Core.TLS.TLSKey == "" {
+				return false, fmt.Errorf("%s: TLS is enabled but certificates are not defined", p)
+			}
 		}
 	}
 
