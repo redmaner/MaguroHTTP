@@ -22,6 +22,8 @@ import (
 	"os"
 	"runtime"
 	"time"
+
+	"golang.org/x/crypto/acme"
 )
 
 // TLSConfig, part of MicroHTTP core config
@@ -30,7 +32,15 @@ type tlsConfig struct {
 	TLSCert   string
 	TLSKey    string
 	PrivateCA []string
+	AutoCert  autocertConfig
 	HSTS      hstsConfig
+}
+
+// autocertConfig, part of MicroHTTP core/tls configuration
+type autocertConfig struct {
+	Enabled      bool
+	CertDir      string
+	Certificates []string
 }
 
 // HSTS type, part of MicroHTTP core/tls config
@@ -42,6 +52,9 @@ type hstsConfig struct {
 
 // Functio to check if defined TLS certificates exist
 func httpCheckTLS(c tlsConfig) bool {
+	if c.AutoCert.Enabled {
+		return true
+	}
 	if c.TLSCert != "" && c.TLSKey != "" {
 		if _, err := os.Stat(c.TLSCert); err != nil {
 			logAction(logERROR, err)
@@ -69,6 +82,10 @@ func httpCreateTLSConfig(c tlsConfig) *tls.Config {
 			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
 			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+		},
+		NextProtos: []string{
+			"h2", "http/1.1", // enable HTTP/2
+			acme.ALPNProto, // enable tls-alpn ACME challenges
 		},
 	}
 

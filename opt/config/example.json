@@ -17,6 +17,14 @@
 			"TLSCert":"./certs/test/localhost.cert",
 			"TLSKey":"./certs/test/localhost.key",
 
+			"AutoCert":{
+				"Enabled":false,
+				"CertDir":"/usr/lib/microhttp/autocert",
+				"Certificates": [
+					"example.com"
+				]
+			},
+
 			"HSTS": {
 				"MaxAge":63072000,
 				"Preload":true,

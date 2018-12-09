@@ -21,9 +21,11 @@ import (
 	"os"
 	"os/signal"
 	"time"
+
+	"golang.org/x/crypto/acme/autocert"
 )
 
-const version = "r2-test1"
+const version = "r2"
 
 // Main function
 func main() {
@@ -54,6 +56,9 @@ func main() {
 
 // Function to start Server
 func startServer(mCfg *microConfig) {
+
+	var tlsCert string
+	var tlsKey string
 
 	// Set micro struct
 	m := micro{
@@ -91,6 +96,20 @@ func startServer(mCfg *microConfig) {
 	if m.config.Core.TLS.Enabled && httpCheckTLS(m.config.Core.TLS) {
 		logAction(logNONE, fmt.Errorf("MicroHTTP %s is listening on port %s with TLS", version, mCfg.Core.Port))
 		tlsc := httpCreateTLSConfig(m.config.Core.TLS)
+
+		// Handle autocert
+		if m.config.Core.TLS.AutoCert.Enabled && len(m.config.Core.TLS.AutoCert.Certificates) > 0 {
+			acm := autocert.Manager{
+				Prompt:     autocert.AcceptTOS,
+				HostPolicy: autocert.HostWhitelist(m.config.Core.TLS.AutoCert.Certificates...),
+				Cache:      autocert.DirCache(m.config.Core.TLS.AutoCert.CertDir),
+			}
+			tlsc.GetCertificate = acm.GetCertificate
+		} else {
+			tlsCert = m.config.Core.TLS.TLSCert
+			tlsKey = m.config.Core.TLS.TLSKey
+		}
+
 		ms := http.Server{
 			Addr:      mCfg.Core.Address + ":" + mCfg.Core.Port,
 			Handler:   m.router,
@@ -119,8 +138,8 @@ func startServer(mCfg *microConfig) {
 			close(done)
 		}()
 
-		// Start the server
-		err := ms.ListenAndServeTLS(mCfg.Core.TLS.TLSCert, mCfg.Core.TLS.TLSKey)
+		// Start the server with TLS
+		err := ms.ListenAndServeTLS(tlsCert, tlsKey)
 		if err != nil && err != http.ErrServerClosed {
 			logAction(logERROR, fmt.Errorf("Starting server failed: %s", err))
 			return
