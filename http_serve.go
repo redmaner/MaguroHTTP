@@ -22,16 +22,16 @@ import (
 
 // Serve type, part of the MicroHTTP config
 type serveConfig struct {
-	ServeDir     string
-	ServeIndex   string
-	Headers      map[string]string
-	Methods      map[string]string
-	ContentTypes contentTypes
-	Download     download
+	ServeDir   string
+	ServeIndex string
+	Headers    map[string]string
+	Methods    map[string]string
+	MIMETypes  MIMETypes
+	Download   download
 }
 
-// contentTypes type, part of MicroHTTP serveConfig
-type contentTypes struct {
+// MIMETypes type, part of MicroHTTP serveConfig
+type MIMETypes struct {
 	ResponseTypes map[string]string
 	RequestTypes  map[string]string
 }
@@ -71,7 +71,7 @@ func (m *micro) httpServe() http.HandlerFunc {
 		// Serve the file that is requested by path if it esists in ServeDir.
 		// If the requested path doesn't exist, return a 404 error
 		if _, err := os.Stat(cfg.Serve.ServeDir + path); err == nil {
-			w.Header().Set("Content-Type", httpGetContentType(&path, &cfg.Serve.ContentTypes))
+			w.Header().Set("Content-Type", httpGetMIMEType(path, cfg.Serve.MIMETypes))
 			m.httpSetHeaders(w, cfg.Serve.Headers)
 			http.ServeFile(w, r, cfg.Serve.ServeDir+path)
 			logNetwork(200, r)

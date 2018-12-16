@@ -62,7 +62,7 @@ func (m *micro) configureRouter() {
 					}
 
 					// Loop over each Content-Type for given path
-					if content, ok := m.vhosts[vhost].Serve.ContentTypes.RequestTypes[path]; ok {
+					if content, ok := m.vhosts[vhost].Serve.MIMETypes.RequestTypes[path]; ok {
 						contentType = content
 					}
 
@@ -108,7 +108,7 @@ func (m *micro) configureRouter() {
 				}
 
 				// Loop over each Content-Type for given path
-				if content, ok := m.config.Serve.ContentTypes.RequestTypes[path]; ok {
+				if content, ok := m.config.Serve.MIMETypes.RequestTypes[path]; ok {
 					contentType = content
 				}
 

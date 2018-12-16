@@ -57,6 +57,7 @@ func main() {
 // Function to start Server
 func startServer(mCfg *microConfig) {
 
+	// Empty strings for TLS key and certificate
 	var tlsCert string
 	var tlsKey string
 
@@ -92,6 +93,16 @@ func startServer(mCfg *microConfig) {
 	// Get client
 	m.client = serverClient(m.config.Core.TLS)
 
+	// Setup the MicroHTTP server
+	ms := http.Server{
+		Addr:              mCfg.Core.Address + ":" + mCfg.Core.Port,
+		Handler:           m.router,
+		ReadTimeout:       4 * time.Second,
+		ReadHeaderTimeout: 2 * time.Second,
+		WriteTimeout:      4 * time.Second,
+		IdleTimeout:       12 * time.Second,
+	}
+
 	// If TLS is enabled the server will start in TLS
 	if m.config.Core.TLS.Enabled && httpCheckTLS(m.config.Core.TLS) {
 		logAction(logNONE, fmt.Errorf("MicroHTTP %s is listening on port %s with TLS", version, mCfg.Core.Port))
@@ -109,34 +120,36 @@ func startServer(mCfg *microConfig) {
 			tlsCert = m.config.Core.TLS.TLSCert
 			tlsKey = m.config.Core.TLS.TLSKey
 		}
+		ms.TLSConfig = tlsc
+	}
 
-		ms := http.Server{
-			Addr:      mCfg.Core.Address + ":" + mCfg.Core.Port,
-			Handler:   m.router,
-			TLSConfig: tlsc,
+	// This is meant to listen for signals. A signal will stop MicroHTTP
+	done := make(chan bool)
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+
+	go func() {
+		<-quit
+		logAction(logNONE, fmt.Errorf("server is shutting down"))
+		if m.config.Metrics.Enabled {
+			m.flushMDToFile(m.config.Metrics.Out)
 		}
 
-		// This is meant to listen for signals. A signal will stop MicroHTTP
-		done := make(chan bool)
-		quit := make(chan os.Signal)
-		signal.Notify(quit, os.Interrupt)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
 
-		go func() {
-			<-quit
-			logAction(logNONE, fmt.Errorf("server is shutting down"))
-			if m.config.Metrics.Enabled {
-				m.flushMDToFile(m.config.Metrics.Out)
-			}
+		ms.SetKeepAlivesEnabled(false)
+		if err := ms.Shutdown(ctx); err != nil {
+			logAction(logNONE, fmt.Errorf("could not gracefully shutdown the server: %v", err))
+		}
+		close(done)
+	}()
 
-			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-			defer cancel()
-
-			ms.SetKeepAlivesEnabled(false)
-			if err := ms.Shutdown(ctx); err != nil {
-				logAction(logNONE, fmt.Errorf("could not gracefully shutdown the server: %v", err))
-			}
-			close(done)
-		}()
+	// Start the server
+	// If TLS is enabled in the configuration, TLS is used.
+	// Otherwise a non TLS server is used.
+	if m.config.Core.TLS.Enabled {
+		logAction(logNONE, fmt.Errorf("MicroHTTP %s is listening on port %s with TLS", version, mCfg.Core.Port))
 
 		// Start the server with TLS
 		err := ms.ListenAndServeTLS(tlsCert, tlsKey)
@@ -144,16 +157,19 @@ func startServer(mCfg *microConfig) {
 			logAction(logERROR, fmt.Errorf("Starting server failed: %s", err))
 			return
 		}
-
-		<-done
-		logAction(logNONE, fmt.Errorf("MicroHTTP stopped"))
-
-		// IF TLS is disabled the server is started without TLS
-		// Never run non TLS servers in production!
 	} else {
+
+		// start the server without TLS
 		logAction(logNONE, fmt.Errorf("MicroHTTP %s is listening on port %s", version, mCfg.Core.Port))
-		http.ListenAndServe(mCfg.Core.Address+":"+mCfg.Core.Port, m.router)
+		err := ms.ListenAndServe()
+		if err != nil && err != http.ErrServerClosed {
+			logAction(logERROR, fmt.Errorf("Starting server failed: %s", err))
+			return
+		}
 	}
+
+	<-done
+	logAction(logNONE, fmt.Errorf("MicroHTTP stopped"))
 }
 
 // Function to show help

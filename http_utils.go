@@ -55,9 +55,9 @@ func (m *micro) httpSetHeaders(w http.ResponseWriter, h map[string]string) {
 	}
 }
 
-// Function to set Content-Type depending on the file that is served
-func httpGetContentType(p *string, cts *contentTypes) string {
-	ext := filepath.Ext(*p)
+// Function to set MIME type depending on the file that is served
+func httpGetMIMEType(p string, cts MIMETypes) string {
+	ext := filepath.Ext(p)
 	switch ext {
 	case ".aac":
 		return "audio/aac"
@@ -66,19 +66,19 @@ func httpGetContentType(p *string, cts *contentTypes) string {
 	case ".bmp":
 		return "image/bmp"
 	case ".css":
-		return "text/css; charset=utf-8"
+		return "text/css"
 	case ".csv":
-		return "text/csv; charset=utf-8"
+		return "text/csv"
 	case ".gif":
 		return "image/gif"
 	case ".html", ".htm":
-		return "text/html; charset=utf-8"
+		return "text/html"
 	case ".jpeg", ".jpg":
 		return "image/jpeg"
 	case ".js":
-		return "application/javascript; charset=utf-8"
+		return "text/javascript"
 	case ".json":
-		return "application/json; charset=utf-8"
+		return "text/json"
 	case ".mpeg":
 		return "video/mpeg"
 	case ".png":
@@ -92,18 +92,18 @@ func httpGetContentType(p *string, cts *contentTypes) string {
 	case ".xhtml":
 		return "application/xhtml-xml"
 	case ".xml":
-		return "application/xml; charset=utf-8"
+		return "application/xml"
 	case ".zip":
 		return "application/zip"
 	}
 
 	// Load custom content type if it exists
-	if val, ok := cts.ResponseTypes[*p]; ok {
+	if val, ok := cts.ResponseTypes[p]; ok {
 		return val
 	}
 
-	// Default Content-Type is text/html
-	return "application/x-unknown"
+	// Default Content-Type is octet-stream
+	return "application/octet-stream"
 }
 
 // Function to trim port of an address

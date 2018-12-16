@@ -104,10 +104,8 @@ func (m *micro) httpServeDownload() http.HandlerFunc {
 			// the file is served and forced to be downloaded by the recipient.
 			// If the file doesn't exist, a 404 error is returned.
 		} else if _, err := os.Stat(cfg.Serve.ServeDir + path); err == nil {
-			w.Header().Set("Content-Type", httpGetContentType(&path, &cfg.Serve.ContentTypes))
-			if cfg.Serve.Download.Enabled {
-				w.Header().Set("Content-Disposition", "attachement")
-			}
+			w.Header().Set("Content-Type", httpGetMIMEType(path, cfg.Serve.MIMETypes))
+			w.Header().Set("Content-Disposition", "attachement")
 			m.httpSetHeaders(w, cfg.Serve.Headers)
 			http.ServeFile(w, r, cfg.Serve.ServeDir+path)
 			logNetwork(200, r)
