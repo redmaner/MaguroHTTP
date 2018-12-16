@@ -25,7 +25,7 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 )
 
-const version = "r2"
+const version = "R3"
 
 // Main function
 func main() {
