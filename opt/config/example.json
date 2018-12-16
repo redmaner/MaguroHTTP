@@ -50,9 +50,16 @@
 			"/":"GET"
 		},
 
-		"ContentTypes": {
+		"MIMETypes": {
 			"ResponseTypes":{},
 			"RequestTypes":{}
+		},
+
+		"Download":{
+			"Enabled":false,
+			"Exts": [
+				".zip"
+			]
 		}
 	},
 
