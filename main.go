@@ -67,6 +67,11 @@ func startServer(mCfg *microConfig) {
 		vhosts: make(map[string]microConfig),
 	}
 
+	// Only allow MicroMetrics when TLS is enabled
+	if m.config.Metrics.Enabled && !m.config.Core.TLS.Enabled {
+		m.config.Metrics.Enabled = false
+	}
+
 	// Setup metrics
 	m.loadMetrics()
 
