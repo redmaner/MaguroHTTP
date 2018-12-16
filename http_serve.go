@@ -63,9 +63,9 @@ func (m *micro) httpServe() http.HandlerFunc {
 			return
 		}
 
-		// Correct path to ServeIndex when path is root
-		if path == "/" {
-			path = cfg.Serve.ServeIndex
+		// If path ends with a slash, add ServeIndex
+		if path[len(path)-1] == '/' {
+			path = path + cfg.Serve.ServeIndex
 		}
 
 		// Serve the file that is requested by path if it esists in ServeDir.
