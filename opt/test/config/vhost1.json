@@ -1,0 +1,8 @@
+{
+	"Proxy": {
+		"Enabled": true,
+		"Rules": {
+			"localhost":"https://griffin.edsnsecurity.nl"
+		}
+	}
+}

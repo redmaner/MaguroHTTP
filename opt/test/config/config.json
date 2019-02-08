@@ -1,0 +1,22 @@
+{
+
+	"Core":{
+		"Address":"0.0.0.0",
+		"Port":"7443",
+
+		"LogLevel":3,
+		"LogOut":"stdout",
+
+		"VirtualHosting":true,
+		"VirtualHosts":{
+			"localhost":"./opt/test/config/vhost1.json",
+			"127.0.0.1":"./opt/test/config/vhost2.json"
+		},
+
+		"TLS": {
+			"Enabled":true,
+			"TLSCert":"./opt/test/certs/localhost.cert",
+			"TLSKey":"./opt/test/certs/localhost.key"
+		}
+	}
+}

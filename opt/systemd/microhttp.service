@@ -1,0 +1,14 @@
+[Unit]
+Description=MicroHTTP
+After=network.target
+
+[Service]
+Type=simple
+User=micro-www
+Restart=always
+RestartSec=5s
+ExecStart=/usr/bin/microhttp /usr/lib/microhttp/main.json
+
+# Other Restart options: or always, on-abort, etc
+[Install]
+WantedBy=multi-user.target
