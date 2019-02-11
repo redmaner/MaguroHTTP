@@ -17,10 +17,13 @@ package micro
 import (
 	"strings"
 
+	"github.com/redmaner/MicroHTTP/guard"
 	"github.com/redmaner/MicroHTTP/router"
 )
 
 func (s *Server) addRoutesFromConfig() {
+
+	limiter := guard.NewLimiter(100)
 
 	// Make routes for each vhost, if vhosts are enabled
 	if s.Cfg.Core.VirtualHosting {
@@ -64,10 +67,10 @@ func (s *Server) addRoutesFromConfig() {
 
 					if strings.IndexByte(method, ';') > -1 {
 						for _, mtd := range strings.Split(method, ";") {
-							s.Router.AddRoute(vhost, path, fallback, mtd, contentType, s.handleServe())
+							s.Router.AddRoute(vhost, path, fallback, mtd, contentType, limiter.GuardHTTP(s.handleServe()))
 						}
 					} else {
-						s.Router.AddRoute(vhost, path, fallback, method, contentType, s.handleServe())
+						s.Router.AddRoute(vhost, path, fallback, method, contentType, limiter.GuardHTTP(s.handleServe()))
 					}
 				}
 			}
