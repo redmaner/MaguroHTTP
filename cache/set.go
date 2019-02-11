@@ -20,7 +20,7 @@ import (
 	"github.com/cespare/xxhash"
 )
 
-// Set is used to set a key value pair into TinyCache
+// Set is used to set a key value pair into SpearCache
 // The key should always be a string. The value can be everything.
 func (c *SpearCache) Set(key string, value interface{}) {
 
@@ -36,7 +36,30 @@ func (c *SpearCache) Set(key string, value interface{}) {
 	// Lock the shard for concurrency safety. We don't use defer to unlock the shard (on purpose)
 	c.shards[id].lock.Lock()
 
-	// appendKey
+	// To prevent cache cluttering we check if the previous 10 entries are equal to key
+	// If the key exists in the previous 10 entries before cursor, we update that key instead
+	// of appending the key value to the cache.
+	for i := 1; i < 10; i++ {
+
+		itid := c.shards[id].cursor - i
+
+		if itid < 0 {
+			itid = itid + defaultItems
+		}
+
+		// If the key exists we update the value and modtime.
+		if c.shards[id].items[itid].key == keyHash {
+
+			c.shards[id].items[itid].value = value
+			c.shards[id].items[itid].modTime = uint64(time.Now().UnixNano())
+
+			// Unlock and return
+			c.shards[id].lock.Unlock()
+			return
+		}
+	}
+
+	// appendKey, it couldn't be updated.
 	c.appendKey(keyHash, id, value)
 
 	// We unlock the shard
@@ -52,10 +75,10 @@ func (c *SpearCache) appendKey(keyHash uint64, id uint64, value interface{}) {
 		c.shards[id].cursor = 0
 	}
 
-	// All key value pairs are appended to the queue. All keys are in time order.
-	// Keys that already exist in the queue are not updated, but appended. A set in
-	// SpearCache is therefore very fast.
-	// A cache get will retrieve the latest key, if it exists and is not yet expired.
+	// Key value pairs are appended to the cache. SpearCache only updates an existing key
+	// if that key is maximally 10 entries removed from the cursor. This is to prevent
+	// cache cluttering. This makes SpearCache set commands very fast.
+	// A cache get will always retrieve the latest key value, if the key exists and is not yet expired.
 	c.shards[id].items[c.shards[id].cursor] = item{
 		key:     keyHash,
 		value:   value,
