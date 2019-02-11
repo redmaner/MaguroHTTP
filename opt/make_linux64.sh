@@ -9,9 +9,9 @@ rm -rf ./.temp
 export GOOS="linux"
 export GOHOSTARCH="amd64"
 
-go get -v -u github.com/gbrlsnchs/jwt
-go get -v -u github.com/redmaner/smux
 go get -v -u golang.org/x/crypto/acme
+go get -v -u golang.org/x/time/rate
+go get -v -u github.com/cespare/xxhash
 
 go build -o ./opt/microhttp_linux64 *.go
 

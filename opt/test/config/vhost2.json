@@ -1,6 +1,6 @@
 {
 	"Serve":{
-		"ServeDir":"./test/web/",
+		"ServeDir":"./opt/test/web/",
 		"ServeIndex":"index.html",
 
 		"Headers": {
