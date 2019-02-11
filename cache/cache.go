@@ -1,9 +1,23 @@
+// Copyright 2019 Jake van der Putten.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package cache
 
 const (
 
 	// defaultShards is the amount of shards in SpearCache
-	defaultShards = 256
+	defaultShards = 512
 
 	// defaultItems is the amount of items in a single shard
 	defaultItems = 1024
@@ -17,6 +31,7 @@ type SpearCache struct {
 	shards [defaultShards]*shard
 }
 
+// NewCache returns an empty SpearCache
 func NewCache() *SpearCache {
 	return &SpearCache{}
 }

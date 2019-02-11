@@ -15,20 +15,16 @@
 package cache
 
 import (
-	"errors"
 	"time"
 
 	"github.com/cespare/xxhash"
 )
 
-var (
-	errCoverOutOfRange = errors.New("Cover should be between 10 and 100")
-)
-
-// Get is used to retrieve a key from the cache. Get requires the key and the max age
-// of the key in nano seconds. If the key is found true and the value are returned.
-// If the key is not found or is expired, false and nil are returned
-func (c *SpearCache) Get(key string, maxAge uint64) (bool, interface{}) {
+// Find is used to find a key in the cache. It doesn't require a max age as parameter,
+// this means it will search the entire cache. Find is a costly operation and should only be
+// used when necessary. If the key is found it returns true, the value and the age of the key in nano seconds.
+// If the key is not found, false, nil and zero are returned.
+func (c *SpearCache) Find(key string) (bool, interface{}, uint64) {
 
 	// hash the key with xxhash and make the id
 	keyHash := xxhash.Sum64([]byte(key))
@@ -39,7 +35,7 @@ func (c *SpearCache) Get(key string, maxAge uint64) (bool, interface{}) {
 
 	// We make sure the shard exists, if it doesn't the key isn't stored
 	if c.shards[id] == nil {
-		return false, nil
+		return false, nil, 0
 	}
 
 	// Lock the shard for concurrency safetey
@@ -66,10 +62,6 @@ func (c *SpearCache) Get(key string, maxAge uint64) (bool, interface{}) {
 			continue
 		}
 
-		if now-c.shards[id].items[itid].modTime > maxAge {
-			break
-		}
-
 		// We test if the item is within the maxAge range. If it is not we break.
 		// If it is we check if the key matches the key we search.
 		if key == keyHash {
@@ -79,11 +71,11 @@ func (c *SpearCache) Get(key string, maxAge uint64) (bool, interface{}) {
 
 			// Unlock and return
 			c.shards[id].lock.Unlock()
-			return true, c.shards[id].items[itid].value
+			return true, c.shards[id].items[itid].value, now - c.shards[id].items[itid].modTime
 		}
 	}
 
 	c.shards[id].lock.Unlock()
 
-	return false, nil
+	return false, nil, 0
 }

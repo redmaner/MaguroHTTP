@@ -1,3 +1,17 @@
+// Copyright 2019 Jake van der Putten.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package cache
 
 import (
@@ -29,6 +43,8 @@ func (c *SpearCache) Set(key string, value interface{}) {
 	c.shards[id].lock.Unlock()
 }
 
+// appendKey is used to append a key to the cache. This is called by both
+// set and get commands. This should only be called when a shard is already unlocked.
 func (c *SpearCache) appendKey(keyHash uint64, id uint64, value interface{}) {
 
 	// if the cursor of the queue is longer than defaultItems - 1, the cursor is reset to zero
@@ -43,7 +59,7 @@ func (c *SpearCache) appendKey(keyHash uint64, id uint64, value interface{}) {
 	c.shards[id].items[c.shards[id].cursor] = item{
 		key:     keyHash,
 		value:   value,
-		modTime: uint32(time.Now().Unix()),
+		modTime: uint64(time.Now().UnixNano()),
 	}
 
 	// We increase the cursor
