@@ -187,14 +187,16 @@ func (sr *SRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	r.URL.Path = path
 
-	if mr, status := sr.getRoute(host, path, method, content); status == 200 {
+	mr, status := sr.getRoute(host, path, method, content)
 
-		// Request can be handled by handler, so dispatch to defined handler
-		mr.handler.ServeHTTP(w, r)
-
-	} else {
+	if status != 200 {
 		sr.ErrorHandler(w, r, status)
+		return
 	}
+
+	// Request can be handled by handler, so dispatch to defined handler
+	mr.handler.ServeHTTP(w, r)
+
 }
 
 // ShowRoutes shows the routes registered at the router on the screen. This function

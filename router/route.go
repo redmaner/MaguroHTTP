@@ -96,33 +96,32 @@ func (sr *SRouter) getRoute(h, p, m, c string) (methodRoute, int) {
 
 	// We have found a pathRoute. We now search for a methodRoute that matches the
 	// method of the request.
-	if mr, ok := pr.subRoutes[m]; ok {
-
-		// We have found a route that matches the host, path and method. We now determine
-		// if the request Content-Type matches the route.
-		if mr.contentAllowed(c) {
-
-			// All criteria have matched: host, path, method and Content-Type. If the
-			// pathRoute wasn't an exact match we now determine if fallback is allowed to
-			// the subpath. We do this on this level because we allow different fallback rules
-			// for each methodRoute
-			if !em && !mr.pathFallback {
-				return methodRoute{}, 404
-			}
-
-			// We got a winner, return the found methodRoute with a 200 OK status code
-			return mr, 200
-		}
-
-		// We have found a route with matching host, path and method. The request
-		// Content-Type is not allowed. We return an empty method route with a
-		// 406 Media not allowed status code.
-		return methodRoute{}, 406
-	}
+	mr, ok := pr.subRoutes[m]
 
 	// We have found a route with matching host and path, but the method wasn't found.
 	// we return an empty method route with a 405 Method  not allowed status code.
-	return methodRoute{}, 405
+	if !ok {
+		return methodRoute{}, 405
+	}
+
+	// We have found a route with matching host, path and method. The request
+	// Content-Type is not allowed. We return an empty method route with a
+	// 406 Media not allowed status code.
+	if !mr.contentAllowed(c) {
+		return methodRoute{}, 406
+	}
+
+	// All criteria have matched: host, path, method and Content-Type. If the
+	// pathRoute wasn't an exact match we now determine if fallback is allowed to
+	// the subpath. We do this on this level because we allow different fallback rules
+	// for each methodRoute
+	if !em && !mr.pathFallback {
+		return methodRoute{}, 404
+	}
+
+	// We got a winner, return the found methodRoute with a 200 OK status code
+	return mr, 200
+
 }
 
 // Function to match a route for a given host + path combination
