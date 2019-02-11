@@ -17,7 +17,7 @@ package micro
 import (
 	"strings"
 
-	"github.com/redmaner/smux"
+	"github.com/redmaner/MicroHTTP/router"
 )
 
 func (s *Server) addRoutesFromConfig() {
@@ -88,7 +88,7 @@ func (s *Server) addRoutesFromConfig() {
 			}
 
 		} else if s.Cfg.Serve.Download.Enabled {
-			s.Router.AddRoute(smux.DefaultHost, "/", true, "GET", "", s.handleDownload())
+			s.Router.AddRoute(router.DefaultHost, "/", true, "GET", "", s.handleDownload())
 
 			// Default is serve
 		} else {
@@ -110,10 +110,10 @@ func (s *Server) addRoutesFromConfig() {
 
 				if strings.IndexByte(method, ';') > -1 {
 					for _, mtd := range strings.Split(method, ";") {
-						s.Router.AddRoute(smux.DefaultHost, path, fallback, mtd, contentType, s.handleServe())
+						s.Router.AddRoute(router.DefaultHost, path, fallback, mtd, contentType, s.handleServe())
 					}
 				} else {
-					s.Router.AddRoute(smux.DefaultHost, path, fallback, method, contentType, s.handleServe())
+					s.Router.AddRoute(router.DefaultHost, path, fallback, method, contentType, s.handleServe())
 				}
 			}
 		}
