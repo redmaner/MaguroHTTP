@@ -124,7 +124,8 @@ func (sr *SRouter) AddRoute(host, path string, fallback bool, method, content st
 	}
 
 	pr := pathRoute{
-		subRoutes: make(map[string]methodRoute),
+		subRoutes:  make(map[string]methodRoute),
+		middleware: []MiddlewareFunc{},
 	}
 
 	if _, ok := sr.routes[host+path]; !ok {
@@ -187,15 +188,33 @@ func (sr *SRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	r.URL.Path = path
 
-	mr, status := sr.getRoute(host, path, method, content)
+	mr, mw, status := sr.getRoute(host, path, method, content)
 
 	if status != 200 {
 		sr.ErrorHandler(w, r, status)
 		return
 	}
 
-	// Request can be handled by handler, so dispatch to defined handler
-	mr.handler.ServeHTTP(w, r)
+	// Handle middleware
+	lenMw := len(mw)
+	mwHandler := mr.handler
+
+	switch {
+	case lenMw > 0:
+
+		for i, v := range mw {
+			if i == lenMw-1 {
+				v(mwHandler).ServeHTTP(w, r)
+				return
+			}
+			mwHandler = v(mw[i+1](mwHandler))
+		}
+
+	default:
+
+		// Request can be handled by handler, so dispatch to defined handler
+		mr.handler.ServeHTTP(w, r)
+	}
 
 }
 

@@ -21,7 +21,8 @@ import (
 )
 
 type pathRoute struct {
-	subRoutes map[string]methodRoute
+	subRoutes  map[string]methodRoute
+	middleware []MiddlewareFunc
 }
 
 type methodRoute struct {
@@ -34,7 +35,7 @@ type methodRoute struct {
 }
 
 // Function to retrieve a methodRoute for a HTTP request
-func (sr *SRouter) getRoute(h, p, m, c string) (methodRoute, int) {
+func (sr *SRouter) getRoute(h, p, m, c string) (methodRoute, []MiddlewareFunc, int) {
 
 	// For concurrency safety, lock mutex
 	sr.mu.RLock()
@@ -91,7 +92,7 @@ func (sr *SRouter) getRoute(h, p, m, c string) (methodRoute, int) {
 	// case 7: we didn't found any route
 	// Selected route: none, we return a 404 HTTP Not Found error
 	default:
-		return methodRoute{}, 404
+		return methodRoute{}, []MiddlewareFunc{}, 404
 	}
 
 	// We have found a pathRoute. We now search for a methodRoute that matches the
@@ -101,14 +102,14 @@ func (sr *SRouter) getRoute(h, p, m, c string) (methodRoute, int) {
 	// We have found a route with matching host and path, but the method wasn't found.
 	// we return an empty method route with a 405 Method  not allowed status code.
 	if !ok {
-		return methodRoute{}, 405
+		return methodRoute{}, []MiddlewareFunc{}, 405
 	}
 
 	// We have found a route with matching host, path and method. The request
 	// Content-Type is not allowed. We return an empty method route with a
 	// 406 Media not allowed status code.
 	if !mr.contentAllowed(c) {
-		return methodRoute{}, 406
+		return methodRoute{}, []MiddlewareFunc{}, 406
 	}
 
 	// All criteria have matched: host, path, method and Content-Type. If the
@@ -116,11 +117,11 @@ func (sr *SRouter) getRoute(h, p, m, c string) (methodRoute, int) {
 	// the subpath. We do this on this level because we allow different fallback rules
 	// for each methodRoute
 	if !em && !mr.pathFallback {
-		return methodRoute{}, 404
+		return methodRoute{}, []MiddlewareFunc{}, 404
 	}
 
 	// We got a winner, return the found methodRoute with a 200 OK status code
-	return mr, 200
+	return mr, pr.middleware, 200
 
 }
 
