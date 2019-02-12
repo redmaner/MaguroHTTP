@@ -42,10 +42,12 @@ func (s *Server) addRoutesFromConfig() {
 					s.Router.AddRoute(host, "/", true, "CONNECT", "*", s.handleProxy())
 					s.Router.AddRoute(host, "/", true, "PATCH", "*", s.handleProxy())
 					s.Router.AddRoute(host, "/", true, "OPTIONS", "*", s.handleProxy())
+					s.Router.UseMiddleware(host, "/", router.MiddlewareHandlerFunc(limiter.LimitHTTP))
 				}
 
 			} else if s.Vhosts[vhost].Serve.Download.Enabled {
 				s.Router.AddRoute(vhost, "/", true, "GET", "", s.handleDownload())
+				s.Router.UseMiddleware(vhost, "/", router.MiddlewareHandlerFunc(limiter.LimitHTTP))
 
 				// Default is serve
 			} else {
@@ -67,11 +69,13 @@ func (s *Server) addRoutesFromConfig() {
 
 					if strings.IndexByte(method, ';') > -1 {
 						for _, mtd := range strings.Split(method, ";") {
-							s.Router.AddRoute(vhost, path, fallback, mtd, contentType, limiter.GuardHTTP(s.handleServe()))
+							s.Router.AddRoute(vhost, path, fallback, mtd, contentType, s.handleServe())
 						}
 					} else {
-						s.Router.AddRoute(vhost, path, fallback, method, contentType, limiter.GuardHTTP(s.handleServe()))
+						s.Router.AddRoute(vhost, path, fallback, method, contentType, s.handleServe())
 					}
+
+					s.Router.UseMiddleware(vhost, path, router.MiddlewareHandlerFunc(limiter.LimitHTTP))
 				}
 			}
 		}
@@ -88,10 +92,12 @@ func (s *Server) addRoutesFromConfig() {
 				s.Router.AddRoute(host, "/", true, "CONNECT", "*", s.handleProxy())
 				s.Router.AddRoute(host, "/", true, "PATCH", "*", s.handleProxy())
 				s.Router.AddRoute(host, "/", true, "OPTIONS", "*", s.handleProxy())
+				s.Router.UseMiddleware(host, "/", router.MiddlewareHandlerFunc(limiter.LimitHTTP))
 			}
 
 		} else if s.Cfg.Serve.Download.Enabled {
 			s.Router.AddRoute(router.DefaultHost, "/", true, "GET", "", s.handleDownload())
+			s.Router.UseMiddleware(router.DefaultHost, "/", router.MiddlewareHandlerFunc(limiter.LimitHTTP))
 
 			// Default is serve
 		} else {
@@ -118,6 +124,7 @@ func (s *Server) addRoutesFromConfig() {
 				} else {
 					s.Router.AddRoute(router.DefaultHost, path, fallback, method, contentType, s.handleServe())
 				}
+				s.Router.UseMiddleware(router.DefaultHost, path, router.MiddlewareHandlerFunc(limiter.LimitHTTP))
 			}
 		}
 	}
