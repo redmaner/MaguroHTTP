@@ -18,8 +18,6 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
-
-	"github.com/redmaner/MicroHTTP/data"
 )
 
 // Function to set headers defined in configuration
@@ -56,7 +54,7 @@ func (s *Server) setHeaders(w http.ResponseWriter, h map[string]string) {
 }
 
 // Function to set MIME type depending on the file that is served
-func getMIMEType(p string, cts data.MIMETypes) string {
+func getMIMEType(p string, cts MIMETypes) string {
 	ext := filepath.Ext(p)
 	switch ext {
 	case ".aac":

@@ -20,7 +20,6 @@ import (
 	"os"
 	"sync"
 
-	"github.com/redmaner/MicroHTTP/data"
 	"github.com/redmaner/MicroHTTP/debug"
 	"github.com/redmaner/MicroHTTP/router"
 )
@@ -34,11 +33,11 @@ type Server struct {
 	// Mutex for concurrency safety
 	mu sync.Mutex
 
-	// Cfg is of type data.Config and holds the configuration of instance
-	Cfg data.Config
+	// Cfg is of type Config and holds the configuration of instance
+	Cfg Config
 
 	// vhosts holds the information of each vhost
-	Vhosts map[string]data.Config
+	Vhosts map[string]Config
 
 	// LogInterface is of type debug.Logger
 	logInterface *debug.Logger
@@ -51,10 +50,10 @@ type Server struct {
 func NewInstanceFromConfig(p string) *Server {
 
 	// vhost configigurations
-	vhosts := make(map[string]data.Config)
+	vhosts := make(map[string]Config)
 
 	// Initalise empty config
-	var cfg data.Config
+	var cfg Config
 
 	// check if config exists
 	if _, err := os.Stat(p); err != nil {
@@ -79,8 +78,8 @@ func NewInstanceFromConfig(p string) *Server {
 	// If virtual hosting is enabled, all the configurations of the vhosts are loaded
 	if cfg.Core.VirtualHosting {
 		for k, v := range cfg.Core.VirtualHosts {
-			var vcfg data.Config
-			data.LoadConfigFromFile(v, &vcfg)
+			var vcfg Config
+			LoadConfigFromFile(v, &vcfg)
 			vcfg.Validate(v, true)
 			vhosts[k] = vcfg
 		}

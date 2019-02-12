@@ -22,12 +22,6 @@ import (
 	"github.com/redmaner/MicroHTTP/router"
 )
 
-// Proxy type, part of MicroHTTP config
-type proxy struct {
-	Enabled bool
-	Rules   map[string]string
-}
-
 // Function to proxy. The proxy can be configurated in configuration
 // MicroHTTP is capable to serve HTTP and to proxy along side each other using virtual hosts
 func (s *Server) handleProxy() http.HandlerFunc {

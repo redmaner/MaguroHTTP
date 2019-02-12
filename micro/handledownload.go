@@ -21,7 +21,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/redmaner/MicroHTTP/data"
 	"github.com/redmaner/MicroHTTP/html"
 	"github.com/redmaner/MicroHTTP/router"
 )
@@ -34,7 +33,7 @@ func (s *Server) handleDownload() http.HandlerFunc {
 
 		host := router.StripHostPort(r.Host)
 
-		var dlurls []data.FileInfo
+		var dlurls []fileInfo
 
 		cfg := s.Cfg
 
@@ -52,7 +51,7 @@ func (s *Server) handleDownload() http.HandlerFunc {
 				filepath.Walk(cfg.Serve.ServeDir, func(path string, f os.FileInfo, _ error) error {
 					if !f.IsDir() {
 						if filepath.Ext(f.Name()) == v {
-							dlurls = append(dlurls, data.FileInfo{
+							dlurls = append(dlurls, fileInfo{
 								Name:    f.Name(),
 								Size:    f.Size(),
 								ModTime: f.ModTime(),
