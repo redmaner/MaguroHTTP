@@ -19,19 +19,15 @@ type Limiter struct {
 // NewLimiter returns a new guard.Limiter
 func NewLimiter(ratePerMin float64, rateBurst int) *Limiter {
 	return &Limiter{
-		cache:        cache.NewCache(),
-		RatePerSec:   rate.Limit(ratePerMin / 60.00),
-		RateBurst:    rateBurst,
-		ErrorHandler: handleError(),
-	}
-}
-
-func handleError() router.ErrorHandler {
-	return func(w http.ResponseWriter, r *http.Request, code int) {
-		switch code {
-		case 429:
-			http.Error(w, "Too many requests", 429)
-		}
+		cache:      cache.NewCache(),
+		RatePerSec: rate.Limit(ratePerMin / 60.00),
+		RateBurst:  rateBurst,
+		ErrorHandler: router.ErrorHandler(func(w http.ResponseWriter, r *http.Request, code int) {
+			switch code {
+			case 429:
+				http.Error(w, "Too many requests", 429)
+			}
+		}),
 	}
 }
 
