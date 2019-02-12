@@ -24,6 +24,7 @@ import (
 func (s *Server) addRoutesFromConfig() {
 
 	var limiter *guard.Limiter
+	var firewall *guard.Firewall
 
 	// Make routes for each vhost, if vhosts are enabled
 	if s.Cfg.Core.VirtualHosting {
@@ -34,6 +35,15 @@ func (s *Server) addRoutesFromConfig() {
 			// Each virtual host gets it's own limiter
 			limiter = guard.NewLimiter(s.Vhosts[vhost].Guard.Rate, s.Vhosts[vhost].Guard.RateBurst)
 			limiter.ErrorHandler = s.handleError
+
+			if s.Vhosts[vhost].Guard.Firewall.Enabled {
+				firewall = &guard.Firewall{
+					Blacklisting: s.Vhosts[vhost].Guard.Firewall.Blacklisting,
+					Subpath:      s.Vhosts[vhost].Guard.Firewall.Subpath,
+					Rules:        s.Vhosts[vhost].Guard.Firewall.Rules,
+					ErrorHandler: s.handleError,
+				}
+			}
 
 			// Start with proxy
 			if s.Vhosts[vhost].Proxy.Enabled {
@@ -46,11 +56,25 @@ func (s *Server) addRoutesFromConfig() {
 					s.Router.AddRoute(host, "/", true, "CONNECT", "*", s.handleProxy())
 					s.Router.AddRoute(host, "/", true, "PATCH", "*", s.handleProxy())
 					s.Router.AddRoute(host, "/", true, "OPTIONS", "*", s.handleProxy())
+
+					// Add firewall as middleware if enabled
+					if s.Vhosts[vhost].Guard.Firewall.Enabled {
+						s.Router.UseMiddleware(host, "/", router.MiddlewareHandlerFunc(firewall.BlockProxy))
+					}
+
+					// Add limiter as middleware
 					s.Router.UseMiddleware(host, "/", router.MiddlewareHandlerFunc(limiter.LimitHTTP))
 				}
 
 			} else if s.Vhosts[vhost].Serve.Download.Enabled {
 				s.Router.AddRoute(vhost, "/", true, "GET", "", s.handleDownload())
+
+				// Add firewall as middleware if enabled
+				if s.Vhosts[vhost].Guard.Firewall.Enabled {
+					s.Router.UseMiddleware(vhost, "/", router.MiddlewareHandlerFunc(firewall.BlockHTTP))
+				}
+
+				// Add limiter as middleware
 				s.Router.UseMiddleware(vhost, "/", router.MiddlewareHandlerFunc(limiter.LimitHTTP))
 
 				// Default is serve
@@ -79,6 +103,12 @@ func (s *Server) addRoutesFromConfig() {
 						s.Router.AddRoute(vhost, path, fallback, method, contentType, s.handleServe())
 					}
 
+					// Add firewall as middleware if enabled
+					if s.Vhosts[vhost].Guard.Firewall.Enabled {
+						s.Router.UseMiddleware(vhost, path, router.MiddlewareHandlerFunc(firewall.BlockHTTP))
+					}
+
+					// Add limiter as middleware
 					s.Router.UseMiddleware(vhost, path, router.MiddlewareHandlerFunc(limiter.LimitHTTP))
 				}
 			}
@@ -87,6 +117,15 @@ func (s *Server) addRoutesFromConfig() {
 
 		limiter = guard.NewLimiter(s.Cfg.Guard.Rate, s.Cfg.Guard.RateBurst)
 		limiter.ErrorHandler = s.handleError
+
+		if s.Cfg.Guard.Firewall.Enabled {
+			firewall = &guard.Firewall{
+				Blacklisting: s.Cfg.Guard.Firewall.Blacklisting,
+				Subpath:      s.Cfg.Guard.Firewall.Subpath,
+				Rules:        s.Cfg.Guard.Firewall.Rules,
+				ErrorHandler: s.handleError,
+			}
+		}
 
 		// Start with proxy
 		if s.Cfg.Proxy.Enabled {
@@ -99,11 +138,25 @@ func (s *Server) addRoutesFromConfig() {
 				s.Router.AddRoute(host, "/", true, "CONNECT", "*", s.handleProxy())
 				s.Router.AddRoute(host, "/", true, "PATCH", "*", s.handleProxy())
 				s.Router.AddRoute(host, "/", true, "OPTIONS", "*", s.handleProxy())
+
+				// Add firewall as middleware if enabled
+				if s.Cfg.Guard.Firewall.Enabled {
+					s.Router.UseMiddleware(host, "/", router.MiddlewareHandlerFunc(firewall.BlockProxy))
+				}
+
+				// Add limiter as middleware
 				s.Router.UseMiddleware(host, "/", router.MiddlewareHandlerFunc(limiter.LimitHTTP))
 			}
 
 		} else if s.Cfg.Serve.Download.Enabled {
 			s.Router.AddRoute(router.DefaultHost, "/", true, "GET", "", s.handleDownload())
+
+			// Add firewall as middleware if enabled
+			if s.Cfg.Guard.Firewall.Enabled {
+				s.Router.UseMiddleware(router.DefaultHost, "/", router.MiddlewareHandlerFunc(firewall.BlockHTTP))
+			}
+
+			// Add limiter as middleware
 			s.Router.UseMiddleware(router.DefaultHost, "/", router.MiddlewareHandlerFunc(limiter.LimitHTTP))
 
 			// Default is serve
@@ -131,6 +184,13 @@ func (s *Server) addRoutesFromConfig() {
 				} else {
 					s.Router.AddRoute(router.DefaultHost, path, fallback, method, contentType, s.handleServe())
 				}
+
+				// Add firewall as middleware if enabled
+				if s.Cfg.Guard.Firewall.Enabled {
+					s.Router.UseMiddleware(router.DefaultHost, path, router.MiddlewareHandlerFunc(firewall.BlockHTTP))
+				}
+
+				// Add limiter as middleware
 				s.Router.UseMiddleware(router.DefaultHost, path, router.MiddlewareHandlerFunc(limiter.LimitHTTP))
 			}
 		}

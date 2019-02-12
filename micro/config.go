@@ -105,6 +105,16 @@ type proxyConfig struct {
 type guardConfig struct {
 	Rate      float64
 	RateBurst int
+
+	Firewall firewallConfig
+}
+
+// Firewall type, part of MicroHTTP config
+type firewallConfig struct {
+	Enabled      bool
+	Blacklisting bool
+	Subpath      bool
+	Rules        map[string][]string
 }
 
 // LoadConfigFromFile is a function which a loads the Config type microConfig from a json file

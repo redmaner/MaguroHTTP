@@ -24,6 +24,17 @@
 
 	"Guard": {
 		"Rate":100,
-		"RateBurst":10
+		"RateBurst":10,
+
+		"Firewall":{
+			"Enabled":true,
+			"Blacklisting":false,
+			"Subpath":false,
+			"Rules":{
+				"/":[
+					"127.0.0.1"
+				]
+			}
+		}
 	}
 }
