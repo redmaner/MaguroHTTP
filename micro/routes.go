@@ -23,14 +23,17 @@ import (
 
 func (s *Server) addRoutesFromConfig() {
 
-	limiter := guard.NewLimiter(100)
-	limiter.ErrorHandler = s.handleError
+	var limiter *guard.Limiter
 
 	// Make routes for each vhost, if vhosts are enabled
 	if s.Cfg.Core.VirtualHosting {
 
 		// Loop over each Vhost
 		for vhost := range s.Cfg.Core.VirtualHosts {
+
+			// Each virtual host gets it's own limiter
+			limiter = guard.NewLimiter(s.Vhosts[vhost].Guard.Rate, s.Vhosts[vhost].Guard.RateBurst)
+			limiter.ErrorHandler = s.handleError
 
 			// Start with proxy
 			if s.Vhosts[vhost].Proxy.Enabled {
@@ -81,6 +84,9 @@ func (s *Server) addRoutesFromConfig() {
 			}
 		}
 	} else {
+
+		limiter = guard.NewLimiter(s.Cfg.Guard.Rate, s.Cfg.Guard.RateBurst)
+		limiter.ErrorHandler = s.handleError
 
 		// Start with proxy
 		if s.Cfg.Proxy.Enabled {

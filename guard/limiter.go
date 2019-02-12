@@ -12,14 +12,16 @@ import (
 type Limiter struct {
 	cache        *cache.SpearCache
 	RatePerSec   rate.Limit
+	RateBurst    int
 	ErrorHandler router.ErrorHandler
 }
 
 // NewLimiter returns a new guard.Limiter
-func NewLimiter(ratePerMin float64) *Limiter {
+func NewLimiter(ratePerMin float64, rateBurst int) *Limiter {
 	return &Limiter{
 		cache:        cache.NewCache(),
 		RatePerSec:   rate.Limit(ratePerMin / 60.00),
+		RateBurst:    rateBurst,
 		ErrorHandler: handleError(),
 	}
 }
@@ -49,7 +51,7 @@ func (l *Limiter) LimitHTTP(h http.HandlerFunc) http.HandlerFunc {
 				limit = as
 			}
 		default:
-			limit = rate.NewLimiter(l.RatePerSec, 10)
+			limit = rate.NewLimiter(l.RatePerSec, l.RateBurst)
 		}
 
 		l.cache.Set(remoteAddr, limit)

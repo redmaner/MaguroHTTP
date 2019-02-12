@@ -26,7 +26,8 @@ type Config struct {
 	Core   coreConfig
 	Serve  serveConfig
 	Errors map[string]string
-	Proxy  proxy
+	Proxy  proxyConfig
+	Guard  guardConfig
 }
 
 // coreConfig is part of the main configuration.
@@ -95,9 +96,15 @@ type MIMETypes struct {
 }
 
 // Proxy type, part of MicroHTTP config
-type proxy struct {
+type proxyConfig struct {
 	Enabled bool
 	Rules   map[string]string
+}
+
+// guardConfig
+type guardConfig struct {
+	Rate      float64
+	RateBurst int
 }
 
 // LoadConfigFromFile is a function which a loads the Config type microConfig from a json file
@@ -122,6 +129,7 @@ func LoadConfigFromFile(p string, c *Config) {
 	}
 }
 
+// Validate can be used to validate a Config type
 func (c *Config) Validate(p string, isVhost bool) {
 
 	if !isVhost {

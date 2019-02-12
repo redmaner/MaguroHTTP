@@ -4,5 +4,10 @@
 		"Rules": {
 			"localhost":"https://griffin.edsnsecurity.nl"
 		}
+	},
+	
+	"Guard": {
+		"Rate":100,
+		"RateBurst":10
 	}
 }
