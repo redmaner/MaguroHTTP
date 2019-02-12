@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package smux provides a fast and simple, security orientated HTTP router for GO (golang)
+// Package router provides a fast and simple, security orientated HTTP router for GO (golang)
 package router
 
 import (
@@ -40,10 +40,10 @@ const (
 // Requests that don't match the method for the host or path will receive a standard HTTP 405 error.
 // Requests that don't match the Content-Type for the host or path will receive a standard HTTP 406 error.
 //
-// By design smux.SRouter requires explicit defition of routes. It does however support
+// By design router.SRouter requires explicit defition of routes. It does however support
 // fallback to subpaths, if the request path cannot be found.
 // Example: the request contains a request for /foo/bar, but /foo/bar is not registered as a route.
-// smux.SRouter will dispatch that request to /foo route if that route is registered and supports fallback.
+// router.SRouter will dispatch that request to /foo route if that route is registered and supports fallback.
 //
 type SRouter struct {
 	mu     sync.RWMutex
@@ -59,7 +59,7 @@ type SRouter struct {
 // Th ErrorHandler type allows users to define their own implementation of an ErrorHandler to handle HTTP errors from the Router.
 type ErrorHandler func(w http.ResponseWriter, r *http.Request, code int)
 
-// NewRouter returns a default smux.SRouter
+// NewRouter returns a default router.SRouter
 func NewRouter() *SRouter {
 	return &SRouter{
 		ErrorHandler: func(w http.ResponseWriter, r *http.Request, code int) {
@@ -78,7 +78,7 @@ func NewRouter() *SRouter {
 // AddRoute can be used to add a route to the Router
 // Parameters:
 //
-// 1. Host as string. You should use smux.DefaultHost if you do not want to use a custom host.
+// 1. Host as string. You should use router.DefaultHost if you do not want to use a custom host.
 //
 // 2. path as string. Every path should start with a /
 //
@@ -88,7 +88,7 @@ func NewRouter() *SRouter {
 //
 // 5. Content-Type. This allows multiple entries, separated by semicolon. For example "text/html;application/json"
 // An empty Content-Type can also be valid, use a single semicolon to do so. For example ";"
-// Character sets are not checked by smux.SRouter so you do not have to define these explicitly
+// Character sets are not checked by router.SRouter so you do not have to define these explicitly
 //
 // 6. handler of type http.Handler or http.HandlerFunc. The http.HandlerFunc does implement the http.Handler interface
 // and can therefore be passed into AddRoute as well.
@@ -99,11 +99,11 @@ func (sr *SRouter) AddRoute(host, path string, fallback bool, method, content st
 
 	// We don't want empty parameters
 	if host == "" || path == "" || method == "" {
-		panic("smux: found illegal blank parameters")
+		panic("router: found illegal blank parameters")
 	}
 
 	// If the path is not the root, we don't want paths ending with a "/"
-	// smux.SRouter uses pathFallback to configure fallback, and no weird slashes like http.ServeMux
+	// router.SRouter uses pathFallback to configure fallback, and no weird slashes like http.ServeMux
 	if path != "/" && path[len(path)-1] == '/' {
 		path = path[:len(path)-1]
 	}
@@ -111,12 +111,12 @@ func (sr *SRouter) AddRoute(host, path string, fallback bool, method, content st
 	// We only except single HTTP methods, everything that doesn't do is is rejected
 	if method != "GET" && method != "POST" && method != "PUT" && method != "HEAD" &&
 		method != "DELETE" && method != "CONNECT" && method != "PATCH" && method != "OPTIONS" {
-		panic("smux: method doesn't match a HTTP method")
+		panic("router: method doesn't match a HTTP method")
 	}
 
 	// Handler cannot be nil. This is rare, but we check anyway.
 	if handler == nil {
-		panic("smux: nil handler")
+		panic("router: nil handler")
 	}
 
 	if sr.routes == nil {
@@ -145,35 +145,35 @@ func (sr *SRouter) AddRoute(host, path string, fallback bool, method, content st
 }
 
 // DELETE is a helper function for AddRoute that registers a route for the given path
-// using the DELETE HTTP method. This function registers a smux.DefaultHost as host.
+// using the DELETE HTTP method. This function registers a router.DefaultHost as host.
 // If you require host routing or a different HTTP method use the AddRoute function instead
 func (sr *SRouter) DELETE(path string, pathFallback bool, content string, handler http.Handler) {
 	sr.AddRoute(DefaultHost, path, pathFallback, "DELETE", content, handler)
 }
 
 // GET is a helper function for AddRoute that registers a route for the given path
-// using the GET HTTP method. This function registers a smux.DefaultHost as host.
+// using the GET HTTP method. This function registers a router.DefaultHost as host.
 // If you require host routing or a different HTTP method use the AddRoute function instead
 func (sr *SRouter) GET(path string, pathFallback bool, content string, handler http.Handler) {
 	sr.AddRoute(DefaultHost, path, pathFallback, "GET", content, handler)
 }
 
 // HEAD is a helper function for AddRoute that registers a route for the given path
-// using the HEAD HTTP method. This function registers a smux.DefaultHost as host.
+// using the HEAD HTTP method. This function registers a router.DefaultHost as host.
 // If you require host routing or a different HTTP method use the AddRoute function instead
 func (sr *SRouter) HEAD(path string, pathFallback bool, content string, handler http.Handler) {
 	sr.AddRoute(DefaultHost, path, pathFallback, "HEAD", content, handler)
 }
 
 // POST is a helper function for AddRoute that registers a route for the given path
-// using the POST HTTP method. This function registers a smux.DefaultHost as host.
+// using the POST HTTP method. This function registers a router.DefaultHost as host.
 // If you require host routing or a different HTTP method use the AddRoute function instead
 func (sr *SRouter) POST(path string, pathFallback bool, content string, handler http.Handler) {
 	sr.AddRoute(DefaultHost, path, pathFallback, "POST", content, handler)
 }
 
 // PUT is a helper function for AddRoute that registers a route for the given path
-// using the PUT HTTP method. This function registers a smux.DefaultHost as host.
+// using the PUT HTTP method. This function registers a router.DefaultHost as host.
 // If you require host routing or a different HTTP method use the AddRoute function instead
 func (sr *SRouter) PUT(path string, pathFallback bool, content string, handler http.Handler) {
 	sr.AddRoute(DefaultHost, path, pathFallback, "PUT", content, handler)

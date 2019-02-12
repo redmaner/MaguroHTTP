@@ -46,18 +46,18 @@ func (sr *SRouter) UseMiddleware(host, path string, handler Middleware) {
 
 	// We don't want empty parameters
 	if host == "" || path == "" {
-		panic("smux: found illegal blank parameters")
+		panic("router: found illegal blank parameters")
 	}
 
 	// If the path is not the root, we don't want paths ending with a "/"
-	// smux.SRouter uses pathFallback to configure fallback, and no weird slashes like http.ServeMux
+	// router.SRouter uses pathFallback to configure fallback, and no weird slashes like http.ServeMux
 	if path != "/" && path[len(path)-1] == '/' {
 		path = path[:len(path)-1]
 	}
 
 	// Handler cannot be nil. This is rare, but we check anyway.
 	if handler == nil {
-		panic("smux: nil handler")
+		panic("router: nil handler")
 	}
 
 	if sr.routes == nil {
