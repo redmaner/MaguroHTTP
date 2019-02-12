@@ -24,6 +24,7 @@ import (
 func (s *Server) addRoutesFromConfig() {
 
 	limiter := guard.NewLimiter(100)
+	limiter.ErrorHandler = s.handleError
 
 	// Make routes for each vhost, if vhosts are enabled
 	if s.Cfg.Core.VirtualHosting {

@@ -51,6 +51,8 @@ func (s *Server) handleError(w http.ResponseWriter, r *http.Request, e int) {
 		io.WriteString(w, "<h3>Error 405 - Method not allowed</h3>")
 	case 406:
 		io.WriteString(w, "<h3>Error 406 - Unacceptable</h3>")
+	case 429:
+		io.WriteString(w, "<h3>Error 429 - Too many requests</h3>")
 	case 502:
 		io.WriteString(w, "<h3>Error 502 - Bad gateway</h3>")
 	default:
