@@ -39,6 +39,7 @@ func (mhf MiddlewareHandlerFunc) MiddlewareHTTP(handler http.Handler) http.Handl
 	return mhf(handler.ServeHTTP)
 }
 
+// UseMiddleware can be used to add Middleware to path routes
 func (sr *SRouter) UseMiddleware(host, path string, handler Middleware) {
 
 	sr.mu.Lock()

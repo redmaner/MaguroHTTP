@@ -16,7 +16,6 @@
 package router
 
 import (
-	"fmt"
 	"net/http"
 	"sync"
 )
@@ -144,41 +143,6 @@ func (sr *SRouter) AddRoute(host, path string, fallback bool, method, content st
 	sr.routes[host+path].subRoutes[method] = mr
 }
 
-// DELETE is a helper function for AddRoute that registers a route for the given path
-// using the DELETE HTTP method. This function registers a router.DefaultHost as host.
-// If you require host routing or a different HTTP method use the AddRoute function instead
-func (sr *SRouter) DELETE(path string, pathFallback bool, content string, handler http.Handler) {
-	sr.AddRoute(DefaultHost, path, pathFallback, "DELETE", content, handler)
-}
-
-// GET is a helper function for AddRoute that registers a route for the given path
-// using the GET HTTP method. This function registers a router.DefaultHost as host.
-// If you require host routing or a different HTTP method use the AddRoute function instead
-func (sr *SRouter) GET(path string, pathFallback bool, content string, handler http.Handler) {
-	sr.AddRoute(DefaultHost, path, pathFallback, "GET", content, handler)
-}
-
-// HEAD is a helper function for AddRoute that registers a route for the given path
-// using the HEAD HTTP method. This function registers a router.DefaultHost as host.
-// If you require host routing or a different HTTP method use the AddRoute function instead
-func (sr *SRouter) HEAD(path string, pathFallback bool, content string, handler http.Handler) {
-	sr.AddRoute(DefaultHost, path, pathFallback, "HEAD", content, handler)
-}
-
-// POST is a helper function for AddRoute that registers a route for the given path
-// using the POST HTTP method. This function registers a router.DefaultHost as host.
-// If you require host routing or a different HTTP method use the AddRoute function instead
-func (sr *SRouter) POST(path string, pathFallback bool, content string, handler http.Handler) {
-	sr.AddRoute(DefaultHost, path, pathFallback, "POST", content, handler)
-}
-
-// PUT is a helper function for AddRoute that registers a route for the given path
-// using the PUT HTTP method. This function registers a router.DefaultHost as host.
-// If you require host routing or a different HTTP method use the AddRoute function instead
-func (sr *SRouter) PUT(path string, pathFallback bool, content string, handler http.Handler) {
-	sr.AddRoute(DefaultHost, path, pathFallback, "PUT", content, handler)
-}
-
 func (sr *SRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	host := StripHostPort(r.Host)
@@ -202,12 +166,13 @@ func (sr *SRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case lenMw > 0:
 
-		for i, v := range mw {
-			if i == lenMw-1 {
-				v.MiddlewareHTTP(mwHandler).ServeHTTP(w, r)
+		// We do some middleware execution magic right here
+		for i := lenMw - 1; i >= 0; i-- {
+			if i == 0 {
+				mw[i].MiddlewareHTTP(mwHandler).ServeHTTP(w, r)
 				return
 			}
-			mwHandler = v.MiddlewareHTTP(mw[i+1].MiddlewareHTTP(mwHandler))
+			mwHandler = mw[i].MiddlewareHTTP(mwHandler)
 		}
 
 	default:
@@ -216,15 +181,4 @@ func (sr *SRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		mr.handler.ServeHTTP(w, r)
 	}
 
-}
-
-// ShowRoutes shows the routes registered at the router on the screen. This function
-// can be used for debug purposes.
-func (sr *SRouter) ShowRoutes() {
-	for k, v := range sr.routes {
-		fmt.Printf("\n%s\n", k)
-		for m, v := range v.subRoutes {
-			fmt.Printf("\t%s | Fallback allowed: %v, Content-Type: %s\n", m, v.pathFallback, v.content)
-		}
-	}
 }

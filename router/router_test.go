@@ -170,17 +170,6 @@ func TestRouter(t *testing.T) {
 	}
 }
 
-func TestRouterHelperFunctions(t *testing.T) {
-	ro := NewRouter()
-	ro.DELETE("/", false, "application/json", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
-	ro.GET("/", false, "application/json", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
-	ro.HEAD("/", false, "application/json", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
-	ro.POST("/", false, "application/json", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
-	ro.PUT("/", false, "application/json", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
-	ro.ShowRoutes()
-
-}
-
 func TestRouterCollision(t *testing.T) {
 	ro := NewRouter()
 	ro.AddRoute("127.0.0.1", "/", false, "GET", "*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
