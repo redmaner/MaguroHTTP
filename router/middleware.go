@@ -16,9 +16,30 @@ package router
 
 import "net/http"
 
-type MiddlewareFunc func(handler http.Handler) http.Handler
+// Middleware is an inteface used to execute middleware functions by the router
+type Middleware interface {
+	MiddlewareHTTP(http.Handler) http.Handler
+}
 
-func (sr *SRouter) UseMiddleware(host, path string, handler MiddlewareFunc) {
+// MiddlewareHandler is a function that implements the Middleware interface
+// using http.Handler
+type MiddlewareHandler func(handler http.Handler) http.Handler
+
+// MiddlewareHTTP implements the Middleware interface for MiddlewareHandler
+func (mh MiddlewareHandler) MiddlewareHTTP(handler http.Handler) http.Handler {
+	return mh(handler)
+}
+
+// MiddlewareHandlerFunc is a function that implements the Middleware interface
+// using http.HandlerFunc
+type MiddlewareHandlerFunc func(handler http.HandlerFunc) http.HandlerFunc
+
+// MiddlewareHTTP implements the Middleware interface for MiddlewareHandler
+func (mhf MiddlewareHandlerFunc) MiddlewareHTTP(handler http.Handler) http.Handler {
+	return mhf(handler.ServeHTTP)
+}
+
+func (sr *SRouter) UseMiddleware(host, path string, handler Middleware) {
 
 	sr.mu.Lock()
 	defer sr.mu.Unlock()
@@ -46,7 +67,7 @@ func (sr *SRouter) UseMiddleware(host, path string, handler MiddlewareFunc) {
 	if _, ok := sr.routes[host+path]; !ok {
 		sr.routes[host+path] = pathRoute{
 			subRoutes:  make(map[string]methodRoute),
-			middleware: []MiddlewareFunc{},
+			middleware: []Middleware{},
 		}
 	}
 

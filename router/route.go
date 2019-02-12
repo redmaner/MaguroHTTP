@@ -22,7 +22,7 @@ import (
 
 type pathRoute struct {
 	subRoutes  map[string]methodRoute
-	middleware []MiddlewareFunc
+	middleware []Middleware
 }
 
 type methodRoute struct {
@@ -35,7 +35,7 @@ type methodRoute struct {
 }
 
 // Function to retrieve a methodRoute for a HTTP request
-func (sr *SRouter) getRoute(h, p, m, c string) (methodRoute, []MiddlewareFunc, int) {
+func (sr *SRouter) getRoute(h, p, m, c string) (methodRoute, []Middleware, int) {
 
 	// For concurrency safety, lock mutex
 	sr.mu.RLock()
@@ -92,7 +92,7 @@ func (sr *SRouter) getRoute(h, p, m, c string) (methodRoute, []MiddlewareFunc, i
 	// case 7: we didn't found any route
 	// Selected route: none, we return a 404 HTTP Not Found error
 	default:
-		return methodRoute{}, []MiddlewareFunc{}, 404
+		return methodRoute{}, []Middleware{}, 404
 	}
 
 	// We have found a pathRoute. We now search for a methodRoute that matches the
@@ -102,14 +102,14 @@ func (sr *SRouter) getRoute(h, p, m, c string) (methodRoute, []MiddlewareFunc, i
 	// We have found a route with matching host and path, but the method wasn't found.
 	// we return an empty method route with a 405 Method  not allowed status code.
 	if !ok {
-		return methodRoute{}, []MiddlewareFunc{}, 405
+		return methodRoute{}, []Middleware{}, 405
 	}
 
 	// We have found a route with matching host, path and method. The request
 	// Content-Type is not allowed. We return an empty method route with a
 	// 406 Media not allowed status code.
 	if !mr.contentAllowed(c) {
-		return methodRoute{}, []MiddlewareFunc{}, 406
+		return methodRoute{}, []Middleware{}, 406
 	}
 
 	// All criteria have matched: host, path, method and Content-Type. If the
@@ -117,7 +117,7 @@ func (sr *SRouter) getRoute(h, p, m, c string) (methodRoute, []MiddlewareFunc, i
 	// the subpath. We do this on this level because we allow different fallback rules
 	// for each methodRoute
 	if !em && !mr.pathFallback {
-		return methodRoute{}, []MiddlewareFunc{}, 404
+		return methodRoute{}, []Middleware{}, 404
 	}
 
 	// We got a winner, return the found methodRoute with a 200 OK status code
