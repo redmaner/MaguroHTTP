@@ -11,6 +11,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// Authorizer is a type that provides HTTP middleware to add authentication
+// and authorization to HTTP handlers.
 type Authorizer struct {
 	lock sync.Mutex
 
@@ -27,11 +29,13 @@ type Authorizer struct {
 	LoginTemplate *html.TemplateHandler
 }
 
+// User holds a username and password, used by Authorizer type
 type User struct {
 	Username string
 	Password []byte
 }
 
+// Log is a function to log messages to debug.Logger instance
 func (a *Authorizer) Log(level int, err error) {
 	a.LogInstance.Log(level, err)
 }

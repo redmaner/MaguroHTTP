@@ -14,7 +14,7 @@
 
 package html
 
-// HTML start constant
+// PageTemplateStart is a constant that holds a HTML template base
 const PageTemplateStart = `<!doctype html>
 <html class="no-js" lang="">
 <head>
@@ -76,7 +76,7 @@ table {
 <div class="main wrapper clearfix">
 `
 
-// HTML end constant
+// PageTemplateEnd is a constant that closes the HTML template base
 const PageTemplateEnd = `</div></div>
 </body>
 </html>

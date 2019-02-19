@@ -8,6 +8,9 @@ import (
 	"sync"
 )
 
+// TemplateHandler is a wrapper type for the html.Template package. It requires the directory
+// that holds HTML templates and the name of the template. TemplateHandler can be used to
+// initialise and execute template more easily.
 type TemplateHandler struct {
 	init sync.Once
 	Tpl  *template.Template
@@ -15,6 +18,8 @@ type TemplateHandler struct {
 	dir  string
 }
 
+// NewTemplate returns a TemplateHandler, it requires the directory that holds
+// HTML templates and the name of the template.
 func NewTemplate(dir string, name string) *TemplateHandler {
 	return &TemplateHandler{
 		name: name,
@@ -22,6 +27,8 @@ func NewTemplate(dir string, name string) *TemplateHandler {
 	}
 }
 
+// Init is used to initialise the HTML template. It can be called on multiple locations
+// Init uses sync.Once to make sure it is only executed once.
 func (t *TemplateHandler) Init() {
 	t.init.Do(func() {
 		if _, err := os.Stat(t.dir + t.name); err == nil {
@@ -33,6 +40,7 @@ func (t *TemplateHandler) Init() {
 	})
 }
 
+// Execute is a wrapper function to easily execute the template
 func (t *TemplateHandler) Execute(w io.Writer, data interface{}) {
 	t.Tpl.ExecuteTemplate(w, t.name, data)
 }
