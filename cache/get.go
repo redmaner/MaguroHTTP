@@ -15,14 +15,9 @@
 package cache
 
 import (
-	"errors"
 	"time"
 
 	"github.com/cespare/xxhash"
-)
-
-var (
-	errCoverOutOfRange = errors.New("Cover should be between 10 and 100")
 )
 
 // Get is used to retrieve a key from the cache. Get requires the key and the max age
