@@ -44,6 +44,8 @@ type Server struct {
 
 	// Router holds the router of the server instance
 	Router *router.SRouter
+
+	metrics metricsData
 }
 
 // NewInstanceFromConfig will create a new instance from a config file
@@ -100,8 +102,12 @@ func NewInstanceFromConfig(p string) *Server {
 		logInterface: lg,
 	}
 
+	// Add routing to the server
 	s.Router.ErrorHandler = s.handleError
 	s.addRoutesFromConfig()
+
+	// Handle metrics
+	s.loadMetrics()
 
 	return &s
 }

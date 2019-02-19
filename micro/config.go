@@ -23,11 +23,12 @@ import (
 
 // Config is type holding the main configurtion
 type Config struct {
-	Core   coreConfig
-	Serve  serveConfig
-	Errors map[string]string
-	Proxy  proxyConfig
-	Guard  guardConfig
+	Core    coreConfig
+	Serve   serveConfig
+	Errors  map[string]string
+	Proxy   proxyConfig
+	Guard   guardConfig
+	Metrics metricsConfig
 }
 
 // coreConfig is part of the main configuration.
@@ -35,6 +36,7 @@ type Config struct {
 type coreConfig struct {
 	Address        string
 	Port           string
+	FileDir        string
 	LogLevel       int
 	LogOut         string
 	VirtualHosting bool
@@ -55,7 +57,6 @@ type tlsConfig struct {
 // autocertConfig, part of MicroHTTP core/tls configuration
 type autocertConfig struct {
 	Enabled      bool
-	CertDir      string
 	Certificates []string
 }
 
@@ -117,6 +118,14 @@ type firewallConfig struct {
 	Rules        map[string][]string
 }
 
+// Metrics type, part of MicroHTTP config
+type metricsConfig struct {
+	Enabled bool
+	Path    string
+	Out     string
+	Users   map[string]string
+}
+
 // LoadConfigFromFile is a function which a loads the Config type microConfig from a json file
 func LoadConfigFromFile(p string, c *Config) {
 
@@ -171,11 +180,6 @@ func (c *Config) Validate(p string, isVhost bool) {
 				// Autocert only works in combination with https port (443)
 				if c.Core.Port != "443" {
 					log.Fatalf("%s: TLS autocert is enabled and cannot be used with a port different than 443 (HTTPS)", p)
-				}
-
-				// Certificates will be saved locally, so it requires an explicit directory
-				if c.Core.TLS.AutoCert.CertDir == "" {
-					log.Fatalf("%s: TLS autocert is enabled but CertDir is empty or not defined", p)
 				}
 			} else {
 

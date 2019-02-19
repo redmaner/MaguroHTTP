@@ -28,5 +28,6 @@ func (s *Server) Log(logLevel int, err error) {
 
 // LogNetwork is a function to log network activity using the debug.Logger type
 func (s *Server) LogNetwork(statusCode int, r *http.Request) {
+	s.metrics.concat(statusCode, r.URL.Path)
 	s.Log(debug.LogNet, fmt.Errorf("%d request=%s %s%s%s IP=%s User-Agent=%s", statusCode, r.Method, r.Host, r.URL.Path, r.URL.RawQuery, r.RemoteAddr, r.Header.Get("User-Agent")))
 }

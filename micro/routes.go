@@ -195,4 +195,9 @@ func (s *Server) addRoutesFromConfig() {
 			}
 		}
 	}
+
+	if s.Cfg.Metrics.Enabled {
+		s.Router.AddRoute(router.DefaultHost, s.Cfg.Metrics.Path, false, "GET", "", s.handleMetrics())
+	}
+
 }

@@ -18,6 +18,8 @@ type Authorizer struct {
 	sessions map[string]string
 	TLS      bool
 
+	PathRoot string
+
 	RedirectLogin string
 	RedirectRoot  string
 	LogInstance   *debug.Logger

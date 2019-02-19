@@ -43,7 +43,7 @@ func (s *Server) Serve() {
 			acm := autocert.Manager{
 				Prompt:     autocert.AcceptTOS,
 				HostPolicy: autocert.HostWhitelist(s.Cfg.Core.TLS.AutoCert.Certificates...),
-				Cache:      autocert.DirCache(s.Cfg.Core.TLS.AutoCert.CertDir),
+				Cache:      autocert.DirCache(s.Cfg.Core.FileDir + "certs/"),
 			}
 			tlsc.GetCertificate = acm.GetCertificate
 		} else {

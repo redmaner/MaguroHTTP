@@ -71,7 +71,7 @@ func (s *Server) handleProxy() http.HandlerFunc {
 
 				io.Copy(w, resp.Body)
 				resp.Body.Close()
-				//logNetwork(resp.StatusCode, r)
+				s.LogNetwork(resp.StatusCode, r)
 			} else {
 				s.Log(debug.LogError, err)
 				s.handleError(w, r, 502)

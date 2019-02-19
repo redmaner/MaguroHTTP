@@ -18,5 +18,14 @@
 			"TLSCert":"./opt/test/certs/localhost.cert",
 			"TLSKey":"./opt/test/certs/localhost.key"
 		}
+	},
+
+	"Metrics":{
+		"Enabled":true,
+		"Out":"./metrics.json",
+		"Path":"/MicroMetrics",
+		"Users":{
+			"example":"this is an example password"
+		}
 	}
 }
