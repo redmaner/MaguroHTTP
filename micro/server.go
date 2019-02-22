@@ -45,7 +45,7 @@ type Server struct {
 	// Router holds the router of the server instance
 	Router *router.SRouter
 
-	listener TCPSecListener
+	listener *TCPSecListener
 
 	metrics metricsData
 }
