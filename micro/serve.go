@@ -22,6 +22,7 @@ func (s *Server) Serve() {
 
 	// Define server struct
 	server := http.Server{
+		Addr:              s.Cfg.Core.Address + ":" + s.Cfg.Core.Port,
 		Handler:           s.Router,
 		ReadTimeout:       4 * time.Second,
 		ReadHeaderTimeout: 2 * time.Second,

@@ -18,13 +18,13 @@ type TCPSecListener struct {
 	maxConnsBurst int
 }
 
-func NewTCPSecListener(addr string, maxConnsPerMin float32, maxConnsBurst int) TCPSecListener {
+func NewTCPSecListener(addr string, maxConnsPerMin float32, maxConnsBurst int) *TCPSecListener {
 	ln, err := net.Listen("tcp", addr)
 
 	if err != nil {
 		log.Fatal(err)
 	}
-	return TCPSecListener{
+	return &TCPSecListener{
 		listener:      ln.(*net.TCPListener),
 		cache:         cache.NewCache(),
 		maxConns:      rate.Limit(maxConnsPerMin / 60),
@@ -32,7 +32,7 @@ func NewTCPSecListener(addr string, maxConnsPerMin float32, maxConnsBurst int) T
 	}
 }
 
-func (ln TCPSecListener) Accept() (net.Conn, error) {
+func (ln *TCPSecListener) Accept() (net.Conn, error) {
 
 	tc, err := ln.listener.AcceptTCP()
 
@@ -67,10 +67,10 @@ func (ln TCPSecListener) Accept() (net.Conn, error) {
 	return tc, nil
 }
 
-func (ln TCPSecListener) Close() error {
+func (ln *TCPSecListener) Close() error {
 	return ln.listener.Close()
 }
 
-func (ln TCPSecListener) Addr() net.Addr {
+func (ln *TCPSecListener) Addr() net.Addr {
 	return ln.listener.Addr()
 }
