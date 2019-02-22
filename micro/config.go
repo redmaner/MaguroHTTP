@@ -39,6 +39,8 @@ type coreConfig struct {
 	FileDir        string
 	LogLevel       int
 	LogOut         string
+	MaxConns       float32
+	MaxConnsBurst  int
 	VirtualHosting bool
 	VirtualHosts   map[string]string
 	TLS            tlsConfig

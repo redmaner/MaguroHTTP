@@ -22,7 +22,6 @@ func (s *Server) Serve() {
 
 	// Define server struct
 	server := http.Server{
-		Addr:              s.Cfg.Core.Address + ":" + s.Cfg.Core.Port,
 		Handler:           s.Router,
 		ReadTimeout:       4 * time.Second,
 		ReadHeaderTimeout: 2 * time.Second,
@@ -52,7 +51,7 @@ func (s *Server) Serve() {
 		}
 		server.TLSConfig = tlsc
 
-		err := server.ListenAndServeTLS(tlsCert, tlsKey)
+		err := server.ServeTLS(s.listener, tlsCert, tlsKey)
 		if err != nil {
 			panic(err)
 		}
@@ -60,7 +59,7 @@ func (s *Server) Serve() {
 	// if TLS is not enabled HTTP will be served
 	default:
 		s.Log(debug.LogNone, fmt.Errorf("MicroHTTP is listening on port %s", s.Cfg.Core.Port))
-		err := server.ListenAndServe()
+		err := server.Serve(s.listener)
 		if err != nil {
 			panic(err)
 		}

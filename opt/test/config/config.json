@@ -9,6 +9,9 @@
 
 		"FileDir":"./",
 
+		"MaxConns":10,
+		"MaxConnsBurst":5,
+
 		"VirtualHosting":true,
 		"VirtualHosts":{
 			"localhost":"./opt/test/config/vhost1.json",

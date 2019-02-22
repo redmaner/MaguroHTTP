@@ -45,6 +45,8 @@ type Server struct {
 	// Router holds the router of the server instance
 	Router *router.SRouter
 
+	listener TCPSecListener
+
 	metrics metricsData
 }
 
@@ -101,6 +103,8 @@ func NewInstanceFromConfig(p string) *Server {
 		Router:       mux,
 		logInterface: lg,
 	}
+
+	s.listener = NewTCPSecListener(s.Cfg.Core.Address+":"+s.Cfg.Core.Port, s.Cfg.Core.MaxConns, s.Cfg.Core.MaxConnsBurst)
 
 	// Generate the necessary templates
 	s.generateTemplates()
