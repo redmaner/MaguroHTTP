@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 if [ ! -d /etc/systemd/system ] || [ ! -d /usr/bin ] || [ ! -d /usr/lib ]; then
   echo "Your system is not eligible for this install script, please install manually"
@@ -33,21 +33,17 @@ if ! hash unzip 2> /dev/null || ! hash unzip 2> /dev/null; then
   exit
 fi
 
-echo "Downloading stuff"
-mkdir -p ./.micro_temp
-wget -O ./.micro_temp/microhttp.zip https://download.microhttp.eu/microhttp_r4-alpha2_linux64.zip
 
 echo "Installing"
-unzip -o ./.micro_temp/microhttp.zip -d ./.micro_temp
-cp ./.micro_temp/microhttp /usr/bin/microhttp
-cp ./.micro_temp/microhttp.service /etc/systemd/system/microhttp.service
+cp ./opt/microhttp_linux64 /usr/bin/microhttp
+cp ./opt/systemd/microhttp.service /etc/systemd/system/microhttp.service
 setcap cap_net_bind_service=+ep /usr/bin/microhttp
 mkdir -p /usr/lib/microhttp/www
 
 if [ ! -e /usr/lib/microhttp/main.json ]; then
-  cp ./.micro_temp/main.json /usr/lib/microhttp/main.json
+  cp ./opt/config/example.json /usr/lib/microhttp/main.json
 else
-  cp -f ./.micro_temp/main.json /usr/lib/microhttp/main.json.new
+  cp -f ./opt/config/example.json /usr/lib/microhttp/main.json.new
 fi
 
 if [ ! -e /usr/lib/microhttp/www/index.html ]; then
@@ -57,7 +53,5 @@ fi
 systemctl stop microhttp.service
 systemctl enable microhttp.service
 systemctl start microhttp.service
-
-rm -rf ./.micro_temp
 
 echo -e "\nAnd we are done. Make sure to check the configuration at /usr/lib/microhttp/main.json\n"
