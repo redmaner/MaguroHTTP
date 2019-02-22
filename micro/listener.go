@@ -24,9 +24,6 @@ func NewTCPSecListener(addr string, maxConnsPerMin float32, maxConnsBurst int) T
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	defer ln.Close()
-
 	return TCPSecListener{
 		listener:      ln.(*net.TCPListener),
 		cache:         cache.NewCache(),
