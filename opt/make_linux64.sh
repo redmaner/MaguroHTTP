@@ -13,6 +13,7 @@ go get -v -u golang.org/x/crypto/acme
 go get -v -u golang.org/x/time/rate
 go get -v -u github.com/nu7hatch/gouuid
 go get -v -u github.com/cespare/xxhash
+go get -v -u golang.org/x/crypto/bcrypt
 
 go build -o ./opt/microhttp_linux64 *.go
 
