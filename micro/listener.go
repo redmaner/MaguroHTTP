@@ -57,6 +57,7 @@ func (ln *TCPSecListener) Accept() (net.Conn, error) {
 	ln.cache.Set(remoteAddr, limit)
 
 	if !limit.Allow() {
+		tc.Close()
 		return nil, fmt.Errorf("Host %s reached max connections", remoteAddr)
 	}
 
