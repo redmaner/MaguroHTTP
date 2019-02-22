@@ -102,6 +102,9 @@ func NewInstanceFromConfig(p string) *Server {
 		logInterface: lg,
 	}
 
+	// Generate the necessary templates
+	s.generateTemplates()
+
 	// Add routing to the server
 	s.Router.ErrorHandler = s.handleError
 	s.addRoutesFromConfig()

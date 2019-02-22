@@ -1,6 +1,7 @@
 package guard
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"sync"
@@ -11,17 +12,24 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+const templateLogin = `
+<form method="POST" action="%s">
+	<input type="text" name="username" placeholder="Username" autofocus autocomplete="off"/>
+	<input type="password" name="password" placeholder="Password" autofocus autocomplete="off"/>
+	<input type="submit" name= "action" value="Login" class="primary"/>
+</form>
+`
+
 // Authorizer is a type that provides HTTP middleware to add authentication
 // and authorization to HTTP handlers.
 type Authorizer struct {
 	lock sync.Mutex
 
 	Users    map[string]User
-	sessions map[string]string
+	Sessions map[string]string
 	TLS      bool
 
-	PathRoot string
-
+	RedirectAuth  string
 	RedirectLogin string
 	RedirectRoot  string
 	LogInstance   *debug.Logger
@@ -33,6 +41,11 @@ type Authorizer struct {
 type User struct {
 	Username string
 	Password []byte
+}
+
+type loginTemplate struct {
+	LoginPane  template.HTML
+	LoginError template.HTML
 }
 
 // Log is a function to log messages to debug.Logger instance
@@ -58,12 +71,12 @@ func (a *Authorizer) Auth(handler http.HandlerFunc) http.HandlerFunc {
 
 		default:
 
-			if len(a.sessions) == 0 || ck == nil {
+			if len(a.Sessions) == 0 || ck == nil {
 				return
 			}
 
 			// We found a cookie so we check if the session exists
-			if v, ok := a.sessions[ck.Value]; ok {
+			if v, ok := a.Sessions[ck.Value]; ok {
 
 				// We check if the session is of a user
 				if _, exists := a.Users[v]; exists {
@@ -88,7 +101,9 @@ func (a *Authorizer) HandleLogin() http.HandlerFunc {
 	a.LoginTemplate.Init()
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		a.LoginTemplate.Execute(w, nil)
+		a.LoginTemplate.Execute(w, loginTemplate{
+			LoginPane: a.templateData(),
+		})
 	}
 }
 
@@ -109,7 +124,10 @@ func (a *Authorizer) HandleAuth() http.HandlerFunc {
 		us, exists := a.Users[username]
 
 		if !exists {
-			a.LoginTemplate.Execute(w, template.HTML("<br>* Gebruikernaam of wachtwoord onjuist"))
+			a.LoginTemplate.Execute(w, loginTemplate{
+				LoginPane:  a.templateData(),
+				LoginError: template.HTML("<br>* Username or password is invalid"),
+			})
 			return
 		}
 
@@ -117,7 +135,10 @@ func (a *Authorizer) HandleAuth() http.HandlerFunc {
 		// Passwords are hashed with bycrypt hashing algorithm
 		err := bcrypt.CompareHashAndPassword(us.Password, []byte(password))
 		if err != nil {
-			a.LoginTemplate.Execute(w, template.HTML("<br>* Gebruikernaam of wachtwoord onjuist"))
+			a.LoginTemplate.Execute(w, loginTemplate{
+				LoginPane:  a.templateData(),
+				LoginError: template.HTML("<br>* Username or password is invalid"),
+			})
 		}
 
 		// The password matches so we generate a session
@@ -125,7 +146,7 @@ func (a *Authorizer) HandleAuth() http.HandlerFunc {
 		a.Log(debug.LogError, err)
 
 		// Session is added to sessions
-		a.sessions[u.String()] = username
+		a.Sessions[u.String()] = username
 
 		// Session is set to cookie
 		ck := &http.Cookie{
@@ -145,4 +166,8 @@ func (a *Authorizer) HandleAuth() http.HandlerFunc {
 		http.Redirect(w, r, a.RedirectRoot, 302)
 		return
 	}
+}
+
+func (a *Authorizer) templateData() template.HTML {
+	return template.HTML(fmt.Sprintf(templateLogin, a.RedirectAuth))
 }

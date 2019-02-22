@@ -166,6 +166,16 @@ func (c *Config) Validate(p string, isVhost bool) {
 			log.Fatalf("%s: LogLevel must be higher than 0", p)
 		}
 
+		// FileDir must be defined
+		if c.Core.FileDir == "" || c.Core.FileDir == "/" {
+			log.Fatalf("%s: FileDir is not defined or is pointing to root", p)
+		}
+
+		// We automatically fix FileDir if it doesn't end with a slash
+		if c.Core.FileDir[len(c.Core.FileDir)-1] != '/' {
+			c.Core.FileDir = c.Core.FileDir + "/"
+		}
+
 		// Test TLS
 		if c.Core.TLS.Enabled {
 

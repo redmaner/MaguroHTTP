@@ -17,8 +17,11 @@ package micro
 import (
 	"strings"
 
+	"github.com/redmaner/MicroHTTP/debug"
 	"github.com/redmaner/MicroHTTP/guard"
+	"github.com/redmaner/MicroHTTP/html"
 	"github.com/redmaner/MicroHTTP/router"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (s *Server) addRoutesFromConfig() {
@@ -197,7 +200,41 @@ func (s *Server) addRoutesFromConfig() {
 	}
 
 	if s.Cfg.Metrics.Enabled {
+
+		// Make a set of users
+		usrs := make(map[string]guard.User)
+
+		for k, v := range s.Cfg.Metrics.Users {
+			bcryptPass, err := bcrypt.GenerateFromPassword([]byte(v), bcrypt.DefaultCost)
+			if err != nil {
+				s.Log(debug.LogError, err)
+				continue
+			}
+
+			usrs[k] = guard.User{
+				Username: k,
+				Password: bcryptPass,
+			}
+		}
+
+		// Make a authorizer struct
+		authr := guard.Authorizer{
+			Users:    usrs,
+			Sessions: make(map[string]string),
+			TLS:      s.Cfg.Core.TLS.Enabled,
+
+			RedirectAuth:  s.Cfg.Metrics.Path + "/auth",
+			RedirectRoot:  s.Cfg.Metrics.Path,
+			RedirectLogin: s.Cfg.Metrics.Path + "/login",
+
+			LogInstance:   s.logInterface,
+			LoginTemplate: html.NewTemplate(s.Cfg.Core.FileDir+"templates/", "login.html"),
+		}
+
+		s.Router.AddRoute(router.DefaultHost, s.Cfg.Metrics.Path+"/login", false, "GET", "", authr.HandleLogin())
+		s.Router.AddRoute(router.DefaultHost, s.Cfg.Metrics.Path+"/auth", false, "POST", "application/x-www-form-urlencoded", authr.HandleAuth())
 		s.Router.AddRoute(router.DefaultHost, s.Cfg.Metrics.Path, false, "GET", "", s.handleMetrics())
+		s.Router.UseMiddleware(router.DefaultHost, s.Cfg.Metrics.Path, router.MiddlewareHandlerFunc(authr.Auth))
 	}
 
 }
