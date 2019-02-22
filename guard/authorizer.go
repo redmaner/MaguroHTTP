@@ -57,6 +57,9 @@ func (a *Authorizer) Log(level int, err error) {
 func (a *Authorizer) Auth(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		// Make sure we aren't already on the login page
+		path := r.URL.Path
+
 		// concurrency safety
 		a.lock.Lock()
 		defer a.lock.Unlock()
@@ -66,13 +69,23 @@ func (a *Authorizer) Auth(handler http.HandlerFunc) http.HandlerFunc {
 		switch {
 
 		case err == http.ErrNoCookie:
+			if path == a.RedirectLogin {
+				handler.ServeHTTP(w, r)
+				return
+			}
 			http.Redirect(w, r, a.RedirectLogin, 302)
 			return
 
 		default:
 
 			if len(a.Sessions) == 0 || ck == nil {
+				if path == a.RedirectLogin {
+					handler.ServeHTTP(w, r)
+					return
+				}
+				http.Redirect(w, r, a.RedirectLogin, 302)
 				return
+
 			}
 
 			// We found a cookie so we check if the session exists
@@ -80,6 +93,10 @@ func (a *Authorizer) Auth(handler http.HandlerFunc) http.HandlerFunc {
 
 				// We check if the session is of a user
 				if _, exists := a.Users[v]; exists {
+					if path == a.RedirectLogin {
+						http.Redirect(w, r, a.RedirectRoot, 302)
+						return
+					}
 					handler.ServeHTTP(w, r)
 					return
 				}
@@ -90,6 +107,10 @@ func (a *Authorizer) Auth(handler http.HandlerFunc) http.HandlerFunc {
 			http.SetCookie(w, ck)
 
 			// We redirect back to login
+			if path == a.RedirectLogin {
+				handler.ServeHTTP(w, r)
+				return
+			}
 			http.Redirect(w, r, a.RedirectLogin, 302)
 			return
 		}

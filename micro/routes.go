@@ -234,6 +234,7 @@ func (s *Server) addRoutesFromConfig() {
 		s.Router.AddRoute(router.DefaultHost, s.Cfg.Metrics.Path+"/login", false, "GET", "", authr.HandleLogin())
 		s.Router.AddRoute(router.DefaultHost, s.Cfg.Metrics.Path+"/auth", false, "POST", "application/x-www-form-urlencoded", authr.HandleAuth())
 		s.Router.AddRoute(router.DefaultHost, s.Cfg.Metrics.Path, false, "GET", "", s.handleMetrics())
+		s.Router.UseMiddleware(router.DefaultHost, s.Cfg.Metrics.Path+"/login", router.MiddlewareHandlerFunc(authr.Auth))
 		s.Router.UseMiddleware(router.DefaultHost, s.Cfg.Metrics.Path, router.MiddlewareHandlerFunc(authr.Auth))
 	}
 
