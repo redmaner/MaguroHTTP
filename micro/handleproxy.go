@@ -15,7 +15,7 @@
 package micro
 
 import (
-	"io"
+	"fmt"
 	"net/http"
 
 	"github.com/redmaner/MicroHTTP/debug"
@@ -52,24 +52,22 @@ func (s *Server) handleProxy() http.HandlerFunc {
 			req.URL.RawQuery = r.URL.RawQuery
 			req.RemoteAddr = r.RemoteAddr
 
-			for k, v := range r.Header {
-				req.Header[k] = v
-			}
+			r.Header = cloneHeader(req.Header)
 
 			if resp, err := http.DefaultClient.Do(req); err == nil {
 
-				w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
-				w.Header().Set("Content-Length", resp.Header.Get("Content-Length"))
-
 				// Proxy back all response headers
-				for k, v := range resp.Header {
-					w.Header().Set(k, v[0])
-				}
+				copyHeader(w.Header(), resp.Header)
 
 				// Write header last. If header is written, headers can no longer be set
 				w.WriteHeader(resp.StatusCode)
 
-				io.Copy(w, resp.Body)
+				written, err := copyResponse(w, resp.Body)
+				if err != nil {
+					s.Log(debug.LogError, fmt.Errorf("Error when reading response: %d%% complete", written))
+					s.handleError(w, r, 502)
+					return
+				}
 				resp.Body.Close()
 				s.LogNetwork(resp.StatusCode, r)
 			} else {

@@ -15,7 +15,9 @@
 package micro
 
 import (
+	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"path/filepath"
 )
@@ -102,4 +104,51 @@ func getMIMEType(p string, cts MIMETypes) string {
 
 	// Default Content-Type is octet-stream
 	return "application/octet-stream"
+}
+
+func copyHeader(dst, src http.Header) {
+	for k, vv := range src {
+		for _, v := range vv {
+			dst.Add(k, v)
+		}
+	}
+}
+
+func cloneHeader(h http.Header) http.Header {
+	h2 := make(http.Header, len(h))
+	for k, vv := range h {
+		vv2 := make([]string, len(vv))
+		copy(vv2, vv)
+		h2[k] = vv2
+	}
+	return h2
+}
+
+func copyResponse(dst io.Writer, src io.Reader) (int64, error) {
+	buf := make([]byte, 64*1024)
+	var written int64
+	for {
+		nr, rerr := src.Read(buf)
+		if rerr != nil && rerr != io.EOF && rerr != context.Canceled {
+			return written, rerr
+		}
+		if nr > 0 {
+			nw, werr := dst.Write(buf[:nr])
+			if nw > 0 {
+				written += int64(nw)
+			}
+			if werr != nil {
+				return written, werr
+			}
+			if nr != nw {
+				return written, io.ErrShortWrite
+			}
+		}
+		if rerr != nil {
+			if rerr == io.EOF {
+				rerr = nil
+			}
+			return written, rerr
+		}
+	}
 }
