@@ -1,7 +1,6 @@
 package micro
 
 import (
-	"fmt"
 	"log"
 	"net"
 	"time"
@@ -58,7 +57,7 @@ func (ln *TCPSecListener) Accept() (net.Conn, error) {
 
 	if !limit.Allow() {
 		tc.Close()
-		return nil, fmt.Errorf("Host %s reached max connections", remoteAddr)
+		return nil, nil
 	}
 
 	tc.SetKeepAlive(true)
