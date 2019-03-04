@@ -23,7 +23,7 @@ import (
 
 // Config is type holding the main configurtion
 type Config struct {
-	Core    coreConfig
+	Core    CoreConfig
 	Serve   serveConfig
 	Errors  map[string]string
 	Proxy   proxyConfig
@@ -33,7 +33,7 @@ type Config struct {
 
 // coreConfig is part of the main configuration.
 // coreConfig is not used by vhosts
-type coreConfig struct {
+type CoreConfig struct {
 	Address        string
 	Port           string
 	FileDir        string
