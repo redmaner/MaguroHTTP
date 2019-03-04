@@ -97,7 +97,25 @@ func (f *Firewall) BlockProxy(handler http.HandlerFunc) http.HandlerFunc {
 		p := r.URL.Path
 		host := router.StripHostPort(r.RemoteAddr)
 
-		if val, ok := f.Rules[p]; ok {
+		for pt := p; pt != "/"; pt = path.Dir(pt) {
+			if val, ok := f.Rules[pt]; ok {
+				for _, v := range val {
+					if v == host || v == "*" {
+						if f.Blacklisting {
+							f.ErrorHandler(w, r, 403)
+							return
+						}
+						handler.ServeHTTP(w, r)
+						return
+					}
+				}
+			}
+		}
+
+		// The firewall subpath element allows blocking on specific subpaths of a website
+		// This is only when you want to be extremely specific when configuring the firewall.
+		// Subpath blocking is disabled by default and can be enabled in the configuration.
+		if val, ok := f.Rules["/"]; ok && p == "/" || ok && !f.Subpath {
 			for _, v := range val {
 				if v == host || v == "*" {
 					if f.Blacklisting {
