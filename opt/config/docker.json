@@ -1,8 +1,39 @@
 {
-	"Address":"0.0.0.0",
-	"Port":"80",
-	"LogLevel":3,
-	"LogOut":"stdout",
+	"Core":{
+		"Address":"0.0.0.0",
+		"Port":"80",
+
+		"LogLevel":3,
+		"LogOut":"/usr/lib/microhttp/server.log",
+
+		"MaxConns":10,
+		"MaxConnsBurst":5,
+
+		"VirtualHosting":false,
+		"VirtualHosts":{
+			"localhost":"/path/to/vhost1.json",
+			"127.0.0.1":"/path/to/vhost2.json"
+		},
+
+		"TLS": {
+			"Enabled":false,
+			"TLSCert":"./certs/test/localhost.cert",
+			"TLSKey":"./certs/test/localhost.key",
+
+			"AutoCert": {
+				"Enabled":false,
+				"Certificates": [
+					"example.com"
+				]
+			},
+
+			"HSTS": {
+				"MaxAge":63072000,
+				"Preload":true,
+				"IncludeSubdomains":true
+			}
+		}
+	},
 
 	"Serve":{
 		"ServeDir":"/usr/lib/microhttp/www/",
@@ -11,25 +42,20 @@
 		"VirtualHosts":{
 			"localhost":"/path/to/vhost1.json",
 			"127.0.0.1":"/path/to/vhost2.json"
+		},
+
+		"Headers": {
+			"Content-Security-Policy":"default-src 'self'",
+			"Feature-Policy":"geolocation 'none'; midi 'none'; notifications 'none'; push 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; vibrate 'none'; fullscreen 'none'; payment 'none';",
+			"Referrer-Policy":"no-referrer",
+			"X-Content-Type-Options":"nosniff",
+			"X-Frame-Options":"SAMEORIGIN",
+			"X-Xss-Protection":"1; mode=block"
+		},
+
+		"Methods": {
+			"/":"GET"
 		}
-	},
-
-	"Headers": {
-		"Content-Security-Policy":"default-src 'self'",
-		"Feature-Policy":"geolocation 'none'; midi 'none'; notifications 'none'; push 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; vibrate 'none'; fullscreen 'none'; payment 'none';",
-		"Referrer-Policy":"no-referrer",
-		"X-Content-Type-Options":"nosniff",
-		"X-Frame-Options":"SAMEORIGIN",
-		"X-Xss-Protection":"1; mode=block"
-	},
-
-	"Methods": {
-		"/":"GET"
-	},
-
-	"ContentTypes": {
-		"ResponseTypes":{},
-		"RequestTypes":{}
 	},
 
 	"Proxy": {
@@ -40,24 +66,12 @@
 		}
 	},
 
-	"TLS": {
-		"Enabled":false,
-		"TLSCert":"./certs/test/localhost.cert",
-		"TLSKey":"./certs/test/localhost.key"
-	},
-
-	"HSTS": {
-		"MaxAge":63072000,
-		"Preload":true,
-		"IncludeSubdomains":true
-	},
-
 	"Metrics": {
 		"Enabled":true,
-		"Address":"localhost",
 		"Path":"/MicroMetrics",
-		"User":"Admin",
-		"Password":"Your amazing passphrase goes here, because passphrases are the way to go",
+		"Users":{
+			"Admin":"Your amazing passphrase goes here, because passphrases are the way to go"
+		},
 		"Out":"/usr/lib/microhttp/metrics.json"
 	}
 }
