@@ -104,8 +104,6 @@ func NewInstanceFromConfig(p string) *Server {
 		logInterface: lg,
 	}
 
-	s.listener = NewTCPSecListener(s.Cfg.Core.Address+":"+s.Cfg.Core.Port, s.Cfg.Core.MaxConns, s.Cfg.Core.MaxConnsBurst)
-
 	// Generate the necessary templates
 	s.generateTemplates()
 

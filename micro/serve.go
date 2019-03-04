@@ -52,7 +52,7 @@ func (s *Server) Serve() {
 		}
 		server.TLSConfig = tlsc
 
-		err := server.ServeTLS(s.listener, tlsCert, tlsKey)
+		err := server.ListenAndServeTLS(tlsCert, tlsKey)
 		if err != nil {
 			panic(err)
 		}
@@ -60,7 +60,7 @@ func (s *Server) Serve() {
 	// if TLS is not enabled HTTP will be served
 	default:
 		s.Log(debug.LogNone, fmt.Errorf("MicroHTTP is listening on port %s", s.Cfg.Core.Port))
-		err := server.Serve(s.listener)
+		err := server.ListenAndServe()
 		if err != nil {
 			panic(err)
 		}
