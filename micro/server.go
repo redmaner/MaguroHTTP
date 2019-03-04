@@ -1,4 +1,4 @@
-// Copyright 2018 Jake van der Putten.
+// Copyright 2018-2019 Jake van der Putten.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ func NewInstanceFromConfig(p string) *Server {
 	// vhost configigurations
 	vhosts := make(map[string]Config)
 
-	// Initalise empty config
+	// Initialise empty config
 	var cfg Config
 
 	// check if config exists
