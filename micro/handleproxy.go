@@ -52,7 +52,7 @@ func (s *Server) handleProxy() http.HandlerFunc {
 			req.URL.RawQuery = r.URL.RawQuery
 			req.RemoteAddr = r.RemoteAddr
 
-			r.Header = cloneHeader(req.Header)
+			req.Header = cloneHeader(r.Header)
 
 			if resp, err := http.DefaultClient.Do(req); err == nil {
 
