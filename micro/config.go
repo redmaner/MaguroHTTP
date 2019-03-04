@@ -31,7 +31,7 @@ type Config struct {
 	Metrics metricsConfig
 }
 
-// coreConfig is part of the main configuration.
+// CoreConfig is part of the main configuration.
 // coreConfig is not used by vhosts
 type CoreConfig struct {
 	Address        string
@@ -39,8 +39,6 @@ type CoreConfig struct {
 	FileDir        string
 	LogLevel       int
 	LogOut         string
-	MaxConns       float32
-	MaxConnsBurst  int
 	VirtualHosting bool
 	VirtualHosts   map[string]string
 	TLS            tlsConfig
