@@ -1,16 +1,15 @@
 FROM golang:alpine AS builder
 
-RUN mkdir /gobuild && apk add git
-
-COPY ./*.go /gobuild/
-
-WORKDIR /gobuild
-
-RUN go get -u github.com/cespare/xxhash \
+RUN apk add git \
+ 	&& go get -u github.com/cespare/xxhash \
 	&& go get -u golang.org/x/crypto/acme \
  	&& go get -u golang.org/x/crypto/bcrypt \
  	&& go get -u github.com/nu7hatch/gouuid \
-	&& go build -o microhttp
+	&& go get -u github.com/redmaner/MicroHTTP
+
+WORKDIR /go/src/github.com/redmaner/MicroHTTP
+
+RUN go build -o microhttp
 
 FROM alpine:latest
 RUN apk add --no-cache ca-certificates \
@@ -18,7 +17,7 @@ RUN apk add --no-cache ca-certificates \
 	&& mkdir -p /usr/bin \
 	&& echo "<html><head></head><body><h1>Welcome to MicroHTTP</h1></body></html>" > /usr/lib/microhttp/www/index.html
 
-COPY --from=builder /gobuild/microhttp /usr/bin
+COPY --from=builder /go/src/github.com/redmaner/MicroHTTP/microhttp /usr/bin
 
 COPY ./opt/config/docker.json /usr/lib/microhttp/main.json
 
