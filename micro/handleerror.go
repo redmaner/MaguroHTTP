@@ -28,6 +28,7 @@ import (
 func (s *Server) handleError(w http.ResponseWriter, r *http.Request, e int) {
 
 	s.LogNetwork(e, r)
+	s.setHeaders(w, map[string]string{})
 
 	// Custom error pages can be set in the configuration.
 	if val, ok := s.Cfg.Errors[strconv.Itoa(e)]; ok {
