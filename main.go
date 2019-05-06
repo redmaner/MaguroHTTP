@@ -21,6 +21,11 @@ import (
 	"github.com/redmaner/MicroHTTP/micro"
 )
 
+// Init. Set GODEBUG to use TLS v1.3
+func init() {
+	os.Setenv("GODEBUG", os.Getenv("GODEBUG")+",tls13=1")
+}
+
 func main() {
 	args := os.Args
 
