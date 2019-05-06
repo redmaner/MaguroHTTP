@@ -17,15 +17,18 @@ package micro
 import (
 	"encoding/json"
 	"log"
+	"net"
+	"net/http"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/redmaner/MicroHTTP/debug"
 	"github.com/redmaner/MicroHTTP/router"
 )
 
 // Version holds the version numer of MicroHTTP
-const Version = "R4"
+const Version = "R5"
 
 // Server is a type holding a MicroHTTP server instance
 type Server struct {
@@ -45,7 +48,11 @@ type Server struct {
 	// Router holds the router of the server instance
 	Router *router.SRouter
 
+	// MicroHTTP metrics
 	metrics metricsData
+
+	// HTTP transport
+	transport http.RoundTripper
 }
 
 // NewInstanceFromConfig will create a new instance from a config file
@@ -111,6 +118,20 @@ func NewInstanceFromConfig(p string) *Server {
 
 	// Handle metrics
 	s.loadMetrics()
+
+	// Define http transport
+	s.transport = &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout:   15 * time.Second,
+			KeepAlive: 15 * time.Second,
+			DualStack: true,
+		}).DialContext,
+		MaxIdleConns:          100,
+		IdleConnTimeout:       60 * time.Second,
+		TLSHandshakeTimeout:   8 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+	}
 
 	return &s
 }

@@ -15,7 +15,7 @@
 package micro
 
 import (
-	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/redmaner/MicroHTTP/debug"
@@ -41,20 +41,16 @@ func (s *Server) handleProxy() http.HandlerFunc {
 
 		if val, ok := cfg.Proxy.Rules[host]; ok {
 
-			req, err := http.NewRequest(r.Method, val, r.Body)
+			req, err := http.NewRequest(r.Method, val+r.RequestURI, r.Body)
 			if err != nil {
 				s.Log(debug.LogError, err)
 				s.handleError(w, r, 502)
 				return
 			}
-			req.URL.Path = r.URL.Path
-			req.URL.RawPath = r.URL.RawPath
-			req.URL.RawQuery = r.URL.RawQuery
-			req.RemoteAddr = r.RemoteAddr
 
 			req.Header = cloneHeader(r.Header)
 
-			if resp, err := http.DefaultClient.Do(req); err == nil {
+			if resp, err := s.transport.RoundTrip(req); err == nil {
 
 				// Proxy back all response headers
 				copyHeader(w.Header(), resp.Header)
@@ -62,12 +58,7 @@ func (s *Server) handleProxy() http.HandlerFunc {
 				// Write header last. If header is written, headers can no longer be set
 				w.WriteHeader(resp.StatusCode)
 
-				written, err := copyResponse(w, resp.Body)
-				if err != nil {
-					s.Log(debug.LogError, fmt.Errorf("Error when reading response: %d%% complete", written))
-					s.handleError(w, r, 502)
-					return
-				}
+				io.Copy(w, resp.Body)
 				resp.Body.Close()
 				s.LogNetwork(resp.StatusCode, r)
 			} else {
