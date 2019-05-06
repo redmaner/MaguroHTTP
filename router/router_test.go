@@ -43,7 +43,7 @@ var routes = []test{
 		method:       "POST",
 		path:         "/v1/report",
 		pathFallback: false,
-		content:      "application/json",
+		content:      "*",
 	},
 	{
 		host:         "127.0.0.1",
@@ -142,6 +142,15 @@ var tests = []test{
 		host:         "127.0.0.1",
 		method:       "POST",
 		path:         "/v1/report/specificC",
+		pathFallback: false,
+		content:      `application/java; charset="UTF-8"`,
+	},
+	// Test wrong content
+	{
+		requestHost:  DefaultHost,
+		host:         DefaultHost,
+		method:       "POST",
+		path:         "/v1/report/",
 		pathFallback: false,
 		content:      `application/java; charset="UTF-8"`,
 	},
