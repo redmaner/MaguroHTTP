@@ -57,6 +57,11 @@ func (s *Server) Serve() {
 				ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 				defer cancel()
 
+				// Flush metrics on server stop
+				if s.Cfg.Metrics.Enabled {
+					s.flushMetrics()
+				}
+
 				server.SetKeepAlivesEnabled(false)
 				if err := server.Shutdown(ctx); err != nil {
 					s.Log(debug.LogNone, fmt.Errorf("could not gracefully shutdown the server: %v", err))

@@ -86,9 +86,10 @@ func (s *Server) handleMetrics() http.HandlerFunc {
 	}
 }
 
-// This function loads saved metrics from a file
-func (s *Server) loadMetrics() {
+// Metrics Daemon
+func (s *Server) metricsDaemon() {
 
+	// Initially load metrics if they are present
 	if !s.Cfg.Metrics.Enabled || !s.Cfg.Core.TLS.Enabled {
 		s.metrics = metricsData{
 			enabled: false,
@@ -127,37 +128,34 @@ func (s *Server) loadMetrics() {
 	s.metrics.Paths = md.Paths
 	s.metrics.enabled = s.Cfg.Metrics.Enabled
 
-	s.flushMetrics()
-
+	// Occasionally flush metrics to disk
+	for {
+		time.Sleep(20 * time.Minute)
+		s.flushMetrics()
+	}
 }
 
 // This function flushes metricsData to a file
 func (s *Server) flushMetrics() {
+	var mdout *os.File
+	var err error
 
-	for {
-		var mdout *os.File
-		var err error
-
-		if _, err = os.Stat(s.Cfg.Metrics.Out); err == nil {
-			err = os.Remove(s.Cfg.Metrics.Out)
-			s.Log(debug.LogError, err)
-		}
-
-		mdout, err = os.Create(s.Cfg.Metrics.Out)
+	if _, err = os.Stat(s.Cfg.Metrics.Out); err == nil {
+		err = os.Remove(s.Cfg.Metrics.Out)
 		s.Log(debug.LogError, err)
-
-		mdout, err = os.OpenFile(s.Cfg.Metrics.Out, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-		s.Log(debug.LogError, err)
-
-		s.metrics.mu.Lock()
-		bs, err := json.MarshalIndent(s.metrics, "", "  ")
-		s.Log(debug.LogError, err)
-		s.metrics.mu.Unlock()
-
-		io.WriteString(mdout, string(bs))
-		mdout.Close()
-
-		// Sleep for 20 mintues and rerun the loop
-		time.Sleep(20 * time.Minute)
 	}
+
+	mdout, err = os.Create(s.Cfg.Metrics.Out)
+	s.Log(debug.LogError, err)
+
+	mdout, err = os.OpenFile(s.Cfg.Metrics.Out, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	s.Log(debug.LogError, err)
+
+	s.metrics.mu.Lock()
+	bs, err := json.MarshalIndent(s.metrics, "", "  ")
+	s.Log(debug.LogError, err)
+	s.metrics.mu.Unlock()
+
+	io.WriteString(mdout, string(bs))
+	mdout.Close()
 }

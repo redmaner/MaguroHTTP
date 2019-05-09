@@ -122,7 +122,7 @@ func NewInstanceFromConfig(p string) *Server {
 	s.addRoutesFromConfig()
 
 	// Handle metrics
-	s.loadMetrics()
+	go s.metricsDaemon()
 
 	// Define http transport
 	s.transport = &http.Transport{
