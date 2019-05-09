@@ -15,10 +15,12 @@
 package micro
 
 import (
-	"encoding/json"
+	"io/ioutil"
 	"log"
 	"os"
 	"time"
+
+	"github.com/hashicorp/hcl"
 )
 
 // Config is type holding the main configurtion
@@ -141,10 +143,14 @@ func LoadConfigFromFile(p string, c *Config) {
 	}
 	defer file.Close()
 
-	decoder := json.NewDecoder(file)
-	err = decoder.Decode(c)
+	data, err := ioutil.ReadAll(file)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("%s: %v", p, err)
+	}
+
+	err = hcl.Unmarshal(data, c)
+	if err != nil {
+		log.Fatalf("%s: %v", p, err)
 	}
 }
 

@@ -15,7 +15,7 @@
 package micro
 
 import (
-	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -23,6 +23,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/hashicorp/hcl"
 	"github.com/redmaner/MicroHTTP/debug"
 	"github.com/redmaner/MicroHTTP/router"
 )
@@ -75,10 +76,14 @@ func NewInstanceFromConfig(p string) *Server {
 		log.Fatal(err)
 	}
 
-	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&cfg)
+	data, err := ioutil.ReadAll(file)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("%s: %v", p, err)
+	}
+
+	err = hcl.Unmarshal(data, &cfg)
+	if err != nil {
+		log.Fatalf("%s: %v", p, err)
 	}
 
 	// Validate the configuration
