@@ -45,6 +45,28 @@ func (s *Server) Serve() {
 		ErrorLog:          s.logInterface.Instance,
 	}
 
+	go func() {
+		// Gracefully stop the server in case of a signal
+		sig := make(chan os.Signal)
+		signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+		for {
+			select {
+			case signal := <-sig:
+				fmt.Printf("Signal (%d) received, stopping\n", signal)
+
+				ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+				defer cancel()
+
+				server.SetKeepAlivesEnabled(false)
+				if err := server.Shutdown(ctx); err != nil {
+					s.Log(debug.LogNone, fmt.Errorf("could not gracefully shutdown the server: %v", err))
+				}
+				close(sig)
+				os.Exit(1)
+			}
+		}
+	}()
+
 	switch {
 
 	// If TLS is enabled the server will start in TLS
@@ -77,26 +99,6 @@ func (s *Server) Serve() {
 		err := server.ListenAndServe()
 		if err != nil {
 			panic(err)
-		}
-	}
-
-	// Gracefully stop the server in case of a signal
-	sig := make(chan os.Signal)
-	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-	for {
-		select {
-		case signal := <-sig:
-			fmt.Printf("Signal (%d) received, stopping\n", signal)
-
-			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-			defer cancel()
-
-			server.SetKeepAlivesEnabled(false)
-			if err := server.Shutdown(ctx); err != nil {
-				s.Log(debug.LogNone, fmt.Errorf("could not gracefully shutdown the server: %v", err))
-			}
-			close(sig)
-			os.Exit(1)
 		}
 	}
 }
