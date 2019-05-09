@@ -112,7 +112,6 @@ func (s *Server) metricsDaemon() {
 		s.Log(debug.LogError, err)
 		os.Exit(1)
 	}
-	defer file.Close()
 
 	var md metricsData
 
@@ -127,6 +126,8 @@ func (s *Server) metricsDaemon() {
 	s.metrics.TotalRequests = md.TotalRequests
 	s.metrics.Paths = md.Paths
 	s.metrics.enabled = s.Cfg.Metrics.Enabled
+
+	file.Close()
 
 	// Occasionally flush metrics to disk
 	for {
