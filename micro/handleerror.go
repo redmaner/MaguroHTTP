@@ -22,6 +22,7 @@ import (
 	"strconv"
 
 	"github.com/redmaner/MicroHTTP/html"
+	"github.com/redmaner/MicroHTTP/router"
 )
 
 // Function to write HTTP error to ResponseWriter
@@ -30,8 +31,19 @@ func (s *Server) handleError(w http.ResponseWriter, r *http.Request, e int) {
 	s.LogNetwork(e, r)
 	s.setHeaders(w, map[string]string{})
 
+	host := router.StripHostPort(r.Host)
+	cfg := s.Cfg
+
+	// If virtual hosting is enabled, the configuration is switched to the
+	// configuration of the vhost
+	if cfg.Core.VirtualHosting {
+		if _, ok := cfg.Core.VirtualHosts[host]; ok {
+			cfg = s.Vhosts[host]
+		}
+	}
+
 	// Custom error pages can be set in the configuration.
-	if val, ok := s.Cfg.Errors[strconv.Itoa(e)]; ok {
+	if val, ok := cfg.Errors[strconv.Itoa(e)]; ok {
 		if _, err := os.Stat(val); err == nil {
 			http.ServeFile(w, r, val)
 			return
