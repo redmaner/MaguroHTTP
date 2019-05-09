@@ -8,11 +8,15 @@ rm -rf ./.temp
 export GOOS="darwin"
 export GOHOSTARCH="amd64"
 
-go get -v -u golang.org/x/crypto/acme
-go get -v -u golang.org/x/time/rate
-go get -v -u github.com/cespare/xxhash
+go get -u golang.org/x/crypto/acme
+go get -u golang.org/x/time/rate
+go get -u github.com/nu7hatch/gouuid
+go get -u github.com/cespare/xxhash
+go get -u golang.org/x/crypto/bcrypt
+go get -u golang.org/x/net/idna
+go get -u github.com/hashicorp/hcl
 
-go build -o ./opt/microhttp_darwin64 *.go
+go build -o ./opt/microhttp_darwin64
 
 mkdir -p ./.temp
 mkdir -p ./out

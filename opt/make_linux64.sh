@@ -9,14 +9,15 @@ rm -rf ./.temp
 export GOOS="linux"
 export GOHOSTARCH="amd64"
 
-go get -v -u golang.org/x/crypto/acme
-go get -v -u golang.org/x/time/rate
-go get -v -u github.com/nu7hatch/gouuid
-go get -v -u github.com/cespare/xxhash
-go get -v -u golang.org/x/crypto/bcrypt
-go get -v -u golang.org/x/net/idna
+go get -u golang.org/x/crypto/acme
+go get -u golang.org/x/time/rate
+go get -u github.com/nu7hatch/gouuid
+go get -u github.com/cespare/xxhash
+go get -u golang.org/x/crypto/bcrypt
+go get -u golang.org/x/net/idna
+go get -u github.com/hashicorp/hcl
 
-go build -o ./opt/microhttp_linux64 *.go
+go build -o ./opt/microhttp_linux64 
 
 mkdir -p ./.temp
 mkdir -p ./out
