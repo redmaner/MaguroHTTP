@@ -6,8 +6,7 @@
 		"LogLevel":3,
 		"LogOut":"/usr/lib/microhttp/server.log",
 
-		"MaxConns":10,
-		"MaxConnsBurst":5,
+		"FileDir":"/usr/lib/microhttp/",
 
 		"VirtualHosting":false,
 		"VirtualHosts":{
@@ -38,11 +37,6 @@
 	"Serve":{
 		"ServeDir":"/usr/lib/microhttp/www/",
 		"ServeIndex":"index.html",
-		"VirtualHosting":false,
-		"VirtualHosts":{
-			"localhost":"/path/to/vhost1.json",
-			"127.0.0.1":"/path/to/vhost2.json"
-		},
 
 		"Headers": {
 			"Content-Security-Policy":"default-src 'self'",
@@ -64,6 +58,11 @@
 			"localhost":"https://proxy_to_host1",
 			"127.0.0.1":"https://proxy_to_host2"
 		}
+	},
+
+	"Guard":{
+		"Rate":100,
+		"RateBurst":10
 	},
 
 	"Metrics": {

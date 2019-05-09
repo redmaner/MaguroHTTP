@@ -6,6 +6,8 @@
 		"LogLevel":3,
 		"LogOut":"/usr/lib/microhttp/server.log",
 
+		"FileDir":"/usr/lib/microhttp/",
+
 		"VirtualHosting":false,
 		"VirtualHosts":{
 			"localhost":"/path/to/vhost1.json",
@@ -69,6 +71,11 @@
 			"localhost":"https://proxy_to_host1",
 			"127.0.0.1":"https://proxy_to_host2"
 		}
+	},
+
+	"Guard":{
+		"Rate":100,
+		"RateBurst":10
 	},
 
 	"Metrics": {
