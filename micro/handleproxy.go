@@ -55,6 +55,7 @@ func (s *Server) handleProxy() http.HandlerFunc {
 
 				// Proxy back all response headers
 				copyHeader(w.Header(), resp.Header)
+				resp.Header.Set("Content-Type", getMIMEType(r.URL.Path, MIMETypes{}))
 
 				// Write header last. If header is written, headers can no longer be set
 				w.WriteHeader(resp.StatusCode)
