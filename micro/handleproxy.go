@@ -49,6 +49,7 @@ func (s *Server) handleProxy() http.HandlerFunc {
 			}
 
 			req.Header = cloneHeader(r.Header)
+			req.RemoteAddr = r.RemoteAddr
 
 			if resp, err := s.transport.RoundTrip(req); err == nil {
 
