@@ -28,10 +28,11 @@ type Limiter struct {
 	RatePerSec   rate.Limit
 	RateBurst    int
 	ErrorHandler router.ErrorHandler
+	FilterOnIP   bool
 }
 
 // NewLimiter returns a new guard.Limiter
-func NewLimiter(ratePerMin float64, rateBurst int) *Limiter {
+func NewLimiter(ratePerMin float64, rateBurst int, filterIP bool) *Limiter {
 	return &Limiter{
 		cache:      cache.NewCache(),
 		RatePerSec: rate.Limit(ratePerMin / 60.00),
@@ -42,6 +43,7 @@ func NewLimiter(ratePerMin float64, rateBurst int) *Limiter {
 				http.Error(w, "Too many requests", 429)
 			}
 		}),
+		FilterOnIP: filterIP,
 	}
 }
 
@@ -53,6 +55,9 @@ func (l *Limiter) LimitHTTP(h http.HandlerFunc) http.HandlerFunc {
 		var limit *rate.Limiter
 
 		remoteAddr := router.StripHostPort(r.RemoteAddr)
+		if !l.FilterOnIP {
+			remoteAddr = remoteAddr + r.Header.Get("User-Agent")
+		}
 		ok, lmt := l.cache.Get(remoteAddr, 900000000000)
 
 		switch {

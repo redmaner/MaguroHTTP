@@ -106,8 +106,9 @@ type proxyConfig struct {
 
 // guardConfig
 type guardConfig struct {
-	Rate      float64
-	RateBurst int
+	Rate       float64
+	RateBurst  int
+	FilterOnIP bool
 
 	Firewall firewallConfig
 }

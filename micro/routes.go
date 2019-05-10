@@ -36,7 +36,7 @@ func (s *Server) addRoutesFromConfig() {
 		for vhost := range s.Cfg.Core.VirtualHosts {
 
 			// Each virtual host gets it's own limiter
-			limiter = guard.NewLimiter(s.Vhosts[vhost].Guard.Rate, s.Vhosts[vhost].Guard.RateBurst)
+			limiter = guard.NewLimiter(s.Vhosts[vhost].Guard.Rate, s.Vhosts[vhost].Guard.RateBurst, s.Vhosts[vhost].Guard.FilterOnIP)
 			limiter.ErrorHandler = s.handleError
 
 			if s.Vhosts[vhost].Guard.Firewall.Enabled {
@@ -118,7 +118,7 @@ func (s *Server) addRoutesFromConfig() {
 		}
 	} else {
 
-		limiter = guard.NewLimiter(s.Cfg.Guard.Rate, s.Cfg.Guard.RateBurst)
+		limiter = guard.NewLimiter(s.Cfg.Guard.Rate, s.Cfg.Guard.RateBurst, s.Cfg.Guard.FilterOnIP)
 		limiter.ErrorHandler = s.handleError
 
 		if s.Cfg.Guard.Firewall.Enabled {
