@@ -41,6 +41,7 @@ type CoreConfig struct {
 	FileDir        string
 	LogLevel       int
 	LogOut         string
+	WebDAV         bool
 	VirtualHosting bool
 	VirtualHosts   map[string]string
 	TLS            tlsConfig
@@ -102,6 +103,7 @@ type MIMETypes struct {
 type proxyConfig struct {
 	Enabled bool
 	Rules   map[string]string
+	Methods []string
 }
 
 // guardConfig

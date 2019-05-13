@@ -119,6 +119,7 @@ func NewInstanceFromConfig(p string) *Server {
 
 	// Add routing to the server
 	s.Router.ErrorHandler = s.handleError
+	s.Router.WebDAV = s.Cfg.Core.WebDAV
 	s.addRoutesFromConfig()
 
 	// Handle metrics

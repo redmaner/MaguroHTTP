@@ -51,14 +51,9 @@ func (s *Server) addRoutesFromConfig() {
 			// Start with proxy
 			if s.Vhosts[vhost].Proxy.Enabled {
 				for host := range s.Vhosts[vhost].Proxy.Rules {
-					s.Router.AddRoute(host, "/", true, "GET", "*", s.handleProxy())
-					s.Router.AddRoute(host, "/", true, "PUT", "*", s.handleProxy())
-					s.Router.AddRoute(host, "/", true, "POST", "*", s.handleProxy())
-					s.Router.AddRoute(host, "/", true, "DELETE", "*", s.handleProxy())
-					s.Router.AddRoute(host, "/", true, "HEAD", "*", s.handleProxy())
-					s.Router.AddRoute(host, "/", true, "CONNECT", "*", s.handleProxy())
-					s.Router.AddRoute(host, "/", true, "PATCH", "*", s.handleProxy())
-					s.Router.AddRoute(host, "/", true, "OPTIONS", "*", s.handleProxy())
+					for _, mtd := range s.Vhosts[vhost].Proxy.Methods {
+						s.Router.AddRoute(host, "/", true, mtd, "*", s.handleProxy())
+					}
 
 					// Add firewall as middleware if enabled
 					if s.Vhosts[vhost].Guard.Firewall.Enabled {
@@ -133,14 +128,9 @@ func (s *Server) addRoutesFromConfig() {
 		// Start with proxy
 		if s.Cfg.Proxy.Enabled {
 			for host := range s.Cfg.Proxy.Rules {
-				s.Router.AddRoute(host, "/", true, "GET", "*", s.handleProxy())
-				s.Router.AddRoute(host, "/", true, "PUT", "*", s.handleProxy())
-				s.Router.AddRoute(host, "/", true, "POST", "*", s.handleProxy())
-				s.Router.AddRoute(host, "/", true, "DELETE", "*", s.handleProxy())
-				s.Router.AddRoute(host, "/", true, "HEAD", "*", s.handleProxy())
-				s.Router.AddRoute(host, "/", true, "CONNECT", "*", s.handleProxy())
-				s.Router.AddRoute(host, "/", true, "PATCH", "*", s.handleProxy())
-				s.Router.AddRoute(host, "/", true, "OPTIONS", "*", s.handleProxy())
+				for _, mtd := range s.Cfg.Proxy.Methods {
+					s.Router.AddRoute(host, "/", true, mtd, "*", s.handleProxy())
+				}
 
 				// Add firewall as middleware if enabled
 				if s.Cfg.Guard.Firewall.Enabled {
