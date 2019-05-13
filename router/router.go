@@ -16,6 +16,7 @@
 package router
 
 import (
+	"log"
 	"net/http"
 	"sync"
 )
@@ -29,6 +30,21 @@ const (
 	// DefaultFallback determines whether the routers is allowed to fallback to /foo if it is registered.
 	// pathFallback can be set for each individual method route.
 	DefaultFallback = false
+)
+
+var (
+
+	// Allowed methods for default HTTP
+	allowedMethodsHTTP = map[string]struct{}{
+		"GET": struct{}{}, "PUT": struct{}{}, "POST": struct{}{}, "DELETE": struct{}{},
+		"PATCH": struct{}{}, "CONNECT": struct{}{}, "OPTIONS": struct{}{}, "HEAD": struct{}{},
+	}
+
+	// Allowed methods for WebDAV extension (disabled by default)
+	allowedMethodsHTTPWebDAV = map[string]struct{}{
+		"PROPFIND": struct{}{}, "PROPPATCH": struct{}{}, "MKCOL": struct{}{}, "COPY": struct{}{},
+		"MOVE": struct{}{}, "LOCK": struct{}{}, "UNLOCK": struct{}{},
+	}
 )
 
 // SRouter dispatches HTTP requests to a defined handler. This router implements
@@ -51,6 +67,9 @@ type SRouter struct {
 	// ErrorHandler allows to define a custom handler for errors. It takes ErrorHandler as type,
 	// which implements the http.Error function (w http.ResponseWriter, error string, code int).
 	ErrorHandler ErrorHandler
+
+	// WebDAV. If enabled, the router allows WebDAV methods to be registered as routes
+	WebDAV bool
 }
 
 // ErrorHandler is a type of func(w http.ResponseWriter, r *http.Request, code int) where code
@@ -107,15 +126,24 @@ func (sr *SRouter) AddRoute(host, path string, fallback bool, method, content st
 		path = path[:len(path)-1]
 	}
 
-	// We only except single HTTP methods, everything that doesn't do is is rejected
-	if method != "GET" && method != "POST" && method != "PUT" && method != "HEAD" &&
-		method != "DELETE" && method != "CONNECT" && method != "PATCH" && method != "OPTIONS" {
-		panic("router: method doesn't match a HTTP method")
+	// Test validity of HTTP methods
+	_, methodHTTPAllowed := allowedMethodsHTTP[method]
+	_, methodWebDAVAllowed := allowedMethodsHTTPWebDAV[method]
+
+	switch {
+	case sr.WebDAV:
+		if !methodWebDAVAllowed && !methodHTTPAllowed {
+			log.Fatalf("router: method %s is not allowed", method)
+		}
+	default:
+		if !methodHTTPAllowed {
+			log.Fatalf("router: method %s is not allowed", method)
+		}
 	}
 
 	// Handler cannot be nil. This is rare, but we check anyway.
 	if handler == nil {
-		panic("router: nil handler")
+		log.Fatalf("router: nil handler")
 	}
 
 	if sr.routes == nil {

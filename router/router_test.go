@@ -193,3 +193,9 @@ func TestRouterCollision(t *testing.T) {
 	req.Header.Set("Content-Type", `text/html; charset="UTF-8"`)
 	ro.ServeHTTP(w, req)
 }
+
+func TestWebDAVMethods(t *testing.T) {
+	ro := NewRouter()
+	ro.WebDAV = true
+	ro.AddRoute("127.0.0.1", "/", false, "PROPFIND", "*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+}
