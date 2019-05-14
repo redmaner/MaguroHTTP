@@ -15,7 +15,9 @@
 package micro
 
 import (
+	"bytes"
 	"io"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/redmaner/MicroHTTP/debug"
@@ -41,7 +43,14 @@ func (s *Server) handleProxy() http.HandlerFunc {
 
 		if val, ok := cfg.Proxy.Rules[host]; ok {
 
-			req, err := http.NewRequest(r.Method, val+r.RequestURI, r.Body)
+			bodyData, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				s.Log(debug.LogError, err)
+				s.handleError(w, r, 502)
+				return
+			}
+
+			req, err := http.NewRequest(r.Method, val+r.RequestURI, bytes.NewBuffer(bodyData))
 			if err != nil {
 				s.Log(debug.LogError, err)
 				s.handleError(w, r, 502)
@@ -55,7 +64,6 @@ func (s *Server) handleProxy() http.HandlerFunc {
 
 				// Proxy back all response headers
 				copyHeader(w.Header(), resp.Header)
-				resp.Header.Set("Content-Type", getMIMEType(r.URL.Path, MIMETypes{}))
 
 				// Write header last. If header is written, headers can no longer be set
 				w.WriteHeader(resp.StatusCode)
