@@ -43,6 +43,9 @@ func (s *Server) handleProxy() http.HandlerFunc {
 
 		if val, ok := cfg.Proxy.Rules[host]; ok {
 
+			// The http.NewRequest function completely zero's out an existing request body
+			// when passed in as an argument. Therefore the request body is first unwrapped
+			// in a slice of bytes, and then passed in with a bytes.Buffer wrapper.
 			bodyData, err := ioutil.ReadAll(r.Body)
 			if err != nil {
 				s.Log(debug.LogError, err)
@@ -50,6 +53,8 @@ func (s *Server) handleProxy() http.HandlerFunc {
 				return
 			}
 
+			// We compose a new request with the desired proxy host, the original request method
+			// and original request body.
 			req, err := http.NewRequest(r.Method, val+r.RequestURI, bytes.NewBuffer(bodyData))
 			if err != nil {
 				s.Log(debug.LogError, err)
@@ -57,9 +62,13 @@ func (s *Server) handleProxy() http.HandlerFunc {
 				return
 			}
 
+			// We clone the header of the original request
 			req.Header = cloneHeader(r.Header)
+
+			// For proxy purposes we keep the original remote address in the request
 			req.RemoteAddr = r.RemoteAddr
 
+			// the new request is executed with a http.RoundTripper.
 			if resp, err := s.transport.RoundTrip(req); err == nil {
 
 				// Proxy back all response headers
@@ -68,6 +77,7 @@ func (s *Server) handleProxy() http.HandlerFunc {
 				// Write header last. If header is written, headers can no longer be set
 				w.WriteHeader(resp.StatusCode)
 
+				// Copy back the response body to the ResponseWriter
 				io.Copy(w, resp.Body)
 				resp.Body.Close()
 				s.LogNetwork(resp.StatusCode, r)

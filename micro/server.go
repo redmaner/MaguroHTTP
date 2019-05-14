@@ -129,8 +129,8 @@ func NewInstanceFromConfig(p string) *Server {
 	s.transport = &http.Transport{
 		Proxy: http.ProxyFromEnvironment,
 		DialContext: (&net.Dialer{
-			Timeout:   15 * time.Second,
-			KeepAlive: 15 * time.Second,
+			Timeout:   60 * time.Second,
+			KeepAlive: 60 * time.Second,
 			DualStack: true,
 		}).DialContext,
 		MaxIdleConns:          100,
