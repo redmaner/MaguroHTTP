@@ -38,10 +38,10 @@ func (s *Server) Serve() {
 	server := http.Server{
 		Addr:              s.Cfg.Core.Address + ":" + s.Cfg.Core.Port,
 		Handler:           s.Router,
-		ReadTimeout:       4 * time.Second,
-		ReadHeaderTimeout: 2 * time.Second,
-		WriteTimeout:      4 * time.Second,
-		IdleTimeout:       12 * time.Second,
+		ReadTimeout:       time.Duration(s.Cfg.Core.ReadTimeout) * time.Second,
+		ReadHeaderTimeout: time.Duration(s.Cfg.Core.ReadHeaderTimeout) * time.Second,
+		WriteTimeout:      time.Duration(s.Cfg.Core.WriteTimeout) * time.Second,
+		IdleTimeout:       30 * time.Second,
 		ErrorLog:          s.logInterface.Instance,
 	}
 

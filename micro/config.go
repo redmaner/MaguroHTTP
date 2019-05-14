@@ -36,11 +36,16 @@ type Config struct {
 // CoreConfig is part of the main configuration.
 // coreConfig is not used by vhosts
 type CoreConfig struct {
-	Address        string
-	Port           string
-	FileDir        string
-	LogLevel       int
-	LogOut         string
+	Address  string
+	Port     string
+	FileDir  string
+	LogLevel int
+	LogOut   string
+
+	ReadTimeout       int
+	ReadHeaderTimeout int
+	WriteTimeout      int
+
 	WebDAV         bool
 	VirtualHosting bool
 	VirtualHosts   map[string]string
@@ -183,6 +188,19 @@ func (c *Config) Validate(p string, isVhost bool) {
 		// We automatically fix FileDir if it doesn't end with a slash
 		if c.Core.FileDir[len(c.Core.FileDir)-1] != '/' {
 			c.Core.FileDir = c.Core.FileDir + "/"
+		}
+
+		// Test timeouts and set defaults if they are zero
+		if c.Core.ReadTimeout <= 0 {
+			c.Core.ReadTimeout = 8
+		}
+
+		if c.Core.ReadHeaderTimeout <= 0 {
+			c.Core.ReadHeaderTimeout = 4
+		}
+
+		if c.Core.WriteTimeout <= 0 {
+			c.Core.WriteTimeout = 16
 		}
 
 		// Test TLS
