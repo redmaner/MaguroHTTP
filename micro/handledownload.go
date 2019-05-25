@@ -15,13 +15,14 @@
 package micro
 
 import (
+	"bytes"
 	"fmt"
+	"html/template"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 
-	"github.com/redmaner/MicroHTTP/html"
 	"github.com/redmaner/MicroHTTP/router"
 )
 
@@ -70,19 +71,27 @@ func (s *Server) handleDownload() http.HandlerFunc {
 			path = cfg.Serve.ServeIndex
 		}
 
+		buf := bytes.NewBufferString("")
+
 		// If the request path is ServeIndex, generate the index page with downloadable files
 		if path == cfg.Serve.ServeIndex {
 			w.Header().Set("Content-Type", "text/html")
 			s.setHeaders(w, cfg.Serve.Headers)
-			io.WriteString(w, html.PageTemplateStart)
-			io.WriteString(w, "<h1>Downloads</h1>")
-			io.WriteString(w, fmt.Sprintln(`<table border="0" cellpadding="0" cellspacing="0">`))
-			io.WriteString(w, fmt.Sprintln(`<tr><td height="auto" width="200px"><span><b>Name</b></span><td height="auto" width="120px"><span><b>Size</b></span></td><td height="auto" width="auto"><span><b>Modification date</b></span></td></tr>`))
+			io.WriteString(buf, "<h1>Downloads</h1>")
+			io.WriteString(buf, fmt.Sprintln(`<table border="0" cellpadding="0" cellspacing="0">`))
+			io.WriteString(buf, fmt.Sprintln(`<tr><td height="auto" width="200px"><span><b>Name</b></span><td height="auto" width="120px"><span><b>Size</b></span></td><td height="auto" width="auto"><span><b>Modification date</b></span></td></tr>`))
 			for _, v := range dlurls {
-				io.WriteString(w, fmt.Sprint(`<tr><td height="auto" width="200px"><span><a href="/`, v.Name, `">`, v.Name, `</a><br></span><td height="auto" width="120px"><span >`, v.Size, `</b></span></td><td height="auto" width="auto"><span>`, v.ModTime, `</b></span></td></tr>`))
+				io.WriteString(buf, fmt.Sprint(`<tr><td height="auto" width="200px"><span><a href="/`, v.Name, `">`, v.Name, `</a><br></span><td height="auto" width="120px"><span >`, v.Size, `</b></span></td><td height="auto" width="auto"><span>`, v.ModTime, `</b></span></td></tr>`))
 			}
-			io.WriteString(w, fmt.Sprintln("</table><br>"))
-			io.WriteString(w, html.PageTemplateEnd)
+			io.WriteString(buf, fmt.Sprintln("</table><br>"))
+
+			data := struct {
+				DownloadTable template.HTML
+			}{
+				DownloadTable: template.HTML(buf.String()),
+			}
+
+			s.templates.download.Execute(w, data)
 			s.LogNetwork(200, r)
 
 			// If the request path is not the index, and the file does exist in ServeDir

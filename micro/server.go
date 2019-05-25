@@ -54,6 +54,9 @@ type Server struct {
 
 	// HTTP transport
 	transport http.RoundTripper
+
+	// Tpls
+	templates templates
 }
 
 // NewInstanceFromConfig will create a new instance from a config file

@@ -15,13 +15,14 @@
 package micro
 
 import (
+	"bytes"
 	"fmt"
+	"html/template"
 	"io"
 	"net/http"
 	"os"
 	"strconv"
 
-	"github.com/redmaner/MicroHTTP/html"
 	"github.com/redmaner/MicroHTTP/router"
 )
 
@@ -50,26 +51,34 @@ func (s *Server) handleError(w http.ResponseWriter, r *http.Request, e int) {
 		}
 	}
 
+	buf := bytes.NewBufferString("")
+
 	// If custom error pages aren't set the default error message is shown.
 	// This is a very basic HTTP error code page without any technical information.
 	w.WriteHeader(e)
 	w.Header().Set("Content-Type", "text/html")
-	io.WriteString(w, html.PageTemplateStart)
 	switch e {
 	case 403:
-		io.WriteString(w, "<h3>Error 403 - Forbidden</h3>")
+		io.WriteString(buf, "<h3>Error 403 - Forbidden</h3>")
 	case 404:
-		io.WriteString(w, "<h3>Error 404 - Page not found</h3>")
+		io.WriteString(buf, "<h3>Error 404 - Page not found</h3>")
 	case 405:
-		io.WriteString(w, "<h3>Error 405 - Method not allowed</h3>")
+		io.WriteString(buf, "<h3>Error 405 - Method not allowed</h3>")
 	case 406:
-		io.WriteString(w, "<h3>Error 406 - Unacceptable</h3>")
+		io.WriteString(buf, "<h3>Error 406 - Unacceptable</h3>")
 	case 429:
-		io.WriteString(w, "<h3>Error 429 - Too many requests</h3>")
+		io.WriteString(buf, "<h3>Error 429 - Too many requests</h3>")
 	case 502:
-		io.WriteString(w, "<h3>Error 502 - Bad gateway</h3>")
+		io.WriteString(buf, "<h3>Error 502 - Bad gateway</h3>")
 	default:
-		io.WriteString(w, fmt.Sprintf("<h3>Error %d</h3>", e))
+		io.WriteString(buf, fmt.Sprintf("<h3>Error %d</h3>", e))
 	}
-	io.WriteString(w, html.PageTemplateEnd)
+
+	data := struct {
+		HTTPError template.HTML
+	}{
+		HTTPError: template.HTML(buf.String()),
+	}
+
+	s.templates.error.Execute(w, data)
 }

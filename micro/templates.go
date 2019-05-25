@@ -15,10 +15,27 @@
 package micro
 
 import (
+	"io"
 	"os"
 
 	"github.com/redmaner/MicroHTTP/debug"
+	"github.com/redmaner/MicroHTTP/html"
 )
+
+const (
+	templateError = `
+	{{.HTTPError}}
+	`
+
+	templateDownload = `
+	{{.DownloadTable}}
+	`
+)
+
+type templates struct {
+	error    *html.TemplateHandler
+	download *html.TemplateHandler
+}
 
 func (s *Server) generateTemplates() {
 
@@ -26,5 +43,37 @@ func (s *Server) generateTemplates() {
 
 	err := os.MkdirAll(tplDir, os.ModePerm)
 	s.Log(debug.LogError, err)
+
+	// Create error template when it doesn't exist yet
+	if _, err := os.Stat(tplDir + "error.html"); err != nil {
+		of, err := os.Create(tplDir + "error.html")
+		s.Log(debug.LogError, err)
+
+		io.WriteString(of, html.PageTemplateStart)
+		io.WriteString(of, templateError)
+		io.WriteString(of, html.PageTemplateEnd)
+
+		of.Close()
+	}
+
+	// Init error template
+	s.templates.error = html.NewTemplate(tplDir, "error.html")
+	s.templates.error.Init()
+
+	// Create download template when it doesn't exist yet
+	if _, err := os.Stat(tplDir + "download.html"); err != nil {
+		of, err := os.Create(tplDir + "download.html")
+		s.Log(debug.LogError, err)
+
+		io.WriteString(of, html.PageTemplateStart)
+		io.WriteString(of, templateDownload)
+		io.WriteString(of, html.PageTemplateEnd)
+
+		of.Close()
+	}
+
+	// Init download template
+	s.templates.download = html.NewTemplate(tplDir, "download.html")
+	s.templates.download.Init()
 
 }
