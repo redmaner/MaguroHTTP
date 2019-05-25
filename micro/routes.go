@@ -189,12 +189,12 @@ func (s *Server) addRoutesFromConfig() {
 		}
 	}
 
-	if s.Cfg.Metrics.Enabled {
+	if s.Cfg.Core.Metrics.Enabled {
 
 		// Make a set of users
 		usrs := make(map[string]guard.User)
 
-		for k, v := range s.Cfg.Metrics.Users {
+		for k, v := range s.Cfg.Core.Metrics.Users {
 			bcryptPass, err := bcrypt.GenerateFromPassword([]byte(v), bcrypt.DefaultCost)
 			if err != nil {
 				s.Log(debug.LogError, err)
@@ -213,19 +213,19 @@ func (s *Server) addRoutesFromConfig() {
 			Sessions: make(map[string]string),
 			TLS:      s.Cfg.Core.TLS.Enabled,
 
-			RedirectAuth:  s.Cfg.Metrics.Path + "/auth",
-			RedirectRoot:  s.Cfg.Metrics.Path,
-			RedirectLogin: s.Cfg.Metrics.Path + "/login",
+			RedirectAuth:  s.Cfg.Core.Metrics.Path + "/auth",
+			RedirectRoot:  s.Cfg.Core.Metrics.Path,
+			RedirectLogin: s.Cfg.Core.Metrics.Path + "/login",
 
 			LogInstance:   s.logInterface,
 			LoginTemplate: html.NewTemplate(s.Cfg.Core.FileDir+"templates/", "login.html"),
 		}
 
-		s.Router.AddRoute(router.DefaultHost, s.Cfg.Metrics.Path+"/login", false, "GET", "", authr.HandleLogin())
-		s.Router.AddRoute(router.DefaultHost, s.Cfg.Metrics.Path+"/auth", false, "POST", "application/x-www-form-urlencoded", authr.HandleAuth())
-		s.Router.AddRoute(router.DefaultHost, s.Cfg.Metrics.Path, false, "GET", "", s.handleMetrics())
-		s.Router.UseMiddleware(router.DefaultHost, s.Cfg.Metrics.Path+"/login", router.MiddlewareHandlerFunc(authr.Auth))
-		s.Router.UseMiddleware(router.DefaultHost, s.Cfg.Metrics.Path, router.MiddlewareHandlerFunc(authr.Auth))
+		s.Router.AddRoute(router.DefaultHost, s.Cfg.Core.Metrics.Path+"/login", false, "GET", "", authr.HandleLogin())
+		s.Router.AddRoute(router.DefaultHost, s.Cfg.Core.Metrics.Path+"/auth", false, "POST", "application/x-www-form-urlencoded", authr.HandleAuth())
+		s.Router.AddRoute(router.DefaultHost, s.Cfg.Core.Metrics.Path, false, "GET", "", s.handleMetrics())
+		s.Router.UseMiddleware(router.DefaultHost, s.Cfg.Core.Metrics.Path+"/login", router.MiddlewareHandlerFunc(authr.Auth))
+		s.Router.UseMiddleware(router.DefaultHost, s.Cfg.Core.Metrics.Path, router.MiddlewareHandlerFunc(authr.Auth))
 	}
 
 }

@@ -25,12 +25,11 @@ import (
 
 // Config is type holding the main configurtion
 type Config struct {
-	Core    CoreConfig
-	Serve   serveConfig
-	Errors  map[string]string
-	Proxy   proxyConfig
-	Guard   guardConfig
-	Metrics metricsConfig
+	Core   CoreConfig
+	Serve  serveConfig
+	Errors map[string]string
+	Proxy  proxyConfig
+	Guard  guardConfig
 }
 
 // CoreConfig is part of the main configuration.
@@ -50,6 +49,7 @@ type CoreConfig struct {
 	VirtualHosting bool
 	VirtualHosts   map[string]string
 	TLS            tlsConfig
+	Metrics        metricsConfig
 }
 
 // TLSConfig holds information about TLS and is part of MicroHTTP core config

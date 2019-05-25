@@ -90,7 +90,7 @@ func (s *Server) handleMetrics() http.HandlerFunc {
 func (s *Server) metricsDaemon() {
 
 	// Initially load metrics if they are present
-	if !s.Cfg.Metrics.Enabled || !s.Cfg.Core.TLS.Enabled {
+	if !s.Cfg.Core.Metrics.Enabled || !s.Cfg.Core.TLS.Enabled {
 		s.metrics = metricsData{
 			enabled: false,
 		}
@@ -98,16 +98,16 @@ func (s *Server) metricsDaemon() {
 	}
 
 	// We check if the file exists. If it doesn't we create an empty metricsData
-	if _, err := os.Stat(s.Cfg.Metrics.Out); err != nil {
+	if _, err := os.Stat(s.Cfg.Core.Metrics.Out); err != nil {
 		s.metrics = metricsData{
-			enabled: s.Cfg.Metrics.Enabled,
+			enabled: s.Cfg.Core.Metrics.Enabled,
 			Paths:   make(map[int]map[string]int),
 		}
 		return
 	}
 
 	// Load metrics from the file
-	file, err := os.Open(s.Cfg.Metrics.Out)
+	file, err := os.Open(s.Cfg.Core.Metrics.Out)
 	if err != nil {
 		s.Log(debug.LogError, err)
 		os.Exit(1)
@@ -125,7 +125,7 @@ func (s *Server) metricsDaemon() {
 
 	s.metrics.TotalRequests = md.TotalRequests
 	s.metrics.Paths = md.Paths
-	s.metrics.enabled = s.Cfg.Metrics.Enabled
+	s.metrics.enabled = s.Cfg.Core.Metrics.Enabled
 
 	file.Close()
 
@@ -141,15 +141,15 @@ func (s *Server) flushMetrics() {
 	var mdout *os.File
 	var err error
 
-	if _, err = os.Stat(s.Cfg.Metrics.Out); err == nil {
-		err = os.Remove(s.Cfg.Metrics.Out)
+	if _, err = os.Stat(s.Cfg.Core.Metrics.Out); err == nil {
+		err = os.Remove(s.Cfg.Core.Metrics.Out)
 		s.Log(debug.LogError, err)
 	}
 
-	mdout, err = os.Create(s.Cfg.Metrics.Out)
+	mdout, err = os.Create(s.Cfg.Core.Metrics.Out)
 	s.Log(debug.LogError, err)
 
-	mdout, err = os.OpenFile(s.Cfg.Metrics.Out, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	mdout, err = os.OpenFile(s.Cfg.Core.Metrics.Out, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	s.Log(debug.LogError, err)
 
 	s.metrics.mu.Lock()

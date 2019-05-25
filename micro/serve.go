@@ -58,7 +58,7 @@ func (s *Server) Serve() {
 				defer cancel()
 
 				// Flush metrics on server stop
-				if s.Cfg.Metrics.Enabled {
+				if s.Cfg.Core.Metrics.Enabled {
 					s.flushMetrics()
 				}
 

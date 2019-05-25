@@ -16,6 +16,16 @@ Core {
 		"127.0.0.1" = "/path/to/vhost2.hcl"
 	}
 
+	# Metrics settings
+	Metrics {
+		Enabled = true
+		Path = "/MicroMetrics"
+		Out = "/usr/lib/microhttp/metrics.json"
+		Users {
+			"Admin" = "Your amazing passphrase goes here, because passphrases are the way to go"
+		}
+	}
+
 	# TLS configuration
 	TLS {
 		Enabled = false
@@ -74,14 +84,4 @@ Proxy {
 Guard {
 	Rate = 100
 	RateBurst = 10
-}
-
-# Metrics settings
-Metrics {
-	Enabled = true
-	Path = "/MicroMetrics"
-	Out = "/usr/lib/microhttp/metrics.json"
-	Users {
-		"Admin" = "Your amazing passphrase goes here, because passphrases are the way to go"
-	}
 }
