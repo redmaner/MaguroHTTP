@@ -137,7 +137,7 @@ func NewInstanceFromConfig(p string) *Server {
 		IdleConnTimeout:       60 * time.Second,
 		TLSHandshakeTimeout:   8 * time.Second,
 		ExpectContinueTimeout: 1 * time.Second,
-		ResponseHeaderTimeout: 0,
+		ResponseHeaderTimeout: time.Duration(s.Cfg.Core.ReadHeaderTimeout) * time.Second,
 	}
 
 	return &s
