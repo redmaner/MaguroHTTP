@@ -3,8 +3,9 @@ FROM golang:alpine AS builder
 RUN apk add git \
  	&& go get -u github.com/cespare/xxhash \
 	&& go get -u golang.org/x/crypto/acme \
- 	&& go get -u golang.org/x/crypto/bcrypt \
- 	&& go get -u github.com/nu7hatch/gouuid \
+  && go get -u golang.org/x/time/rate \
+  && go get -u golang.org/x/net/idna \
+  && go get -u github.com/hashicorp/hcl \
 	&& go get -u github.com/redmaner/MicroHTTP
 
 WORKDIR /go/src/github.com/redmaner/MicroHTTP

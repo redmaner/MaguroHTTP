@@ -68,6 +68,11 @@ Serve {
 	Methods {
 		"/" = "GET"
 	}
+
+	Download {
+	  Enabled = false
+		Exts = [ ".zip" ]
+	}
 }
 
 # Proxy settings
