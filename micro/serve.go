@@ -76,7 +76,7 @@ func (s *Server) Serve() {
 
 	// If TLS is enabled the server will start in TLS
 	case s.Cfg.Core.TLS.Enabled && s.httpCheckTLS():
-		s.Log(debug.LogNone, fmt.Errorf("MicroHTTP is listening on port %s with TLS", s.Cfg.Core.Port))
+		s.Log(debug.LogNone, fmt.Errorf("MicroHTTP %s is listening on port %s with TLS", Version, s.Cfg.Core.Port))
 		tlsc := s.httpCreateTLSConfig()
 
 		// Handle autocert
@@ -100,7 +100,7 @@ func (s *Server) Serve() {
 
 	// if TLS is not enabled HTTP will be served
 	default:
-		s.Log(debug.LogNone, fmt.Errorf("MicroHTTP is listening on port %s", s.Cfg.Core.Port))
+		s.Log(debug.LogNone, fmt.Errorf("MicroHTTP %s is listening on port %s", Version, s.Cfg.Core.Port))
 		err := server.ListenAndServe()
 		if err != nil {
 			panic(err)

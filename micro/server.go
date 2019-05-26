@@ -28,9 +28,6 @@ import (
 	"github.com/redmaner/MicroHTTP/router"
 )
 
-// Version holds the version numer of MicroHTTP
-const Version = "R5"
-
 // Server is a type holding a MicroHTTP server instance
 type Server struct {
 
