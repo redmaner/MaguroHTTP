@@ -62,6 +62,8 @@ func (s *Server) handleProxy() http.HandlerFunc {
 				return
 			}
 
+			req.Host = host
+
 			// We clone the header of the original request
 			req.Header = cloneHeader(r.Header)
 
