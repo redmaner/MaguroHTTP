@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package micro
+package tuna
 
 import (
 	"context"
@@ -23,11 +23,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/redmaner/MicroHTTP/debug"
+	"github.com/redmaner/MaguroHTTP/debug"
 	"golang.org/x/crypto/acme/autocert"
 )
 
-// Serve is used to serve a MicroHTTP instance
+// Serve is used to serve a MaguroHTTP instance
 func (s *Server) Serve() {
 
 	// TLS
@@ -76,7 +76,7 @@ func (s *Server) Serve() {
 
 	// If TLS is enabled the server will start in TLS
 	case s.Cfg.Core.TLS.Enabled && s.httpCheckTLS():
-		s.Log(debug.LogNone, fmt.Errorf("MicroHTTP %s is listening on port %s with TLS", Version, s.Cfg.Core.Port))
+		s.Log(debug.LogNone, fmt.Errorf("MaguroHTTP %s is listening on port %s with TLS", Version, s.Cfg.Core.Port))
 		tlsc := s.httpCreateTLSConfig()
 
 		// Handle autocert
@@ -100,7 +100,7 @@ func (s *Server) Serve() {
 
 	// if TLS is not enabled HTTP will be served
 	default:
-		s.Log(debug.LogNone, fmt.Errorf("MicroHTTP %s is listening on port %s", Version, s.Cfg.Core.Port))
+		s.Log(debug.LogNone, fmt.Errorf("MaguroHTTP %s is listening on port %s", Version, s.Cfg.Core.Port))
 		err := server.ListenAndServe()
 		if err != nil {
 			panic(err)

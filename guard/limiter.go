@@ -17,12 +17,12 @@ package guard
 import (
 	"net/http"
 
-	"github.com/redmaner/MicroHTTP/cache"
-	"github.com/redmaner/MicroHTTP/router"
+	"github.com/redmaner/MaguroHTTP/cache"
+	"github.com/redmaner/MaguroHTTP/router"
 	"golang.org/x/time/rate"
 )
 
-// Limiter is a type containing a MicroHTTP Guard limiter
+// Limiter is a type containing a MaguroHTTP Guard limiter
 type Limiter struct {
 	cache        *cache.SpearCache
 	RatePerSec   rate.Limit

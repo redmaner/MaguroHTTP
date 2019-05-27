@@ -18,7 +18,7 @@ import (
 	"net/http"
 	"path"
 
-	"github.com/redmaner/MicroHTTP/router"
+	"github.com/redmaner/MaguroHTTP/router"
 )
 
 // Firewall is type that holds multiple middleware functions to add a firewall

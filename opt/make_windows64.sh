@@ -2,7 +2,7 @@
 
 source ./opt/build.cfg
 
-rm -f ./opt/microhttp_windows64.exe
+rm -f ./opt/magurohttp_windows64.exe
 rm -rf ./.temp
 
 export GOOS="windows"
@@ -14,15 +14,15 @@ go get -u github.com/cespare/xxhash
 go get -u golang.org/x/net/idna
 go get -u github.com/hashicorp/hcl
 
-go build -o ./opt/microhttp_windows64.exe
+go build -o ./opt/magurohttp_windows64.exe
 
 mkdir -p ./.temp
 mkdir -p ./out
-cp ./opt/microhttp_windows64.exe ./.temp/microhttp.exe
+cp ./opt/magurohttp_windows64.exe ./.temp/magurohttp.exe
 cp ./opt/config/docker.hcl ./.temp/main.config
 
 cd ./.temp
-zip ../out/microhttp_"$VERSION"_windows64.zip *
+zip ../out/magurohttp_"$VERSION"_windows64.zip *
 cd ..
 
 rm -rf ./.temp

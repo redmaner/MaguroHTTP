@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package micro
+package tuna
 
 import (
 	"strings"
 
-	"github.com/redmaner/MicroHTTP/guard"
-	"github.com/redmaner/MicroHTTP/router"
+	"github.com/redmaner/MaguroHTTP/guard"
+	"github.com/redmaner/MaguroHTTP/router"
 )
 
 func (s *Server) addRoutesFromConfig() {

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package micro
+package tuna
 
 import (
 	"bytes"
@@ -23,12 +23,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/redmaner/MicroHTTP/router"
+	"github.com/redmaner/MaguroHTTP/router"
 )
 
-// Function to handle HTTP requests to MicroHTTP download server
+// Function to handle HTTP requests to MaguroHTTP download server
 // This can be further configurated in the configuration file
-// MicroHTTP download server generates a table of downloadable files based on extensions
+// MaguroHTTP download server generates a table of downloadable files based on extensions
 func (s *Server) handleDownload() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 

@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/redmaner/MicroHTTP/micro"
+	"github.com/redmaner/MaguroHTTP/tuna"
 )
 
 // Init. Set GODEBUG to use TLS v1.3
@@ -33,11 +33,11 @@ func main() {
 		showHelp(args)
 	}
 
-	m := micro.NewInstanceFromConfig(args[1])
+	m := tuna.NewInstanceFromConfig(args[1])
 	m.Serve()
 
 }
 
 func showHelp(args []string) {
-	fmt.Printf("MicroHTTP version %s\n\nUsage:\n\n\t%s /path/to/config.json\n\n", micro.Version, args[0])
+	fmt.Printf("MaguroHTTP version %s\n\nUsage:\n\n\t%s /path/to/config.json\n\n", tuna.Version, args[0])
 }

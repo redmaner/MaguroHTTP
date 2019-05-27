@@ -23,7 +23,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/redmaner/MicroHTTP/router"
+	"github.com/redmaner/MaguroHTTP/router"
 )
 
 // BasicAuth provides HTTP middleware for protecting URIs with HTTP Basic Authentication

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package micro
+package tuna
 
 import (
 	"bytes"
@@ -20,12 +20,12 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/redmaner/MicroHTTP/debug"
-	"github.com/redmaner/MicroHTTP/router"
+	"github.com/redmaner/MaguroHTTP/debug"
+	"github.com/redmaner/MaguroHTTP/router"
 )
 
 // Function to proxy. The proxy can be configurated in configuration
-// MicroHTTP is capable to serve HTTP and to proxy along side each other using virtual hosts
+// MaguroHTTP is capable to serve HTTP and to proxy along side each other using virtual hosts
 func (s *Server) handleProxy() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 

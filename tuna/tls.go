@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package micro
+package tuna
 
 import (
 	"crypto/tls"
@@ -21,7 +21,7 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/redmaner/MicroHTTP/debug"
+	"github.com/redmaner/MaguroHTTP/debug"
 	"golang.org/x/crypto/acme"
 )
 

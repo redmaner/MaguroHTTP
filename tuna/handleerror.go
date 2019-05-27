@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package micro
+package tuna
 
 import (
 	"bytes"
@@ -23,7 +23,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/redmaner/MicroHTTP/router"
+	"github.com/redmaner/MaguroHTTP/router"
 )
 
 // Function to write HTTP error to ResponseWriter

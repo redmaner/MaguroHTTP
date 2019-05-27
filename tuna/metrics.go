@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package micro
+package tuna
 
 import (
 	"encoding/json"
@@ -23,8 +23,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/redmaner/MicroHTTP/debug"
-	"github.com/redmaner/MicroHTTP/html"
+	"github.com/redmaner/MaguroHTTP/debug"
+	"github.com/redmaner/MaguroHTTP/html"
 )
 
 // Type for metrics data
@@ -37,8 +37,8 @@ type metricsData struct {
 }
 
 // Concat function to increase metrics
-// MicroHTTP only logs aggregated metrics, without storing any sensitive information
-// MicroHTTP Metrics stores:
+// MaguroHTTP only logs aggregated metrics, without storing any sensitive information
+// MaguroHTTP Metrics stores:
 // * The total amount of requests
 // * The responses for requests based on HTTP status codes
 func (md *metricsData) concat(e int, p string) {
@@ -63,7 +63,7 @@ func (md *metricsData) concat(e int, p string) {
 // Function to display metrics data
 func (md *metricsData) display(o io.Writer) {
 	md.mu.Lock()
-	io.WriteString(o, fmt.Sprintf("<h1>MicroHTTP metrics</h1><br><b>Total requests:</b> %d<br>", md.TotalRequests))
+	io.WriteString(o, fmt.Sprintf("<h1>MaguroHTTP metrics</h1><br><b>Total requests:</b> %d<br>", md.TotalRequests))
 	for k, v := range md.Paths {
 		io.WriteString(o, fmt.Sprintf("<br><b>%d</b><ul>", k))
 		for p, a := range v {

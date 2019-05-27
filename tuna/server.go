@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package micro
+package tuna
 
 import (
 	"io/ioutil"
@@ -24,11 +24,11 @@ import (
 	"time"
 
 	"github.com/hashicorp/hcl"
-	"github.com/redmaner/MicroHTTP/debug"
-	"github.com/redmaner/MicroHTTP/router"
+	"github.com/redmaner/MaguroHTTP/debug"
+	"github.com/redmaner/MaguroHTTP/router"
 )
 
-// Server is a type holding a MicroHTTP server instance
+// Server is a type holding a MaguroHTTP server instance
 type Server struct {
 
 	// Mutex for concurrency safety
@@ -46,7 +46,7 @@ type Server struct {
 	// Router holds the router of the server instance
 	Router *router.SRouter
 
-	// MicroHTTP metrics
+	// MaguroHTTP metrics
 	metrics metricsData
 
 	// HTTP transport
@@ -100,7 +100,7 @@ func NewInstanceFromConfig(p string) *Server {
 	}
 
 	// init the Logger
-	lg, err := debug.NewLogger(cfg.Core.LogLevel, "MicroHTTP-", cfg.Core.LogOut)
+	lg, err := debug.NewLogger(cfg.Core.LogLevel, "MaguroHTTP-", cfg.Core.LogOut)
 	if err != nil {
 		log.Fatal(err)
 	}

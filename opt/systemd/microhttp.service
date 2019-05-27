@@ -1,13 +1,13 @@
 [Unit]
-Description=MicroHTTP
+Description=MaguroHTTP
 After=network.target
 
 [Service]
 Type=simple
-User=micro-www
+User=tuna-www
 Restart=always
 RestartSec=5s
-ExecStart=/usr/bin/microhttp /usr/lib/microhttp/main.json
+ExecStart=/usr/bin/magurohttp /usr/lib/magurohttp/main.config
 
 # Other Restart options: or always, on-abort, etc
 [Install]

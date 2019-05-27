@@ -2,8 +2,8 @@
 
 source ./opt/build.cfg
 
-rm -f ./opt/microhttp_linux64
-rm -f ./microhttp_linux64.tar.gz
+rm -f ./opt/magurohttp_linux64
+rm -f ./magurohttp_linux64.tar.gz
 rm -rf ./.temp
 
 export GOOS="linux"
@@ -15,16 +15,16 @@ go get -u github.com/cespare/xxhash
 go get -u golang.org/x/net/idna
 go get -u github.com/hashicorp/hcl
 
-go build -o ./opt/microhttp_linux64
+go build -o ./opt/magurohttp_linux64
 
 mkdir -p ./.temp
 mkdir -p ./out
-cp ./opt/microhttp_linux64 ./.temp/microhttp
-cp ./opt/systemd/microhttp.service ./.temp/microhttp.service
+cp ./opt/magurohttp_linux64 ./.temp/magurohttp
+cp ./opt/systemd/magurohttp.service ./.temp/magurohttp.service
 cp ./opt/config/docker.hcl ./.temp/main.config
 
 cd ./.temp
-zip ../out/microhttp_"$VERSION"_linux64.zip *
+zip ../out/magurohttp_"$VERSION"_linux64.zip *
 cd ..
 
 rm -rf ./.temp

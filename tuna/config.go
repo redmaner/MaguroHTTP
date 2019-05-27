@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package micro
+package tuna
 
 import (
 	"io/ioutil"
@@ -52,7 +52,7 @@ type CoreConfig struct {
 	Metrics        metricsConfig
 }
 
-// TLSConfig holds information about TLS and is part of MicroHTTP core config
+// TLSConfig holds information about TLS and is part of MaguroHTTP core config
 type tlsConfig struct {
 	Enabled   bool
 	TLSCert   string
@@ -62,20 +62,20 @@ type tlsConfig struct {
 	HSTS      hstsConfig
 }
 
-// autocertConfig, part of MicroHTTP core/tls configuration
+// autocertConfig, part of MaguroHTTP core/tls configuration
 type autocertConfig struct {
 	Enabled      bool
 	Certificates []string
 }
 
-// HSTS type, part of MicroHTTP core/tls config
+// HSTS type, part of MaguroHTTP core/tls config
 type hstsConfig struct {
 	MaxAge            int
 	Preload           bool
 	IncludeSubdomains bool
 }
 
-// Serve type, part of the MicroHTTP config
+// Serve type, part of the MaguroHTTP config
 type serveConfig struct {
 	ServeDir   string
 	ServeIndex string
@@ -85,7 +85,7 @@ type serveConfig struct {
 	Download   download
 }
 
-// Download type, part of the MicroHTTP config
+// Download type, part of the MaguroHTTP config
 type download struct {
 	Enabled bool
 	Exts    []string
@@ -98,13 +98,13 @@ type fileInfo struct {
 	ModTime time.Time
 }
 
-// MIMETypes type, part of MicroHTTP serveConfig
+// MIMETypes type, part of MaguroHTTP serveConfig
 type MIMETypes struct {
 	ResponseTypes map[string]string
 	RequestTypes  map[string]string
 }
 
-// Proxy type, part of MicroHTTP config
+// Proxy type, part of MaguroHTTP config
 type proxyConfig struct {
 	Enabled bool
 	Rules   map[string]string
@@ -120,7 +120,7 @@ type guardConfig struct {
 	Firewall firewallConfig
 }
 
-// Firewall type, part of MicroHTTP config
+// Firewall type, part of MaguroHTTP config
 type firewallConfig struct {
 	Enabled      bool
 	Blacklisting bool
@@ -128,7 +128,7 @@ type firewallConfig struct {
 	Rules        map[string][]string
 }
 
-// Metrics type, part of MicroHTTP config
+// Metrics type, part of MaguroHTTP config
 type metricsConfig struct {
 	Enabled bool
 	Path    string

@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package micro
+package tuna
 
 import (
 	"net/http"
 	"os"
 
-	"github.com/redmaner/MicroHTTP/router"
+	"github.com/redmaner/MaguroHTTP/router"
 )
 
-// Function to handle HTTP requests to MicroHTTP server
+// Function to handle HTTP requests to MaguroHTTP server
 // This can be further configurated in the configuration file
-// MicroHTTP is capable to host multiple websites on one server using virtual hosts
+// MaguroHTTP is capable to host multiple websites on one server using virtual hosts
 func (s *Server) handleServe() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
