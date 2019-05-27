@@ -30,7 +30,7 @@ import (
 func (s *Server) handleError(w http.ResponseWriter, r *http.Request, e int) {
 
 	s.LogNetwork(e, r)
-	s.setHeaders(w, map[string]string{})
+	s.setHeaders(w, map[string]string{}, false)
 
 	host := router.StripHostPort(r.Host)
 	cfg := s.Cfg

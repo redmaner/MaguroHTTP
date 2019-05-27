@@ -77,7 +77,7 @@ func (md *metricsData) display(o io.Writer) {
 func (s *Server) handleMetrics() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
-		s.setHeaders(w, nil)
+		s.setHeaders(w, nil, false)
 		w.Header().Set("Content-Security-Policy", "")
 		io.WriteString(w, html.PageTemplateStart)
 		s.metrics.display(w)

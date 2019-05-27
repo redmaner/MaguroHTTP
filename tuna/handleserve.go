@@ -49,7 +49,7 @@ func (s *Server) handleServe() http.HandlerFunc {
 		// Serve the file that is requested by path if it esists in ServeDir.
 		// If the requested path doesn't exist, return a 404 error
 		if _, err := os.Stat(cfg.Serve.ServeDir + path); err == nil {
-			s.setHeaders(w, cfg.Serve.Headers)
+			s.setHeaders(w, cfg.Serve.Headers, false)
 			w.Header().Set("Content-Type", getMIMEType(path, cfg.Serve.MIMETypes))
 			http.ServeFile(w, r, cfg.Serve.ServeDir+path)
 			s.LogNetwork(200, r)

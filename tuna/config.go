@@ -109,6 +109,7 @@ type proxyConfig struct {
 	Enabled bool
 	Rules   map[string]string
 	Methods []string
+	Headers map[string]string
 }
 
 // guardConfig

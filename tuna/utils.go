@@ -21,18 +21,20 @@ import (
 )
 
 // Function to set headers defined in configuration
-func (s *Server) setHeaders(w http.ResponseWriter, h map[string]string) {
+func (s *Server) setHeaders(w http.ResponseWriter, h map[string]string, isProxy bool) {
 
-	// MaguroHTTP sets security headers at the most strict configuration
-	// These headers can be overwritten with the headers element in the configratution file
-	// Overwriting is possible in both the main configuration and the vhost configuration
-	w.Header().Set("X-Frame-Options", "SAMEORIGIN")
-	w.Header().Set("X-Content-Type-Options", "nosniff")
-	w.Header().Set("X-XSS-Protection", "1; mode=block")
-	w.Header().Set("Referrer-Policy", "no-referrer")
-	w.Header().Set("Content-Security-Policy", "default-src 'self'")
-	w.Header().Set("Feature-Policy", "geolocation 'none'; midi 'none'; notifications 'none'; push 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; vibrate 'none'; fullscreen 'none'; payment 'none';")
-	w.Header().Set("Server", "MaguroHTTP")
+	if !isProxy {
+		// MaguroHTTP sets security headers at the most strict configuration
+		// These headers can be overwritten with the headers element in the configratution file
+		// Overwriting is possible in both the main configuration and the vhost configuration
+		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("X-XSS-Protection", "1; mode=block")
+		w.Header().Set("Referrer-Policy", "no-referrer")
+		w.Header().Set("Content-Security-Policy", "default-src 'self'")
+		w.Header().Set("Feature-Policy", "geolocation 'none'; midi 'none'; notifications 'none'; push 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; vibrate 'none'; fullscreen 'none'; payment 'none';")
+		w.Header().Set("Server", "MaguroHTTP")
+	}
 
 	// If TLS is enabled, the Strict-Transport-Security header is set
 	// These settings can be set in the configuration
@@ -47,9 +49,11 @@ func (s *Server) setHeaders(w http.ResponseWriter, h map[string]string) {
 		w.Header().Set("Strict-Transport-Security", hstr)
 	}
 
-	// All headers set in the configuration are set
-	for k, v := range h {
-		w.Header().Set(k, v)
+	if h != nil {
+		// All headers set in the configuration are set
+		for k, v := range h {
+			w.Header().Set(k, v)
+		}
 	}
 }
 

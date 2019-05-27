@@ -76,7 +76,7 @@ func (s *Server) handleDownload() http.HandlerFunc {
 		// If the request path is ServeIndex, generate the index page with downloadable files
 		if path == cfg.Serve.ServeIndex {
 			w.Header().Set("Content-Type", "text/html")
-			s.setHeaders(w, cfg.Serve.Headers)
+			s.setHeaders(w, cfg.Serve.Headers, false)
 			io.WriteString(buf, "<h1>Downloads</h1>")
 			io.WriteString(buf, fmt.Sprintln(`<table border="0" cellpadding="0" cellspacing="0">`))
 			io.WriteString(buf, fmt.Sprintln(`<tr><td height="auto" width="200px"><span><b>Name</b></span><td height="auto" width="120px"><span><b>Size</b></span></td><td height="auto" width="auto"><span><b>Modification date</b></span></td></tr>`))
@@ -100,7 +100,7 @@ func (s *Server) handleDownload() http.HandlerFunc {
 		} else if _, err := os.Stat(cfg.Serve.ServeDir + path); err == nil {
 			w.Header().Set("Content-Type", getMIMEType(path, cfg.Serve.MIMETypes))
 			w.Header().Set("Content-Disposition", "attachement")
-			s.setHeaders(w, cfg.Serve.Headers)
+			s.setHeaders(w, cfg.Serve.Headers, false)
 			http.ServeFile(w, r, cfg.Serve.ServeDir+path)
 			s.LogNetwork(200, r)
 		} else {

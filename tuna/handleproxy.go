@@ -76,6 +76,9 @@ func (s *Server) handleProxy() http.HandlerFunc {
 				// Proxy back all response headers
 				copyHeader(w.Header(), resp.Header)
 
+				// Set custom headers
+				s.setHeaders(w, cfg.Proxy.Headers, true)
+
 				// Write header last. If header is written, headers can no longer be set
 				w.WriteHeader(resp.StatusCode)
 
