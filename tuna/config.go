@@ -177,12 +177,12 @@ func LoadConfigFromFile(p string, c *Config) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
 
 	data, err := ioutil.ReadAll(file)
 	if err != nil {
 		log.Fatalf("%s: %v", p, err)
 	}
+	file.Close()
 
 	err = hcl.Unmarshal(data, c)
 	if err != nil {
