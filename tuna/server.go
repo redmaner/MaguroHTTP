@@ -63,7 +63,7 @@ func NewInstanceFromConfig(p string) *Server {
 	vhosts := make(map[string]Config)
 
 	// Initialise empty config
-	var cfg Config
+	cfg := NewConfig()
 
 	// check if config exists
 	if _, err := os.Stat(p); err != nil {
@@ -92,7 +92,7 @@ func NewInstanceFromConfig(p string) *Server {
 	// If virtual hosting is enabled, all the configurations of the vhosts are loaded
 	if cfg.Core.VirtualHosting {
 		for k, v := range cfg.Core.VirtualHosts {
-			var vcfg Config
+			vcfg := NewVhostConfig()
 			LoadConfigFromFile(v, &vcfg)
 			vcfg.Validate(v, true)
 			vhosts[k] = vcfg

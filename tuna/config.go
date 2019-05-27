@@ -48,28 +48,28 @@ type CoreConfig struct {
 	WebDAV         bool
 	VirtualHosting bool
 	VirtualHosts   map[string]string
-	TLS            tlsConfig
-	Metrics        metricsConfig
+	TLS            TLSConfig
+	Metrics        MetricsConfig
 }
 
 // TLSConfig holds information about TLS and is part of MaguroHTTP core config
-type tlsConfig struct {
+type TLSConfig struct {
 	Enabled   bool
 	TLSCert   string
 	TLSKey    string
 	PrivateCA []string
-	AutoCert  autocertConfig
-	HSTS      hstsConfig
+	AutoCert  AutoCertConfig
+	HSTS      HSTSConfig
 }
 
-// autocertConfig, part of MaguroHTTP core/tls configuration
-type autocertConfig struct {
+// AutoCertConfig is part of MaguroHTTP core/tls configuration
+type AutoCertConfig struct {
 	Enabled      bool
 	Certificates []string
 }
 
-// HSTS type, part of MaguroHTTP core/tls config
-type hstsConfig struct {
+// HSTSConfig type, part of MaguroHTTP core/tls config
+type HSTSConfig struct {
 	MaxAge            int
 	Preload           bool
 	IncludeSubdomains bool
@@ -128,12 +128,40 @@ type firewallConfig struct {
 	Rules        map[string][]string
 }
 
-// Metrics type, part of MaguroHTTP config
-type metricsConfig struct {
+// MetricsConfig type, part of MaguroHTTP config
+type MetricsConfig struct {
 	Enabled bool
 	Path    string
 	Out     string
 	Users   map[string]string
+}
+
+// NewConfig returns a pointer to a config, initialised with default values
+func NewConfig() Config {
+	return Config{
+		Core: CoreConfig{
+			Address:           "0.0.0.0",
+			Port:              "80",
+			FileDir:           "/usr/lib/magurohttp/",
+			ReadTimeout:       30,
+			ReadHeaderTimeout: 8,
+			WriteTimeout:      30,
+		},
+		Guard: guardConfig{
+			Rate:      100,
+			RateBurst: 50,
+		},
+	}
+}
+
+// NewVhostConfig returns a pointer to a config, initialised with default values
+func NewVhostConfig() Config {
+	return Config{
+		Guard: guardConfig{
+			Rate:      100,
+			RateBurst: 50,
+		},
+	}
 }
 
 // LoadConfigFromFile is a function which a loads the Config type microConfig from a json file
@@ -188,19 +216,6 @@ func (c *Config) Validate(p string, isVhost bool) {
 		// We automatically fix FileDir if it doesn't end with a slash
 		if c.Core.FileDir[len(c.Core.FileDir)-1] != '/' {
 			c.Core.FileDir = c.Core.FileDir + "/"
-		}
-
-		// Test timeouts and set defaults if they are zero
-		if c.Core.ReadTimeout <= 0 {
-			c.Core.ReadTimeout = 8
-		}
-
-		if c.Core.ReadHeaderTimeout <= 0 {
-			c.Core.ReadHeaderTimeout = 4
-		}
-
-		if c.Core.WriteTimeout <= 0 {
-			c.Core.WriteTimeout = 16
 		}
 
 		// Test TLS
