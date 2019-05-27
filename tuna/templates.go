@@ -15,7 +15,6 @@
 package tuna
 
 import (
-	"io"
 	"os"
 
 	"github.com/redmaner/MaguroHTTP/debug"
@@ -49,11 +48,12 @@ func (s *Server) generateTemplates() {
 		of, err := os.Create(tplDir + "error.html")
 		s.Log(debug.LogError, err)
 
-		io.WriteString(of, html.PageTemplateStart)
-		io.WriteString(of, templateError)
-		io.WriteString(of, html.PageTemplateEnd)
+		s.WriteString(of, html.PageTemplateStart)
+		s.WriteString(of, templateError)
+		s.WriteString(of, html.PageTemplateEnd)
 
-		of.Close()
+		err = of.Close()
+		s.Log(debug.LogError, err)
 	}
 
 	// Init error template
@@ -65,11 +65,12 @@ func (s *Server) generateTemplates() {
 		of, err := os.Create(tplDir + "download.html")
 		s.Log(debug.LogError, err)
 
-		io.WriteString(of, html.PageTemplateStart)
-		io.WriteString(of, templateDownload)
-		io.WriteString(of, html.PageTemplateEnd)
+		s.WriteString(of, html.PageTemplateStart)
+		s.WriteString(of, templateDownload)
+		s.WriteString(of, html.PageTemplateEnd)
 
-		of.Close()
+		err = of.Close()
+		s.Log(debug.LogError, err)
 	}
 
 	// Init download template

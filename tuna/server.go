@@ -80,7 +80,10 @@ func NewInstanceFromConfig(p string) *Server {
 	if err != nil {
 		log.Fatalf("%s: %v", p, err)
 	}
-	file.Close()
+	err = file.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	err = hcl.Unmarshal(data, &cfg)
 	if err != nil {

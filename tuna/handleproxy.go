@@ -83,8 +83,12 @@ func (s *Server) handleProxy() http.HandlerFunc {
 				w.WriteHeader(resp.StatusCode)
 
 				// Copy back the response body to the ResponseWriter
-				io.Copy(w, resp.Body)
-				resp.Body.Close()
+				_, err = io.Copy(w, resp.Body)
+				s.Log(debug.LogError, err)
+
+				// Properly close response body
+				err = resp.Body.Close()
+				s.Log(debug.LogError, err)
 				s.LogNetwork(resp.StatusCode, r)
 			} else {
 				s.Log(debug.LogError, err)

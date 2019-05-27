@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -59,19 +58,19 @@ func (s *Server) handleError(w http.ResponseWriter, r *http.Request, e int) {
 	w.Header().Set("Content-Type", "text/html")
 	switch e {
 	case 403:
-		io.WriteString(buf, "<h3>Error 403 - Forbidden</h3>")
+		s.WriteString(buf, "<h3>Error 403 - Forbidden</h3>")
 	case 404:
-		io.WriteString(buf, "<h3>Error 404 - Page not found</h3>")
+		s.WriteString(buf, "<h3>Error 404 - Page not found</h3>")
 	case 405:
-		io.WriteString(buf, "<h3>Error 405 - Method not allowed</h3>")
+		s.WriteString(buf, "<h3>Error 405 - Method not allowed</h3>")
 	case 406:
-		io.WriteString(buf, "<h3>Error 406 - Unacceptable</h3>")
+		s.WriteString(buf, "<h3>Error 406 - Unacceptable</h3>")
 	case 429:
-		io.WriteString(buf, "<h3>Error 429 - Too many requests</h3>")
+		s.WriteString(buf, "<h3>Error 429 - Too many requests</h3>")
 	case 502:
-		io.WriteString(buf, "<h3>Error 502 - Bad gateway</h3>")
+		s.WriteString(buf, "<h3>Error 502 - Bad gateway</h3>")
 	default:
-		io.WriteString(buf, fmt.Sprintf("<h3>Error %d</h3>", e))
+		s.WriteString(buf, fmt.Sprintf("<h3>Error %d</h3>", e))
 	}
 
 	data := struct {

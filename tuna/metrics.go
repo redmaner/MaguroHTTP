@@ -127,7 +127,8 @@ func (s *Server) metricsDaemon() {
 	s.metrics.Paths = md.Paths
 	s.metrics.enabled = s.Cfg.Core.Metrics.Enabled
 
-	file.Close()
+	err = file.Close()
+	s.Log(debug.LogError, err)
 
 	// Occasionally flush metrics to disk
 	for {
@@ -157,6 +158,7 @@ func (s *Server) flushMetrics() {
 	s.Log(debug.LogError, err)
 	s.metrics.mu.Unlock()
 
-	io.WriteString(mdout, string(bs))
-	mdout.Close()
+	s.WriteString(mdout, string(bs))
+	err = mdout.Close()
+	s.Log(debug.LogError, err)
 }

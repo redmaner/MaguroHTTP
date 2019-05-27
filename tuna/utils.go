@@ -16,8 +16,11 @@ package tuna
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"path/filepath"
+
+	"github.com/redmaner/MaguroHTTP/debug"
 )
 
 // Function to set headers defined in configuration
@@ -126,4 +129,21 @@ func cloneHeader(h http.Header) http.Header {
 		h2[k] = vv2
 	}
 	return h2
+}
+
+// WriteString is a wrapper function to write strings with incoperated error handling
+func (s *Server) WriteString(w io.Writer, str string) {
+
+	var err error
+	sw, ok := w.(io.StringWriter)
+
+	switch {
+	case ok:
+		_, err = sw.WriteString(str)
+	default:
+		_, err = w.Write([]byte(str))
+	}
+
+	s.Log(debug.LogError, err)
+
 }
