@@ -57,7 +57,11 @@ type Server struct {
 }
 
 // NewInstance returns a pointer to a new MaguroHTTP server based on supplied config
-func NewInstance(cfg Config) *Server {
+func NewInstance(c CoreConfig) *Server {
+
+	cfg := NewConfig()
+	cfg.Core = c
+	cfg.Core.Metrics.Enabled = false
 
 	// vhost configigurations
 	vhosts := make(map[string]Config)
