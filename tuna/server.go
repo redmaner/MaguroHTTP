@@ -50,10 +50,66 @@ type Server struct {
 	metrics metricsData
 
 	// HTTP transport
-	transport http.RoundTripper
+	Transport http.RoundTripper
 
 	// Tpls
 	templates templates
+}
+
+// NewInstance returns a pointer to a new MaguroHTTP server based on supplied config
+func NewInstance(cfg Config) *Server {
+
+	// vhost configigurations
+	vhosts := make(map[string]Config)
+
+	// If virtual hosting is enabled, all the configurations of the vhosts are loaded
+	if cfg.Core.VirtualHosting {
+		for k, v := range cfg.Core.VirtualHosts {
+			vcfg := NewVhostConfig()
+			LoadConfigFromFile(v, &vcfg)
+			vcfg.Validate(v, true)
+			vhosts[k] = vcfg
+		}
+	}
+
+	// init the Logger
+	lg, err := debug.NewLogger(cfg.Core.LogLevel, "MaguroHTTP-", cfg.Core.LogOut)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	mux := router.NewRouter()
+
+	s := Server{
+		Cfg:          cfg,
+		Vhosts:       vhosts,
+		Router:       mux,
+		logInterface: lg,
+	}
+
+	// Generate the necessary templates
+	s.generateTemplates()
+
+	// Add routing to the server
+	s.Router.ErrorHandler = s.HandleError
+	s.Router.WebDAV = s.Cfg.Core.WebDAV
+
+	// Define http transport
+	s.Transport = &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout:   60 * time.Second,
+			KeepAlive: 60 * time.Second,
+			DualStack: true,
+		}).DialContext,
+		MaxIdleConns:          100,
+		IdleConnTimeout:       60 * time.Second,
+		TLSHandshakeTimeout:   8 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+		ResponseHeaderTimeout: time.Duration(s.Cfg.Core.ReadHeaderTimeout) * time.Second,
+	}
+
+	return &s
 }
 
 // NewInstanceFromConfig will create a new instance from a config file
@@ -122,7 +178,7 @@ func NewInstanceFromConfig(p string) *Server {
 	s.generateTemplates()
 
 	// Add routing to the server
-	s.Router.ErrorHandler = s.handleError
+	s.Router.ErrorHandler = s.HandleError
 	s.Router.WebDAV = s.Cfg.Core.WebDAV
 	s.addRoutesFromConfig()
 
@@ -130,7 +186,7 @@ func NewInstanceFromConfig(p string) *Server {
 	go s.metricsDaemon()
 
 	// Define http transport
-	s.transport = &http.Transport{
+	s.Transport = &http.Transport{
 		Proxy: http.ProxyFromEnvironment,
 		DialContext: (&net.Dialer{
 			Timeout:   60 * time.Second,

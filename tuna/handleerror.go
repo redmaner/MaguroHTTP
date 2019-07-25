@@ -26,8 +26,8 @@ import (
 	"github.com/redmaner/MaguroHTTP/router"
 )
 
-// Function to write HTTP error to ResponseWriter
-func (s *Server) handleError(w http.ResponseWriter, r *http.Request, e int) {
+// HandleError is a function to write HTTP error to ResponseWriter
+func (s *Server) HandleError(w http.ResponseWriter, r *http.Request, e int) {
 
 	s.LogNetwork(e, r)
 	s.setHeaders(w, map[string]string{}, false)

@@ -34,14 +34,14 @@ func (s *Server) addRoutesFromConfig() {
 
 			// Each virtual host gets it's own limiter
 			limiter = guard.NewLimiter(s.Vhosts[vhost].Guard.Rate, s.Vhosts[vhost].Guard.RateBurst, s.Vhosts[vhost].Guard.FilterOnIP)
-			limiter.ErrorHandler = s.handleError
+			limiter.ErrorHandler = s.HandleError
 
 			if s.Vhosts[vhost].Guard.Firewall.Enabled {
 				firewall = &guard.Firewall{
 					Blacklisting: s.Vhosts[vhost].Guard.Firewall.Blacklisting,
 					Subpath:      s.Vhosts[vhost].Guard.Firewall.Subpath,
 					Rules:        s.Vhosts[vhost].Guard.Firewall.Rules,
-					ErrorHandler: s.handleError,
+					ErrorHandler: s.HandleError,
 				}
 			}
 
@@ -111,14 +111,14 @@ func (s *Server) addRoutesFromConfig() {
 	} else {
 
 		limiter = guard.NewLimiter(s.Cfg.Guard.Rate, s.Cfg.Guard.RateBurst, s.Cfg.Guard.FilterOnIP)
-		limiter.ErrorHandler = s.handleError
+		limiter.ErrorHandler = s.HandleError
 
 		if s.Cfg.Guard.Firewall.Enabled {
 			firewall = &guard.Firewall{
 				Blacklisting: s.Cfg.Guard.Firewall.Blacklisting,
 				Subpath:      s.Cfg.Guard.Firewall.Subpath,
 				Rules:        s.Cfg.Guard.Firewall.Rules,
-				ErrorHandler: s.handleError,
+				ErrorHandler: s.HandleError,
 			}
 		}
 
@@ -189,7 +189,7 @@ func (s *Server) addRoutesFromConfig() {
 	if s.Cfg.Core.Metrics.Enabled {
 
 		ba := guard.SimpleBasicAuth(s.Cfg.Core.Metrics.Users)
-		ba.UnauthorizedHandler = s.handleError
+		ba.UnauthorizedHandler = s.HandleError
 
 		s.Router.AddRoute(router.DefaultHost, s.Cfg.Core.Metrics.Path, false, "GET", "", s.handleMetrics())
 		s.Router.UseMiddleware(router.DefaultHost, s.Cfg.Core.Metrics.Path, router.MiddlewareHandlerFunc(ba.Authenticate))

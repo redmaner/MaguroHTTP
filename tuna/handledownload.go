@@ -61,7 +61,7 @@ func (s *Server) handleDownload() http.HandlerFunc {
 					return nil
 				})
 				if err != nil {
-					s.handleError(w, r, 500)
+					s.HandleError(w, r, 500)
 					return
 				}
 			}
@@ -95,7 +95,7 @@ func (s *Server) handleDownload() http.HandlerFunc {
 			}
 
 			if err := s.templates.download.Execute(w, data); err != nil {
-				s.handleError(w, r, 500)
+				s.HandleError(w, r, 500)
 				return
 			}
 			s.LogNetwork(200, r)
@@ -112,7 +112,7 @@ func (s *Server) handleDownload() http.HandlerFunc {
 		} else {
 
 			// Path wasn't found, so we return a 404 not found error.
-			s.handleError(w, r, 404)
+			s.HandleError(w, r, 404)
 			return
 		}
 	}

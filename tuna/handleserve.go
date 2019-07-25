@@ -56,7 +56,7 @@ func (s *Server) handleServe() http.HandlerFunc {
 		} else {
 
 			// Path wasn't found, so we return a 404 not found error
-			s.handleError(w, r, 404)
+			s.HandleError(w, r, 404)
 			return
 		}
 	}

@@ -49,7 +49,7 @@ func (s *Server) handleProxy() http.HandlerFunc {
 			bodyData, err := ioutil.ReadAll(r.Body)
 			if err != nil {
 				s.Log(debug.LogError, err)
-				s.handleError(w, r, 502)
+				s.HandleError(w, r, 502)
 				return
 			}
 
@@ -58,7 +58,7 @@ func (s *Server) handleProxy() http.HandlerFunc {
 			req, err := http.NewRequest(r.Method, val+r.RequestURI, bytes.NewBuffer(bodyData))
 			if err != nil {
 				s.Log(debug.LogError, err)
-				s.handleError(w, r, 502)
+				s.HandleError(w, r, 502)
 				return
 			}
 
@@ -71,7 +71,7 @@ func (s *Server) handleProxy() http.HandlerFunc {
 			req.RemoteAddr = r.RemoteAddr
 
 			// the new request is executed with a http.RoundTripper.
-			if resp, err := s.transport.RoundTrip(req); err == nil {
+			if resp, err := s.Transport.RoundTrip(req); err == nil {
 
 				// Proxy back all response headers
 				copyHeader(w.Header(), resp.Header)
@@ -92,7 +92,7 @@ func (s *Server) handleProxy() http.HandlerFunc {
 				s.LogNetwork(resp.StatusCode, r)
 			} else {
 				s.Log(debug.LogError, err)
-				s.handleError(w, r, 502)
+				s.HandleError(w, r, 502)
 			}
 		}
 	}
