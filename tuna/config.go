@@ -183,7 +183,10 @@ func LoadConfigFromFile(p string, c *Config) {
 	if err != nil {
 		log.Fatalf("%s: %v", p, err)
 	}
-	file.Close()
+	err = file.Close()
+	if err != nil {
+		log.Print(err)
+	}
 
 	err = hcl.Unmarshal(data, c)
 	if err != nil {

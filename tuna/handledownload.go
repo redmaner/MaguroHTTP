@@ -48,7 +48,7 @@ func (s *Server) handleDownload() http.HandlerFunc {
 		// Collect downloadable files
 		if cfg.Serve.Download.Enabled {
 			for _, v := range cfg.Serve.Download.Exts {
-				filepath.Walk(cfg.Serve.ServeDir, func(path string, f os.FileInfo, _ error) error {
+				err := filepath.Walk(cfg.Serve.ServeDir, func(path string, f os.FileInfo, _ error) error {
 					if !f.IsDir() {
 						if filepath.Ext(f.Name()) == v {
 							dlurls = append(dlurls, fileInfo{
@@ -60,6 +60,10 @@ func (s *Server) handleDownload() http.HandlerFunc {
 					}
 					return nil
 				})
+				if err != nil {
+					s.handleError(w, r, 500)
+					return
+				}
 			}
 		}
 
@@ -90,7 +94,10 @@ func (s *Server) handleDownload() http.HandlerFunc {
 				DownloadTable: template.HTML(buf.String()),
 			}
 
-			s.templates.download.Execute(w, data)
+			if err := s.templates.download.Execute(w, data); err != nil {
+				s.handleError(w, r, 500)
+				return
+			}
 			s.LogNetwork(200, r)
 
 			// If the request path is not the index, and the file does exist in ServeDir

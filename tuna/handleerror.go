@@ -22,6 +22,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/redmaner/MaguroHTTP/debug"
 	"github.com/redmaner/MaguroHTTP/router"
 )
 
@@ -79,5 +80,7 @@ func (s *Server) handleError(w http.ResponseWriter, r *http.Request, e int) {
 		HTTPError: template.HTML(buf.String()),
 	}
 
-	s.templates.error.Execute(w, data)
+	if err := s.templates.error.Execute(w, data); err != nil {
+		s.Log(debug.LogError, err)
+	}
 }

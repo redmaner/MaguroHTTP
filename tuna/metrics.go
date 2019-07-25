@@ -61,17 +61,27 @@ func (md *metricsData) concat(e int, p string) {
 }
 
 // Function to display metrics data
-func (md *metricsData) display(o io.Writer) {
+func (md *metricsData) display(o io.Writer) error {
 	md.mu.Lock()
-	io.WriteString(o, fmt.Sprintf("<h1>MaguroHTTP metrics</h1><br><b>Total requests:</b> %d<br>", md.TotalRequests))
+
+	if _, err := io.WriteString(o, fmt.Sprintf("<h1>MaguroHTTP metrics</h1><br><b>Total requests:</b> %d<br>", md.TotalRequests)); err != nil {
+		return err
+	}
 	for k, v := range md.Paths {
-		io.WriteString(o, fmt.Sprintf("<br><b>%d</b><ul>", k))
-		for p, a := range v {
-			io.WriteString(o, fmt.Sprintf("<li>Amount: %d - Path: %s</li>", a, p))
+		if _, err := io.WriteString(o, fmt.Sprintf("<br><b>%d</b><ul>", k)); err != nil {
+			return err
 		}
-		io.WriteString(o, fmt.Sprintf("</ul>"))
+		for p, a := range v {
+			if _, err := io.WriteString(o, fmt.Sprintf("<li>Amount: %d - Path: %s</li>", a, p)); err != nil {
+				return err
+			}
+		}
+		if _, err := io.WriteString(o, fmt.Sprintf("</ul>")); err != nil {
+			return err
+		}
 	}
 	md.mu.Unlock()
+	return nil
 }
 
 func (s *Server) handleMetrics() http.HandlerFunc {
@@ -79,9 +89,11 @@ func (s *Server) handleMetrics() http.HandlerFunc {
 		w.Header().Set("Content-Type", "text/html")
 		s.setHeaders(w, nil, false)
 		w.Header().Set("Content-Security-Policy", "")
-		io.WriteString(w, html.PageTemplateStart)
-		s.metrics.display(w)
-		io.WriteString(w, html.PageTemplateEnd)
+		s.WriteString(w, html.PageTemplateStart)
+		if err := s.metrics.display(w); err != nil {
+			s.Log(debug.LogError, err)
+		}
+		s.WriteString(w, html.PageTemplateEnd)
 		s.LogNetwork(200, r)
 	}
 }

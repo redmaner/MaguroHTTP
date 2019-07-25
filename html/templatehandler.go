@@ -55,6 +55,10 @@ func (t *TemplateHandler) Init() {
 }
 
 // Execute is a wrapper function to easily execute the template
-func (t *TemplateHandler) Execute(w io.Writer, data interface{}) {
-	t.Tpl.ExecuteTemplate(w, t.name, data)
+func (t *TemplateHandler) Execute(w io.Writer, data interface{}) error {
+	if err := t.Tpl.ExecuteTemplate(w, t.name, data); err != nil {
+		return err
+	}
+
+	return nil
 }
