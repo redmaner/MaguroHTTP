@@ -154,11 +154,6 @@ func (s *Server) flushMetrics() {
 	var mdout *os.File
 	var err error
 
-	if _, err = os.Stat(s.Cfg.Core.Metrics.Out); err == nil {
-		err = os.Remove(s.Cfg.Core.Metrics.Out)
-		s.Log(debug.LogError, err)
-	}
-
 	mdout, err = os.Create(s.Cfg.Core.Metrics.Out)
 	s.Log(debug.LogError, err)
 
