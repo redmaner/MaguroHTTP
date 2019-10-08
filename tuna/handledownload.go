@@ -49,15 +49,19 @@ func (s *Server) handleDownload() http.HandlerFunc {
 		if cfg.Serve.Download.Enabled {
 			for _, v := range cfg.Serve.Download.Exts {
 				err := filepath.Walk(cfg.Serve.ServeDir, func(path string, f os.FileInfo, _ error) error {
-					if !f.IsDir() {
-						if filepath.Ext(f.Name()) == v {
-							dlurls = append(dlurls, fileInfo{
-								Name:    f.Name(),
-								Size:    f.Size(),
-								ModTime: f.ModTime(),
-							})
-						}
+					if f.IsDir() {
+						return nil
 					}
+
+					if filepath.Ext(f.Name()) != v {
+						return nil
+					}
+
+					dlurls = append(dlurls, fileInfo{
+						Name:    f.Name(),
+						Size:    f.Size(),
+						ModTime: f.ModTime(),
+					})
 					return nil
 				})
 				if err != nil {
