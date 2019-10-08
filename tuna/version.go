@@ -1,4 +1,4 @@
 package tuna
 
 // Version holds the version numer of MaguroHTTP
-const Version = "R6"
+const Version = "R7"
