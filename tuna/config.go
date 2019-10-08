@@ -147,6 +147,11 @@ func NewConfig() Config {
 			ReadTimeout:       30,
 			ReadHeaderTimeout: 8,
 			WriteTimeout:      30,
+			TLS: TLSConfig{
+				HSTS: HSTSConfig{
+					MaxAge: 31557600,
+				},
+			},
 		},
 		Guard: guardConfig{
 			Rate:      100,
