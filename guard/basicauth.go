@@ -40,6 +40,7 @@ type BasicAuth struct {
 	UnauthorizedHandler router.ErrorHandler
 }
 
+// AuthUser is a type holding a username and password
 type AuthUser struct {
 	User     string
 	Password string
@@ -143,6 +144,9 @@ func (b *BasicAuth) requestAuth(w http.ResponseWriter, r *http.Request) {
 	b.UnauthorizedHandler(w, r, 401)
 }
 
+// SimpleBasicAuth takes a map with usernames and corresponding passwords,
+// and returns a BasicAuth struct that can be used as middleware to handle
+// basic user autentication.
 func SimpleBasicAuth(users map[string]string) *BasicAuth {
 
 	aUsers := make(map[string]AuthUser)
@@ -157,5 +161,4 @@ func SimpleBasicAuth(users map[string]string) *BasicAuth {
 		Realm: "Restricted",
 		Users: aUsers,
 	}
-
 }
