@@ -17,7 +17,6 @@ package debug
 import (
 	"errors"
 	"log"
-	"sync"
 )
 
 // Constants for logging levels
@@ -31,7 +30,6 @@ const (
 
 // Logger is type that holds a logger instance
 type Logger struct {
-	sync.Once
 	Name     string
 	Output   string
 	Debug    int
@@ -44,9 +42,13 @@ func NewLogger(debugLevel int, name string, output string) (*Logger, error) {
 		return nil, errors.New("Debug level not supported")
 	}
 
-	return &Logger{
+	lg := &Logger{
 		Name:   name,
 		Output: output,
 		Debug:  debugLevel,
-	}, nil
+	}
+
+	err := lg.initLogger()
+
+	return lg, err
 }

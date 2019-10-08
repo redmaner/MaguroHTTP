@@ -17,8 +17,6 @@ package debug
 // Log function to write errors and messages to Logger
 func (l *Logger) Log(level int, err error) {
 
-	l.Do(l.initLogger)
-
 	if err == nil {
 		return
 	}

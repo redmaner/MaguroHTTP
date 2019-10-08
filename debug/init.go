@@ -21,33 +21,24 @@ import (
 )
 
 // Init is used to initialise the logging instance. This is called by Logging type itself
-func (l *Logger) initLogger() {
+func (l *Logger) initLogger() error {
 	switch l.Output {
 	case "stdout":
 		l.Instance = log.New(os.Stdout, l.Name, log.Ldate|log.Ltime)
 	case "stderr":
 		l.Instance = log.New(os.Stderr, l.Name, log.Ldate|log.Ltime)
 	default:
-		if _, err := os.Stat(l.Output); err == nil {
-			err = os.Remove(l.Output)
-			if err != nil {
-				fmt.Printf("An error occurred removing %s\n", l.Output)
-				os.Exit(1)
-			}
-		}
-
 		_, err := os.Create(l.Output)
 		if err != nil {
-			fmt.Printf("An error occurred creating %s\n", l.Output)
-			os.Exit(1)
+			return fmt.Errorf("An error occurred creating %s: %v", l.Output, err)
 		}
 
 		logFile, err := os.OpenFile(l.Output, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
-			fmt.Printf("An error occurred opening %s\n", l.Output)
-			os.Exit(1)
+			return fmt.Errorf("An error occurred opening %s: %v", l.Output, err)
 		}
 
 		l.Instance = log.New(logFile, l.Name, log.Ldate|log.Ltime)
 	}
+	return nil
 }
