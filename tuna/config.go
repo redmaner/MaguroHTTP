@@ -141,7 +141,6 @@ type MetricsConfig struct {
 func NewConfig() Config {
 	return Config{
 		Core: CoreConfig{
-			Address:           "0.0.0.0",
 			Port:              "80",
 			FileDir:           "/usr/lib/magurohttp/",
 			ReadTimeout:       30,
@@ -203,8 +202,8 @@ func LoadConfigFromFile(p string, c *Config) {
 func (c *Config) Validate(p string, isVhost bool) {
 
 	if !isVhost {
-		if c.Core.Address == "" || c.Core.Port == "" {
-			log.Fatalf("%s: The server configuration has missing elements: check Address and Port", p)
+		if c.Core.Port == "" {
+			log.Fatalf("%s: The server configuration has missing elements: check Port", p)
 		}
 
 		// LogOut needs to be defined
