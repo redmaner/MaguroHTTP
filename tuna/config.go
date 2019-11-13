@@ -25,70 +25,70 @@ import (
 
 // Config is type holding the main configurtion
 type Config struct {
-	Core   CoreConfig
-	Serve  serveConfig
-	Errors map[string]string
-	Proxy  proxyConfig
-	Guard  guardConfig
+	Core   CoreConfig        `hcl:"core"`
+	Serve  serveConfig       `hcl:"serve"`
+	Errors map[string]string `hcl:"errors"`
+	Proxy  proxyConfig       `hcl:"proxy"`
+	Guard  guardConfig       `hcl:"guard"`
 }
 
 // CoreConfig is part of the main configuration.
 // coreConfig is not used by vhosts
 type CoreConfig struct {
-	Address  string
-	Port     string
-	FileDir  string
-	LogLevel int
-	LogOut   string
+	Address  string `hcl:"address"`
+	Port     string `hcl:"port"`
+	FileDir  string `hcl:"file_directory"`
+	LogLevel int    `hcl:"log_level"`
+	LogOut   string `hcl:"log_out"`
 
-	ReadTimeout       int
-	ReadHeaderTimeout int
-	WriteTimeout      int
+	ReadTimeout       int `hcl:"read_timeout"`
+	ReadHeaderTimeout int `hcl:"read_header_timeout"`
+	WriteTimeout      int `hcl:"write_timeout"`
 
-	WebDAV         bool
-	VirtualHosting bool
-	VirtualHosts   map[string]string
-	TLS            TLSConfig
-	Metrics        MetricsConfig
+	WebDAV         bool              `hcl:"webdav"`
+	VirtualHosting bool              `hcl:"virtual_hosting"`
+	VirtualHosts   map[string]string `hcl:"virtual_hosts"`
+	TLS            TLSConfig         `hcl:"tls"`
+	Metrics        MetricsConfig     `hcl:"metrics"`
 }
 
 // TLSConfig holds information about TLS and is part of MaguroHTTP core config
 type TLSConfig struct {
-	Enabled   bool
-	TLSCert   string
-	TLSKey    string
-	PrivateCA []string
-	AutoCert  AutoCertConfig
-	HSTS      HSTSConfig
+	Enabled   bool           `hcl:"enabled"`
+	TLSCert   string         `hcl:"tls_cert"`
+	TLSKey    string         `hcl:"tls_key"`
+	PrivateCA []string       `hcl:"private_ca"`
+	AutoCert  AutoCertConfig `hcl:"auto_cert"`
+	HSTS      HSTSConfig     `hcl:"hsts"`
 }
 
 // AutoCertConfig is part of MaguroHTTP core/tls configuration
 type AutoCertConfig struct {
-	Enabled      bool
-	Certificates []string
+	Enabled      bool     `hcl:"enabled"`
+	Certificates []string `hcl:"certificates"`
 }
 
 // HSTSConfig type, part of MaguroHTTP core/tls config
 type HSTSConfig struct {
-	MaxAge            int
-	Preload           bool
-	IncludeSubdomains bool
+	MaxAge            int  `hcl:"max_age"`
+	Preload           bool `hcl:"preload"`
+	IncludeSubdomains bool `hcl:"include_subdomains"`
 }
 
 // Serve type, part of the MaguroHTTP config
 type serveConfig struct {
-	ServeDir   string
-	ServeIndex string
-	Headers    map[string]string
-	Methods    map[string]string
-	MIMETypes  MIMETypes
-	Download   download
+	ServeDir   string            `hcl:"serve_directory"`
+	ServeIndex string            `hcl:"serve_index"`
+	Headers    map[string]string `hcl:"headers"`
+	Methods    map[string]string `hcl:"methods"`
+	MIMETypes  MIMETypes         `hcl:"mime_types"`
+	Download   download          `hcl:"download"`
 }
 
 // Download type, part of the MaguroHTTP config
 type download struct {
-	Enabled bool
-	Exts    []string
+	Enabled bool     `hcl:"enabled"`
+	Exts    []string `hcl:"extensions"`
 }
 
 // FileInfo to gather information about files
@@ -100,41 +100,41 @@ type fileInfo struct {
 
 // MIMETypes type, part of MaguroHTTP serveConfig
 type MIMETypes struct {
-	ResponseTypes map[string]string
-	RequestTypes  map[string]string
+	ResponseTypes map[string]string `hcl:"response_types"`
+	RequestTypes  map[string]string `hcl:"request_types"`
 }
 
 // Proxy type, part of MaguroHTTP config
 type proxyConfig struct {
-	Enabled bool
-	Rules   map[string]string
-	Methods []string
-	Headers map[string]string
+	Enabled bool              `hcl:"enabled"`
+	Rules   map[string]string `hcl:"rules"`
+	Methods []string          `hcl:"methods"`
+	Headers map[string]string `hcl:"headers"`
 }
 
 // guardConfig
 type guardConfig struct {
-	Rate       float64
-	RateBurst  int
-	FilterOnIP bool
+	Rate       float64 `hcl:"rate"`
+	RateBurst  int     `hcl:"rate_burst"`
+	FilterOnIP bool    `hcl:"filter_on_ip"`
 
-	Firewall firewallConfig
+	Firewall firewallConfig `hcl:"firewall"`
 }
 
 // Firewall type, part of MaguroHTTP config
 type firewallConfig struct {
-	Enabled      bool
-	Blacklisting bool
-	Subpath      bool
-	Rules        map[string][]string
+	Enabled      bool                `hcl:"enabled"`
+	Blacklisting bool                `hcl:"blacklisting"`
+	Subpath      bool                `hcl:"subpath"`
+	Rules        map[string][]string `hcl:"rules"`
 }
 
 // MetricsConfig type, part of MaguroHTTP config
 type MetricsConfig struct {
-	Enabled bool
-	Path    string
-	Out     string
-	Users   map[string]string
+	Enabled bool              `hcl:"enabled"`
+	Path    string            `hcl:"path"`
+	Out     string            `hcl:"out"`
+	Users   map[string]string `hcl:"users"`
 }
 
 // NewConfig returns a pointer to a config, initialised with default values

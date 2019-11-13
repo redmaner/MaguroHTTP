@@ -1,62 +1,61 @@
-
 # Core configuration
-Core {
-	Address = "0.0.0.0"
-	Port = "80"
+core {
+	address = "0.0.0.0"
+	port = "80"
 
-	LogLevel = "3"
-	LogOut = "stdout"
+	log_level = "3"
+	log_out = "stdout"
 
-	FileDir = "/usr/lib/microhttp/"
+	file_directory = "/usr/lib/magurohttp/"
 
 	# Virtual host configuration
-	VirtualHosting = false
-	VirtualHosts {
+	virtual_hosting = false
+	virtual_hosts {
 		"localhost" = "/path/to/vhost1.hcl"
 		"127.0.0.1" = "/path/to/vhost2.hcl"
 	}
 
 	# Metrics settings
-	Metrics {
-		Enabled = true
-		Path = "/MicroMetrics"
-		Out = "/usr/lib/microhttp/metrics.json"
-		Users {
+	metrics {
+		enabled = true
+		path = "/MicroMetrics"
+		out = "/usr/lib/magurohttp/metrics.json"
+		users {
 			"Admin" = "Your amazing passphrase goes here, because passphrases are the way to go"
 		}
 	}
 
 	# TLS configuration
-	TLS {
-		Enabled = false
-		TLSCert = "/path/to/tls_certificate"
-		TLSKey = "/path/to/tls_key"
+  tls {
+		enabled = false
+		tls_cert = "/path/to/tls_certificate"
+		tls_key = "/path/to/tls_key"
 
 		# Autocert will automatically retrieve certificates for you
-		AutoCert {
-			Enabled = false
-			Certificates = [
+		auto_cert {
+			enabled = false
+			certificates = [
 				"example.com",
 				"subdomain.example.com"
 			]
 		}
 
 		# HSTS settings (HTTP Strict Transport Security)
-		HSTS {
-			MaxAge = 63072000
-			Preload = true
-			IncludeSubdomains = true
+		hsts {
+			max_age = 63072000
+			preload = true
+			include_subdomains = true
 		}
 	}
 }
 
 # Server example configuration
-Serve {
-	ServeDir = "/usr/lib/microhttp/www/"
-	ServeIndex = "index.html"
+serve {
+	serve_directory = "/usr/lib/magurohttp/www/"
+	serve_index = "index.html"
 
 	# Custom HTTP headers
-	Headers {
+	headers {
 		Content-Security-Policy		= "default-src 'self'",
 		Feature-Policy						= "geolocation 'none'; midi 'none'; notifications 'none'; push 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; vibrate 'none'; fullscreen 'none'; payment 'none';",
 		Referrer-Policy						= "no-referrer",
@@ -65,20 +64,20 @@ Serve {
 		X-Xss-Protection					= "1; mode=block"
 	}
 
-	Methods {
+	methods {
 		"/" = "GET"
 	}
 
-	Download {
-	  Enabled = false
-		Exts = [ ".zip" ]
+	download {
+	  enabled = false
+		extensions = [ ".zip" ]
 	}
 }
 
 # Proxy settings
-Proxy {
-	Enabled = false
-	Rules {
+proxy {
+	enabled = false
+	rules {
 		"localhost" = "https://proxy-to.example.com"
 		"127.0.0.1" = "https://proxy-to.example.eu"
 	}
@@ -86,7 +85,7 @@ Proxy {
 
 # Guard settings
 # WARNING: rate and rateburst must be set higher than 0, or your site will be unreachable
-Guard {
-	Rate = 100
-	RateBurst = 10
+guard {
+	rate = 100
+	rate_burst = 10
 }
