@@ -77,7 +77,7 @@ func NewInstance(c CoreConfig) *Server {
 	}
 
 	// init the Logger
-	lg, err := debug.NewLogger(cfg.Core.LogLevel, "MaguroHTTP-", cfg.Core.LogOut)
+	logger, err := debug.NewLogger(cfg.Core.LogLevel, "MaguroHTTP-", cfg.Core.LogOut)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -88,7 +88,7 @@ func NewInstance(c CoreConfig) *Server {
 		Cfg:          cfg,
 		Vhosts:       vhosts,
 		Router:       mux,
-		logInterface: lg,
+		logInterface: logger,
 	}
 
 	// Generate the necessary templates

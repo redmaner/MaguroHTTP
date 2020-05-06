@@ -41,27 +41,28 @@ func (c *SpearCache) Get(key string, maxAge uint64) (bool, interface{}) {
 	c.shards[id].lock.Lock()
 
 	rangeEnd := c.shards[id].cursor - defaultItems - 1
+	var itemsParsed int
 
 	// We range over the ring queue
 	for i := c.shards[id].cursor; i >= rangeEnd; i-- {
+		itemsParsed++
+		itemID := i
 
-		itid := i
-
-		if itid < 0 {
-			itid = itid + defaultItems
+		if itemID < 0 {
+			itemID = itemID + defaultItems
 		}
-		if itid >= defaultItems {
-			itid = defaultItems - 1
+		if itemID >= defaultItems {
+			itemID = defaultItems - 1
 		}
 
-		key := c.shards[id].items[itid].key
+		key := c.shards[id].items[itemID].key
 
 		// If the key is empty we continue, this is when the queue is empty at the start
 		if key == 0 {
 			continue
 		}
 
-		if now-c.shards[id].items[itid].modTime > maxAge {
+		if now-c.shards[id].items[itemID].modTime > maxAge && itemsParsed < defaultNoClutter {
 			break
 		}
 
@@ -70,11 +71,11 @@ func (c *SpearCache) Get(key string, maxAge uint64) (bool, interface{}) {
 		if key == keyHash {
 
 			// appendKey
-			c.appendKey(key, id, c.shards[id].items[itid].value)
+			c.appendKey(key, id, c.shards[id].items[itemID].value)
 
 			// Unlock and return
 			c.shards[id].lock.Unlock()
-			return true, c.shards[id].items[itid].value
+			return true, c.shards[id].items[itemID].value
 		}
 	}
 

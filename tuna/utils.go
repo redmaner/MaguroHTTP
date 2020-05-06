@@ -60,7 +60,7 @@ func (s *Server) setHeaders(w http.ResponseWriter, h map[string]string, isProxy 
 	}
 }
 
-// Function to set MIME type depending on the file that is served
+// Function to set MIME type depending on the file extension
 func getMIMEType(p string, cts MIMETypes) string {
 	ext := filepath.Ext(p)
 	switch ext {
@@ -145,5 +145,4 @@ func (s *Server) WriteString(w io.Writer, str string) {
 	}
 
 	s.Log(debug.LogError, err)
-
 }

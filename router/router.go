@@ -150,16 +150,16 @@ func (sr *SRouter) AddRoute(host, path string, fallback bool, method, content st
 		sr.routes = make(map[string]pathRoute)
 	}
 
-	pr := pathRoute{
+	pathRouteAdd := pathRoute{
 		subRoutes:  make(map[string]methodRoute),
 		middleware: []Middleware{},
 	}
 
 	if _, ok := sr.routes[host+path]; !ok {
-		sr.routes[host+path] = pr
+		sr.routes[host+path] = pathRouteAdd
 	}
 
-	mr := methodRoute{
+	methodRouteAdd := methodRoute{
 		handler:      handler,
 		host:         host,
 		path:         path,
@@ -168,7 +168,7 @@ func (sr *SRouter) AddRoute(host, path string, fallback bool, method, content st
 		content:      content,
 	}
 
-	sr.routes[host+path].subRoutes[method] = mr
+	sr.routes[host+path].subRoutes[method] = methodRouteAdd
 }
 
 func (sr *SRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -180,7 +180,7 @@ func (sr *SRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	r.URL.Path = path
 
-	mr, mw, status := sr.getRoute(host, path, method, content)
+	methodRouteMatch, middleWare, status := sr.getRoute(host, path, method, content)
 
 	if status != 200 {
 		sr.ErrorHandler(w, r, status)
@@ -188,25 +188,23 @@ func (sr *SRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Handle middleware
-	lenMw := len(mw)
-	mwHandler := mr.handler
+	lenMw := len(middleWare)
+	mwHandler := methodRouteMatch.handler
 
 	switch {
-	case lenMw > 0:
 
-		// We do some middleware execution magic right here
+	// We do some middleware execution magic right here
+	case lenMw > 0:
 		for i := lenMw - 1; i >= 0; i-- {
 			if i == 0 {
-				mw[i].MiddlewareHTTP(mwHandler).ServeHTTP(w, r)
+				middleWare[i].MiddlewareHTTP(mwHandler).ServeHTTP(w, r)
 				return
 			}
-			mwHandler = mw[i].MiddlewareHTTP(mwHandler)
+			mwHandler = middleWare[i].MiddlewareHTTP(mwHandler)
 		}
 
+	// Request can be handled by handler, so dispatch to defined handler
 	default:
-
-		// Request can be handled by handler, so dispatch to defined handler
-		mr.handler.ServeHTTP(w, r)
+		methodRouteMatch.handler.ServeHTTP(w, r)
 	}
-
 }
