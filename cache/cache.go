@@ -17,10 +17,14 @@ package cache
 const (
 
 	// defaultShards is the amount of shards in SpearCache
-	defaultShards = 512
+	defaultShards = 256
 
 	// defaultItems is the amount of items in a single shard
 	defaultItems = 1024
+
+	// defaultNoClutter is the amount of items that will always be checked,
+	// to prevent cache cluttering
+	defaultNoClutter = 8
 )
 
 // SpearCache is a preallocated in memory cache. SpearCache uses a ring queue of a fixed length.

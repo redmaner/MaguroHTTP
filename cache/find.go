@@ -46,16 +46,16 @@ func (c *SpearCache) Find(key string) (bool, interface{}, uint64) {
 	// We range over the ring queue
 	for i := c.shards[id].cursor; i >= rangeEnd; i-- {
 
-		itid := i
+		itemID := i
 
-		if itid < 0 {
-			itid = itid + defaultItems
+		if itemID < 0 {
+			itemID = itemID + defaultItems
 		}
-		if itid >= defaultItems {
-			itid = defaultItems - 1
+		if itemID >= defaultItems {
+			itemID = defaultItems - 1
 		}
 
-		key := c.shards[id].items[itid].key
+		key := c.shards[id].items[itemID].key
 
 		// If the key is empty we continue, this is when the queue is empty at the start
 		if key == 0 {
@@ -67,11 +67,11 @@ func (c *SpearCache) Find(key string) (bool, interface{}, uint64) {
 		if key == keyHash {
 
 			// appendKey
-			c.appendKey(key, id, c.shards[id].items[itid].value)
+			c.appendKey(key, id, c.shards[id].items[itemID].value)
 
 			// Unlock and return
 			c.shards[id].lock.Unlock()
-			return true, c.shards[id].items[itid].value, now - c.shards[id].items[itid].modTime
+			return true, c.shards[id].items[itemID].value, now - c.shards[id].items[itemID].modTime
 		}
 	}
 
