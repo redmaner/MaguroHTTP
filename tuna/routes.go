@@ -194,5 +194,4 @@ func (s *Server) addRoutesFromConfig() {
 		s.Router.AddRoute(router.DefaultHost, s.Cfg.Core.Metrics.Path, false, "GET", "", s.handleMetrics())
 		s.Router.UseMiddleware(router.DefaultHost, s.Cfg.Core.Metrics.Path, router.MiddlewareHandlerFunc(ba.Authenticate))
 	}
-
 }

@@ -28,7 +28,6 @@ func (s *Server) handleServe() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		host := router.StripHostPort(r.Host)
-
 		cfg := s.Cfg
 
 		// If virtual hosting is enabled, the configuration is switched to the

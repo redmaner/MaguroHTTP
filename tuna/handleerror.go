@@ -27,9 +27,9 @@ import (
 )
 
 // HandleError is a function to write HTTP error to ResponseWriter
-func (s *Server) HandleError(w http.ResponseWriter, r *http.Request, e int) {
+func (s *Server) HandleError(w http.ResponseWriter, r *http.Request, errorCode int) {
 
-	s.LogNetwork(e, r)
+	s.LogNetwork(errorCode, r)
 	s.setHeaders(w, map[string]string{}, false)
 
 	host := router.StripHostPort(r.Host)
@@ -44,7 +44,7 @@ func (s *Server) HandleError(w http.ResponseWriter, r *http.Request, e int) {
 	}
 
 	// Custom error pages can be set in the configuration.
-	if val, ok := cfg.Errors[strconv.Itoa(e)]; ok {
+	if val, ok := cfg.Errors[strconv.Itoa(errorCode)]; ok {
 		if _, err := os.Stat(val); err == nil {
 			http.ServeFile(w, r, val)
 			return
@@ -55,9 +55,9 @@ func (s *Server) HandleError(w http.ResponseWriter, r *http.Request, e int) {
 
 	// If custom error pages aren't set the default error message is shown.
 	// This is a very basic HTTP error code page without any technical information.
-	w.WriteHeader(e)
+	w.WriteHeader(errorCode)
 	w.Header().Set("Content-Type", "text/html")
-	switch e {
+	switch errorCode {
 	case 403:
 		s.WriteString(buf, "<h3>Error 403 - Forbidden</h3>")
 	case 404:
@@ -71,7 +71,7 @@ func (s *Server) HandleError(w http.ResponseWriter, r *http.Request, e int) {
 	case 502:
 		s.WriteString(buf, "<h3>Error 502 - Bad gateway</h3>")
 	default:
-		s.WriteString(buf, fmt.Sprintf("<h3>Error %d</h3>", e))
+		s.WriteString(buf, fmt.Sprintf("<h3>Error %d</h3>", errorCode))
 	}
 
 	data := struct {
