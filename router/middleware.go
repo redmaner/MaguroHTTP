@@ -72,8 +72,8 @@ func (sr *SRouter) UseMiddleware(host, path string, handler Middleware) {
 		}
 	}
 
-	pr := sr.routes[host+path]
-	pr.middleware = append(pr.middleware, handler)
-	sr.routes[host+path] = pr
+	pathRoute := sr.routes[host+path]
+	pathRoute.middleware = append(pathRoute.middleware, handler)
+	sr.routes[host+path] = pathRoute
 
 }

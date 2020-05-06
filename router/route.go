@@ -35,19 +35,19 @@ type methodRoute struct {
 }
 
 // Function to retrieve a methodRoute for a HTTP request
-func (sr *SRouter) getRoute(h, p, m, c string) (methodRoute, []Middleware, int) {
+func (sr *SRouter) getRoute(host, path, method, contentType string) (methodRoute, []Middleware, int) {
 
 	// For concurrency safety, lock mutex
 	sr.mu.RLock()
 	defer sr.mu.RUnlock()
 
 	// Define an empty pathRoute.
-	var pr pathRoute
-	var em bool
+	var pathRouteMatch pathRoute
+	var exactMatch bool
 
 	// Match a route for host and DefaultHost
-	hostFound, hostExact, hostMatch := sr.matchRoute(h, p)
-	defaultFound, defaultExact, defaultMatch := sr.matchRoute(DefaultHost, p)
+	hostFound, hostExact, hostMatch := sr.matchRoute(host, path)
+	defaultFound, defaultExact, defaultMatch := sr.matchRoute(DefaultHost, path)
 
 	// We check which route we use, by checking several cases.
 	// To increase readability of the code all cases have been separated.
@@ -56,38 +56,38 @@ func (sr *SRouter) getRoute(h, p, m, c string) (methodRoute, []Middleware, int) 
 	// case 1: We found a route for host, but not for DefaultHost
 	// Selected route: host
 	case hostFound && !defaultFound:
-		pr = hostMatch
-		em = hostExact
+		pathRouteMatch = hostMatch
+		exactMatch = hostExact
 
 	// case 2: We found a route for DefaultHost,  but not for Host
 	// Selected route: DefaultHost
 	case defaultFound && !hostFound:
-		pr = defaultMatch
-		em = defaultExact
+		pathRouteMatch = defaultMatch
+		exactMatch = defaultExact
 
 	// case 3: We found a route for both hosts, but host route was an exact match
 	// Selected route: Host
 	case defaultFound && !defaultExact && hostFound && hostExact:
-		pr = hostMatch
-		em = hostExact
+		pathRouteMatch = hostMatch
+		exactMatch = hostExact
 
 	// case 4: We found a route for both hosts, but DefaultHost route was an exact match
 	// Selected route: DefaultHost
 	case defaultFound && defaultExact && hostFound && !hostExact:
-		pr = defaultMatch
-		em = defaultExact
+		pathRouteMatch = defaultMatch
+		exactMatch = defaultExact
 
 	// case 5: we found a route for both hosts, and both were an exact match
 	// Selected route: Host
 	case defaultFound && defaultExact && hostFound && hostExact:
-		pr = hostMatch
-		em = hostExact
+		pathRouteMatch = hostMatch
+		exactMatch = hostExact
 
 	// case 6: we found a route for both hosts, and both were not an exact match
 	// Selected route: Host
 	case defaultFound && !defaultExact && hostFound && !hostExact:
-		pr = hostMatch
-		em = hostExact
+		pathRouteMatch = hostMatch
+		exactMatch = hostExact
 
 	// case 7: we didn't found any route
 	// Selected route: none, we return a 404 HTTP Not Found error
@@ -97,7 +97,7 @@ func (sr *SRouter) getRoute(h, p, m, c string) (methodRoute, []Middleware, int) 
 
 	// We have found a pathRoute. We now search for a methodRoute that matches the
 	// method of the request.
-	mr, ok := pr.subRoutes[m]
+	methodRouteMatch, ok := pathRouteMatch.subRoutes[method]
 
 	// We have found a route with matching host and path, but the method wasn't found.
 	// we return an empty method route with a 405 Method  not allowed status code.
@@ -108,7 +108,7 @@ func (sr *SRouter) getRoute(h, p, m, c string) (methodRoute, []Middleware, int) 
 	// We have found a route with matching host, path and method. The request
 	// Content-Type is not allowed. We return an empty method route with a
 	// 406 Media not allowed status code.
-	if !mr.contentAllowed(c) {
+	if !methodRouteMatch.contentAllowed(contentType) {
 		return methodRoute{}, []Middleware{}, 406
 	}
 
@@ -116,42 +116,42 @@ func (sr *SRouter) getRoute(h, p, m, c string) (methodRoute, []Middleware, int) 
 	// pathRoute wasn't an exact match we now determine if fallback is allowed to
 	// the subpath. We do this on this level because we allow different fallback rules
 	// for each methodRoute
-	if !em && !mr.pathFallback {
+	if !exactMatch && !methodRouteMatch.pathFallback {
 		return methodRoute{}, []Middleware{}, 404
 	}
 
 	// We got a winner, return the found methodRoute with a 200 OK status code
-	return mr, pr.middleware, 200
+	return methodRouteMatch, pathRouteMatch.middleware, 200
 
 }
 
 // Function to match a route for a given host + path combination
-func (sr *SRouter) matchRoute(host, p string) (bool, bool, pathRoute) {
+func (sr *SRouter) matchRoute(host, urlPath string) (bool, bool, pathRoute) {
 
-	var pr pathRoute
+	var pathRouteMatch pathRoute
 
 	// Set exact match to false
-	var em bool
+	var exactMatch bool
 	var match bool
 
 	for {
 
 		// Search for an exact host+path match
-		if rt, ok := sr.routes[host+p]; ok {
+		if route, ok := sr.routes[host+urlPath]; ok {
 			match = true
-			em = true
-			pr = rt
+			exactMatch = true
+			pathRouteMatch = route
 			break
 		}
 
 		// We haven't found an exact match, so we search for a subpath. For example:
 		// request has path /foo/bar. The path /foo/bar doesn't exist. So we search if
 		// the path /foo exists. We don't bother with fallback allowance just yet.
-		for pa := p; pa != "/"; pa = path.Dir(pa) {
-			if rt, ok := sr.routes[host+pa]; ok {
+		for pa := urlPath; pa != "/"; pa = path.Dir(pa) {
+			if route, ok := sr.routes[host+pa]; ok {
 				match = true
-				em = false
-				pr = rt
+				exactMatch = false
+				pathRouteMatch = route
 				break
 			}
 		}
@@ -161,10 +161,10 @@ func (sr *SRouter) matchRoute(host, p string) (bool, bool, pathRoute) {
 		}
 
 		// We haven't found a sub path, so as a last resort we check if a root path exists.
-		if rt, ok := sr.routes[host+"/"]; ok {
+		if route, ok := sr.routes[host+"/"]; ok {
 			match = true
-			em = false
-			pr = rt
+			exactMatch = false
+			pathRouteMatch = route
 			break
 		}
 
@@ -172,25 +172,25 @@ func (sr *SRouter) matchRoute(host, p string) (bool, bool, pathRoute) {
 		break
 	}
 
-	return match, em, pr
+	return match, exactMatch, pathRouteMatch
 }
 
-func (mr *methodRoute) contentAllowed(c string) bool {
+func (mr *methodRoute) contentAllowed(contentType string) bool {
 
 	if mr.content == "*" {
 		return true
 	}
 
-	if strings.IndexByte(c, ';') > -1 {
-		c = strings.Split(c, ";")[0]
+	if strings.IndexByte(contentType, ';') > -1 {
+		contentType = strings.Split(contentType, ";")[0]
 	}
 
 	if strings.IndexByte(mr.content, ';') > -1 {
 		for _, v := range strings.Split(mr.content, ";") {
-			if v == c {
+			if v == contentType {
 				return true
 			}
 		}
 	}
-	return mr.content == c
+	return mr.content == contentType
 }
